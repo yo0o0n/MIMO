@@ -1,0 +1,13 @@
+
+
+# Type: Subject
+# Body (Optional)
+
+# Available types:
+#   feat    : Adds a new feature
+#   fix     : Fixes a bug
+#   docs    : Documentation changes
+#   refact  : Code refactoring
+#   style   : Changes that do not affect the meaning of the code (e.g., formatting)
+#   chore   : Changes to the build process or auxiliary tools and libraries such as documentation generation
+#   del     : Deletes something
