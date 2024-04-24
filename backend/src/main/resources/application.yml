@@ -6,6 +6,10 @@ spring:
   application:
     name: mimo
 
+  profiles:
+    include: env
+    active: local
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${MYSQL_URL}
@@ -29,6 +33,6 @@ spring:
 
 logging:
   level:
-    root: debug
+    root: info
     com.ssafy.mimo: DEBUG
 
