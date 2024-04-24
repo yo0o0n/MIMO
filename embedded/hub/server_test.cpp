@@ -65,7 +65,11 @@ void recv_msg(){
 	char buf[2048];
 	while(true){
 		memset(buf, 0, sizeof(buf));
-		read(clnt_sock, buf, 2048);
+		int len = read(clnt_sock, buf, 2048);
+		if(len == 0){
+			close(clnt_sock);
+			break;
+		}
 		std::cout << buf << '\n';
 	}
 }
@@ -73,7 +77,7 @@ void recv_msg(){
 void send_msg(){
 	while(true){
 		std::string str;
-		std::cin >> str;
+		std::getline(std::cin, str);
 
 		write(clnt_sock, str.c_str(), str.length());
 	}
