@@ -11,7 +11,7 @@ spring:
     url: ${MYSQL_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
-
+ 
   data:
     redis:
       host: ${REDIS_HOST}
