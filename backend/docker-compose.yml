@@ -3,8 +3,6 @@ services:
     build: .
     image: mimo_dev
     container_name: mimo_dev
-    env_file:
-      - .env
     ports:
       - "${DEV_API_PORT}:8080"
       - "${DEV_SOCKET_PORT}:65432"
@@ -15,8 +13,6 @@ services:
     build: .
     image: mimo_ops
     container_name: mimo_ops
-    env_file:
-      - .env
     ports:
       - "${OPS_API_PORT}:8080"
       - "${OPS_SOCKET_PORT}:65432"

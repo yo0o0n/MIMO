@@ -1,6 +1,7 @@
 FROM debian:stable
 USER root
 ENV TZ Asia/Seoul
+ENV GRADLE_USER_HOME /var/jenkins_home/.gradle
 RUN groupadd -g 998 docker
 RUN useradd jenkins
 RUN usermod -aG docker jenkins
@@ -15,7 +16,7 @@ RUN apt-get install -y apt-transport-https \
                        openssh-client \
                        openjdk-17-jdk
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-RUN echo "deb [arch=amd64] https://download.docker.com/linux/debian ${lsb_release -cs} stable" \
+RUN echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
         > etc/apt/sources.list.d/docker.list
 RUN apt-get update
 RUN apt-get install -y docker-ce \
@@ -24,5 +25,4 @@ RUN apt-get install -y docker-ce \
 RUN apt-get clean && rm -rf /var/lib/lists/*
 RUN curl -sO https://k10a204.p.ssafy.io/jenkins/jnlpJars/agent.jar
 USER jenkins
-ENV GRADLE_USER_HOME /var/jenkins_home/.gradle
 ENTRYPOINT ["java", "-jar", "agent.jar", "-url", "https://k10a204.p.ssafy.io/jenkins/", "-secret", "1f40378d678851052f44c098c7289e8d42bdedc25400254f25d26110956b9a43", "-name", "mimo-dev", "-workDir", "/var/jenkins_home"]

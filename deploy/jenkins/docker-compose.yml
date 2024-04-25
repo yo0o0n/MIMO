@@ -17,7 +17,7 @@ services:
             - JENKINS_OPTS="--prefix=/jenkins"
 
     dev:
-        build: Dockerfile.agent
+        build: Dockerfile.dev
         image: jenkins_dev
         container_name: jenkins_dev
         env_file:
@@ -33,7 +33,7 @@ services:
 
 
     ops:
-        build: Dockerfile.agent
+        build: Dockerfile.ops
         image: jenkins_ops
         container_name: jenkins_ops
         env_file:
