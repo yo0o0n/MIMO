@@ -17,7 +17,7 @@ pipeline {
         }
         stage('Deploy to Dev') {
             when {
-                branch 'develop'
+                branch '*/develop'
             }
             steps {
                 dir('backend') {
@@ -28,7 +28,7 @@ pipeline {
         }
         stage('Deploy to Green') {
             when {
-                branch 'release/*'
+                branch '*/release/*'
             }
             steps {
                 dir('backend') {
@@ -39,7 +39,7 @@ pipeline {
         }
         stage('Deploy to Blue') {
             when {
-                branch 'master'
+                branch '*/master'
             }
             steps {
                 dir('backend') {
