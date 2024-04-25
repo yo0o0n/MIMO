@@ -15,7 +15,7 @@ services:
             - "REDIS_HOST=${DEV_REDIS_HOST}"
             - "REDIS_PORT=${DEV_REDIS_PORT}"
             - "REDIS_PASSWORD=${DEV_REDIS_PASSWORD}"
-    ops:
+    green:
         build: .
         image: mimo_green
         container_name: mimo_green
@@ -33,7 +33,7 @@ services:
             - "REDIS_PASSWORD=${GREEN_REDIS_PASSWORD}"
 
 
-    ops:
+    blue:
         build: .
         image: mimo_blue
         container_name: mimo_blue
