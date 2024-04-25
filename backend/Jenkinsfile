@@ -1,16 +1,11 @@
 pipeline {
     agent any
 
-    environment {
-        BRANCH_NAME = ''
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
-                env.BRANCH_NAME = env.GIT_BRANCH
-                echo "Current branch is ${env.BRANCH_NAME}"
+                echo "Current branch is ${BRANCH_NAME}"
             }
         }
         stage('Build jar') {
@@ -25,13 +20,13 @@ pipeline {
         stage('Exec docker compose') {
             steps {
                 script {
-                    if (env.BRANCH_NAME.contains('develop')) {
+                    if (BRANCH_NAME.contains('develop')) {
                         echo 'Deploying to Development Environment'
                         sh 'docker compose up dev --build -d'
-                    } else if (env.BRANCH_NAME.contains('release')) {
+                    } else if (BRANCH_NAME.contains('release')) {
                         echo 'Deploying to Green Environment'
                         sh 'docker compose up green --build -d'
-                    } else if (env.BRANCH_NAME.contains('master')) {
+                    } else if (BRANCH_NAME.contains('master')) {
                         echo 'Deploying to Blue Environment'
                         sh 'docker compose up blue --build -d'
                     }
