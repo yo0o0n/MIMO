@@ -10,7 +10,6 @@ pipeline {
         stage('Build jar') {
             steps {
                 dir('backend') {
-                    sh 'export GRADLE_USER_HOME=/var/jenkins_home/.gradle'
                     sh 'chmod +x gradlew'
                     sh './gradlew clean bootjar'
                 }
