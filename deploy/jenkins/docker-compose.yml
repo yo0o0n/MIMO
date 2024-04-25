@@ -1,6 +1,8 @@
 services:
     master:
-        build: Dockerfile.master
+        build:
+            context: .
+            dockerfile: Dockerfile.master
         image: jenkins_master
         container_name: jenkins_master
         env_file:
@@ -17,7 +19,9 @@ services:
             - JENKINS_OPTS="--prefix=/jenkins"
 
     dev:
-        build: Dockerfile.dev
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
         image: jenkins_dev
         container_name: jenkins_dev
         env_file:
@@ -33,7 +37,9 @@ services:
 
 
     ops:
-        build: Dockerfile.ops
+        build:
+            context: .
+            dockerfile: Dockerfile.ops
         image: jenkins_ops
         container_name: jenkins_ops
         env_file:

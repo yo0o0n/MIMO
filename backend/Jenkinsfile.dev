@@ -2,6 +2,11 @@ pipeline {
     agent { label 'dev' }
 
     stages {
+        stage('Check environment variables') {
+            steps {
+                sh 'export'
+            }
+        }
         stage('Checkout Code') {
             steps {
                 checkout scm
