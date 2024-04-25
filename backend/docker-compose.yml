@@ -9,12 +9,12 @@ services:
         networks:
             - network_dev
         environment:
-            - MYSQL_URL: ${DEV_MYSQL_URL}
-            - MYSQL_USERNAME: ${DEV_MYSQL_USERNAME}
-            - MYSQL_PASSWORD: ${DEV_MYSQL_PASSWORD}
-            - REDIS_HOST: ${DEV_REDIS_HOST}
-            - REDIS_PORT: ${DEV_REDIS_PORT}
-            - REDIS_PASSWORD: ${DEV_REDIS_PASSWORD}
+            - "MYSQL_URL=${DEV_MYSQL_URL}"
+            - "MYSQL_USERNAME=${DEV_MYSQL_USERNAME}"
+            - "MYSQL_PASSWORD=${DEV_MYSQL_PASSWORD}"
+            - "REDIS_HOST=${DEV_REDIS_HOST}"
+            - "REDIS_PORT=${DEV_REDIS_PORT}"
+            - "REDIS_PASSWORD=${DEV_REDIS_PASSWORD}"
 
     ops:
         build: .
@@ -26,12 +26,12 @@ services:
         networks:
             - network_ops
         environment:
-            - MYSQL_URL: ${OPS_MYSQL_URL}
-            - MYSQL_USERNAME: ${OPS_MYSQL_USERNAME}
-            - MYSQL_PASSWORD: ${OPS_MYSQL_PASSWORD}
-            - REDIS_HOST: ${OPS_REDIS_HOST}
-            - REDIS_PORT: ${OPS_REDIS_PORT}
-            - REDIS_PASSWORD: ${OPS_REDIS_PASSWORD}
+            - "MYSQL_URL=${OPS_MYSQL_URL}"
+            - "MYSQL_USERNAME=${OPS_MYSQL_USERNAME}"
+            - "MYSQL_PASSWORD=${OPS_MYSQL_PASSWORD}"
+            - "REDIS_HOST=${OPS_REDIS_HOST}"
+            - "REDIS_PORT=${OPS_REDIS_PORT}"
+            - "REDIS_PASSWORD=${OPS_REDIS_PASSWORD}"
 
 networks:
     network_dev:
