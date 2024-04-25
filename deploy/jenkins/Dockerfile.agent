@@ -4,6 +4,8 @@ USER root
 ENV TZ Asia/Seoul
 ENV GRADLE_USER_HOME /var/jenkins_home/.gradle
 
+RUN chown jenkins:jenkins /var/jenkins_home
+
 RUN groupadd -g 998 docker
 RUN useradd jenkins
 RUN usermod -aG docker jenkins
