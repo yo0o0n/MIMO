@@ -25,4 +25,4 @@ RUN apt-get install -y docker-ce \
 RUN apt-get clean && rm -rf /var/lib/lists/*
 RUN curl -sO https://k10a204.p.ssafy.io/jenkins/jnlpJars/agent.jar
 USER jenkins
-ENTRYPOINT ["java", "-jar", "agent.jar", "-url", "https://k10a204.p.ssafy.io/jenkins/", "-secret", "1f40378d678851052f44c098c7289e8d42bdedc25400254f25d26110956b9a43", "-name", "mimo-dev", "-workDir", "/var/jenkins_home"]
+ENTRYPOINT ["java", "-jar", "agent.jar", "-url", "https://k10a204.p.ssafy.io/jenkins/", "-secret", "57cb63aeee341f85d8c4d8e5d393a1d22cc38a02fd6f303aff04b24bfb89facf", "-name", "mimo-agent", "-workDir", "/var/jenkins_home"]

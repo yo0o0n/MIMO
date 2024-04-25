@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build jar') {
+            steps {
+                dir('backend') {
+                    echo 'Building jar'
+                    sh 'chmod +x gradlew'
+                    sh './gradlew clean bootjar'
+                }
+            }
+        }
+        stage('Deploy to Dev') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                dir('backend') {
+                    echo 'Deploying to Development Environment'
+                    sh 'docker compose up dev --build -d'
+                }
+            }
+        }
+        stage('Deploy to Green') {
+            when {
+                branch 'release/*'
+            }
+            steps {
+                dir('backend') {
+                    echo 'Deploying to Green Environment'
+                    sh 'docker compose up green --build -d'
+                }
+            }
+        }
+        stage('Deploy to Blue') {
+            when {
+                branch 'master'
+            }
+            steps {
+                dir('backend') {
+                    echo 'Deploying to Blue Environment'
+                    sh 'docker compose up blue --build -d'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Build completed'
+            sh 'docker image prune -f'
+        }
+    }
+}
+

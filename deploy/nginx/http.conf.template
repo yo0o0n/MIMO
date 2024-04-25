@@ -1,7 +1,7 @@
-#upstream api_server {
-#    server ${SERVER_DOMAIN}:${OPS_API_PORT} ${BLUE_WEIGHT}; # Blue
-#    server ${SERVER_DOMAIN}:${OPS_API_PORT} ${GREEN_WEIGHT}; # Green
-#}
+upstream api_server {
+    server ${SERVER_DOMAIN}:${BLUE_API_PORT} ${BLUE_WEIGHT}; # Blue
+    server ${SERVER_DOMAIN}:${GREEN_API_PORT} ${GREEN_WEIGHT}; # Green
+}
 
 server {
     listen 80;
@@ -24,7 +24,7 @@ server {
     ssl_prefer_server_ciphers on;
 
     location /api {
-        proxy_pass http://${SERVER_DOMAIN}:${OPS_API_PORT}/;
+        proxy_pass http://api_server/;
     }
 
     location /jenkins {
