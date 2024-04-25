@@ -74,11 +74,18 @@ void recv_msg(){
 	}
 }
 
+union _ubit{
+	uint32_t len;
+	uint8_t bit[4];
+} ubit;
+
 void send_msg(){
 	while(true){
 		std::string str;
 		std::getline(std::cin, str);
 
-		write(clnt_sock, str.c_str(), str.length());
+		std::string str_size = std::to_string(str.size());
+		write(clnt_sock, str_size.c_str(), str_size.size());
+		write(clnt_sock, str.c_str(), str.size());
 	}
 }

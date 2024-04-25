@@ -1,7 +1,5 @@
 #include "socket.hpp"
 
-using json = nlohmann::json;
-
 int serv_sock;
 std::thread recv_thread, send_thread;
 
@@ -16,8 +14,8 @@ void set_socket(){
 	struct sockaddr_in serv_addr;
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(atoi("65431"));
-	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serv_addr.sin_port = htons(atoi("65431"));			// server port
+	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");	// server ip
 
 	// connect server
 	if(connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1){
@@ -45,6 +43,7 @@ void error_handling(const char *message){
 // recieve data from server
 void recv_msg(){
 	int recv_size = 0;			// total data size from server
+	std::string buf_recv;
 	char buf_cur_recv[BUF_SIZE];	// current recv string buffer
 	
 	while(true){
@@ -55,57 +54,92 @@ void recv_msg(){
 			break;
 		}
 
-		if(recv_size == 0){		// recieve new data
-			// recv_size = atoi(strncpy(recv_size, 3));
-			// parsing data size
+		if(recv_size == 0){		// recieve new data length
+			recv_size = atoi(buf_cur_recv);
+			buf_recv.clear();
 		}
-		// parsing_buf += recv_buf    add new string to total string
-		// recv_size -= read_len;
+		else{					// recieve data
+			buf_recv += buf_cur_recv;
+			recv_size -= read_len;
+		}
 
 		if(recv_size == 0){		// end recieve data
 			std::lock_guard<std::mutex> lk(mtx_read);	// get read mutex
 
-			// parsing string
-
-			strncpy(buf_recv, buf_cur_recv, BUF_SIZE);
-
-			parsing_json(buf_recv);
+			parse_json(buf_recv);		// parse json data
 			
 			cv_read.notify_all();		// notify wait read mutex
 		}	// unlock read mutex
 	}
 }
 
-void parsing_json(std::string str_recv){
-	json root = json::parse(str_recv);
-	std::string type = root["type"].get<std::string>();
+// parsing recv json string
+void parse_json(std::string &str_recv){
+	json root = json::parse(str_recv);			// parse string to json
+	std::string type = root["type"].get<std::string>();	// get device type
 
-	if(type.compare("light") == 0){
+	if(type.compare("light") == 0){				// light
 		int light_id = root["lightId"].get<int>();
-		light_request.find(light_id)->second.push_back(root["data"].get<json>().dump());
+		light_response.find(light_id)->second.push_back(root["data"].get<json>().dump());
 	}
-	else if(type.compare("lamp") == 0){
+	else if(type.compare("lamp") == 0){			// lamp
 		int lamp_id = root["lampId"].get<int>();
-		lamp_request.find(lamp_id)->second.push_back(root["data"].get<json>().dump());
+		lamp_response.find(lamp_id)->second.push_back(root["data"].get<json>().dump());
 	}
-	else if(type.compare("window") == 0){
+	else if(type.compare("window") == 0){		// window
 		int window_id = root["windowId"].get<int>();
-		window_request.find(window_id)->second.push_back(root["data"].get<json>().dump());
+		window_response.find(window_id)->second.push_back(root["data"].get<json>().dump());
 	}
-	else if(type.compare("curtain") == 0){
+	else if(type.compare("curtain") == 0){		// curtain
 		int curtain_id = root["curtainId"].get<int>();
-		curtain_request.find(curtain_id)->second.push_back(root["data"].get<json>().dump());
+		curtain_response.find(curtain_id)->second.push_back(root["data"].get<json>().dump());
 	}
 }
 
 // send data to server
 void send_msg(){
 	std::unique_lock<std::mutex> lk(mtx_write);		// get write mutex
+	std::string buf_send;
 
 	while(true){
 		cv_write.wait(lk);		// unlock write mutex && wait write data
 		// get write mutex
 
-		write(serv_sock, buf_send, strlen(buf_send));	// write data to server
+		buf_send.clear();
+		make_json(buf_send);	// making json string
+
+		write(serv_sock, buf_send.c_str(), strlen(buf_send.c_str()));	// write data to server
 	}
+}
+
+// making send json string
+void make_json(std::string &str_send){
+	Request cur_request = request_list.front();
+	request_list.pop();
+	
+	json root = json::object();
+	switch(cur_request.request_type){
+		case REQUEST_LIGHT:			// light
+			root["type"] = "light";
+			root["lightId"] = cur_request.id;
+			root["data"] = json::parse(cur_request.request_data);
+			break;
+		case REQUEST_LAMP:			// lamp
+			root["type"] = "lamp";
+			root["lampId"] = cur_request.id;
+			root["data"] = json::parse(cur_request.request_data);
+			break;
+		case REQUEST_WINDOW:		// window
+			root["type"] = "window";
+			root["windowId"] = cur_request.id;
+			root["data"] = json::parse(cur_request.request_data);
+			break;
+		case REQUEST_CURTAIN:		// curtain
+			root["type"] = "curtain";
+			root["curtainId"] = cur_request.id;
+			root["data"] = json::parse(cur_request.request_data);
+			break;
+	}
+
+	str_send = root.dump();		// make json to string
 }

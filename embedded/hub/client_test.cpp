@@ -14,8 +14,14 @@ void client_write(){
 		std::cin >> str;
 
 		std::lock_guard<std::mutex> lk(mtx_write);
-		memset(buf_send, 0, BUF_SIZE);
-		strncpy(buf_send, str.c_str(), BUF_SIZE - 1);
+
+		Request new_request;
+		new_request.request_type = REQUEST_LIGHT;
+		new_request.id = 123;
+		new_request.request_data = str;
+
+		request_list.push(new_request);
+
 		cv_write.notify_all();
 	}
 }
@@ -25,6 +31,7 @@ void client_read(){
 
 	while(true){
 		cv_read.wait(lk);
-		std::cout << buf_recv << '\n';
+
+		std::cout << light_response.begin()->second.back() << '\n';
 	}
 }
