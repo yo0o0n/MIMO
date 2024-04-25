@@ -1,0 +1,24 @@
+services:
+    redis_dev:
+        build: .
+        image: redis_dev
+        container_name: redis_dev
+        env_file:
+            - .env
+        ports:
+            - "${REDIS_PORT}:6379"
+        volumes:
+            - redis:/data
+        networks:
+            - mimo
+
+networks:
+    mimo:
+        name: mimo_dev-network
+        external: true
+
+volumes:
+    redis:
+        name: redis_dev-volume
+        external: true
+
