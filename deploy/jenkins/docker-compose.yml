@@ -32,7 +32,7 @@ services:
 
 volumes:
     master:
-        name: jenkins-volume
+        name: jenkins_master-volume
         external: true
 
     agent:
