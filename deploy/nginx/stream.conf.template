@@ -1,7 +1,7 @@
-upstream socket_server {
-    server ${SERVER_DOMAIN}:${BLUE_SOCKET_PORT} ${BLUE_WEIGHT}; # Blue
-    server ${SERVER_DOMAIN}:${GREEN_SOCKET_PORT} ${GREEN_WEIGHT}; # Green
-}
+#upstream socket_server {
+#    server ${SERVER_DOMAIN}:${BLUE_SOCKET_PORT} ${BLUE_WEIGHT}; # Blue
+#    server ${SERVER_DOMAIN}:${GREEN_SOCKET_PORT} ${GREEN_WEIGHT}; # Green
+#}
 
 # Dev
 server {
@@ -12,5 +12,6 @@ server {
 # Ops
 server {
     listen ${OPS_SOCKET_PORT};
-    proxy_pass socket_server;
+#proxy_pass socket_server;
+    proxy_pass ${SERVER_DOMAIN}:${OPS_SOCKET_PORT};
 }

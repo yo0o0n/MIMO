@@ -13,7 +13,7 @@ elif [ "$1" = "green" ]; then # Starting point
     export BLUE_WEIGHT="down"
     export GREEN_WEIGHT=""
     echo "Switch to GREEN"
-elif [ "$1" = "start" ]; then # Starting point
+elif [ "$1" = "restart" ]; then # Starting point
     export BLUE_WEIGHT=""
     export GREEN_WEIGHT="down"
     echo "Start with blue"
@@ -46,8 +46,8 @@ envsubst '\
     $GREEN_SOCKET_PORT,\
     ' < ./stream.conf.template > ./stream.conf
 
-if [ "$1" = "start" ]; then
-    docker compose up -d
+if [ "$1" = "restart" ]; then
+    docker compose down && docker compose up --build -d
 fi
 
 
