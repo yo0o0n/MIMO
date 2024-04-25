@@ -12,8 +12,6 @@ services:
             - "${JENKINS_MASTER_PORT_1}:50000"
         volumes:
             - master:/var/jenkins_home
-        networks:
-            - mimo
         environment:
             - JENKINS_OPTS="--prefix=/jenkins"
 
@@ -31,13 +29,6 @@ services:
         volumes:
             - agent:/var/jenkins_home
             - /var/run/docker.sock:/var/run/docker.sock
-        networks:
-            - mimo_agent
-
-networks:
-    mimo:
-        name: jenkins-network
-        external: true
 
 volumes:
     master:
