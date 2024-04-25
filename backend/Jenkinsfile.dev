@@ -1,5 +1,5 @@
 pipeline {
-    agent mimo-dev
+    agent { label 'dev' }
 
     stages {
         stage('Checkout Code') {

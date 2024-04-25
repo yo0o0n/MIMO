@@ -1,5 +1,5 @@
 pipeline {
-    agent mimo-ops
+    agent { label 'ops' }
 
     stages {
         stage('Checkout Code') {
