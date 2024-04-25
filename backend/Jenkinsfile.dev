@@ -2,11 +2,6 @@ pipeline {
     agent { label 'dev' }
 
     stages {
-        stage('Check environment variables') {
-            steps {
-                sh 'export'
-            }
-        }
         stage('Checkout Code') {
             steps {
                 checkout scm
@@ -15,6 +10,7 @@ pipeline {
         stage('Build jar') {
             steps {
                 dir('backend') {
+                    echo 'Building jar'
                     sh 'chmod +x gradlew'
                     sh './gradlew clean bootjar'
                 }
