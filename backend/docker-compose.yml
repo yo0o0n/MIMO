@@ -3,6 +3,8 @@ services:
         build: .
         image: mimo_dev
         container_name: mimo_dev
+        volumes:
+            - ./build/libs/mimo.jar:/mimo.jar
         ports:
             - "${DEV_API_PORT}:8080"
             - "${DEV_SOCKET_PORT}:65432"
@@ -19,6 +21,8 @@ services:
         build: .
         image: mimo_green
         container_name: mimo_green
+        volumes:
+            - ./build/libs/mimo.jar:/mimo.jar
         ports:
             - "${GREEN_API_PORT}:8080"
             - "${GREEN_SOCKET_PORT}:65432"
@@ -37,6 +41,8 @@ services:
         build: .
         image: mimo_blue
         container_name: mimo_blue
+        volumes:
+            - ./build/libs/mimo.jar:/mimo.jar
         ports:
             - "${BLUE_API_PORT}:8080"
             - "${BLUE_SOCKET_PORT}:65432"
