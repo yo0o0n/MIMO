@@ -15,7 +15,7 @@ services:
         networks:
             - jenkins-net
         environment:
-            - "JENKINS_OPTS=${JENKINS_MASTER_OPS}"
+            - "JENKINS_OPTS=${JENKINS_MASTER_OPTS}"
 
     agent:
         build:
