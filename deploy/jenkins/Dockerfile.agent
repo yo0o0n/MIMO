@@ -2,7 +2,7 @@ FROM debian:stable
 USER root
 
 ENV TZ Asia/Seoul
-ENV GRADLE_USER_HOME /var/jenkins_home/.gradle
+ENV GRADLE_USER_HOME /home/jenkins/.gradle
 
 RUN groupadd -g 998 docker
 RUN useradd jenkins
@@ -10,7 +10,6 @@ RUN usermod -aG docker jenkins
 
 RUN mkdir /home/jenkins
 RUN chown jenkins:jenkins /home/jenkins
-RUN chown jenkins:jenkins /var/jenkins_home
 
 RUN apt-get update
 RUN apt-get install -y apt-transport-https \
