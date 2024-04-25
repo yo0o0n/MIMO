@@ -15,17 +15,19 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Dev') {
-            script {
-                if (env.BRANCH_NAME.contains('develop')) {
-                    echo 'Deploying to Development Environment'
-                    sh 'docker compose up dev --build -d'
-                } else if (env.BRANCH_NAME.contains('release')) {
-                    echo 'Deploying to Green Environment'
-                    sh 'docker compose up green --build -d'
-                } else if (env.BRANCH_NAME.contains('master')) {
-                    echo 'Deploying to Blue Environment'
-                    sh 'docker compose up blue --build -d'
+        stage('Exec docker compose') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME.contains('develop')) {
+                        echo 'Deploying to Development Environment'
+                        sh 'docker compose up dev --build -d'
+                    } else if (env.BRANCH_NAME.contains('release')) {
+                        echo 'Deploying to Green Environment'
+                        sh 'docker compose up green --build -d'
+                    } else if (env.BRANCH_NAME.contains('master')) {
+                        echo 'Deploying to Blue Environment'
+                        sh 'docker compose up blue --build -d'
+                    }
                 }
             }
         }
