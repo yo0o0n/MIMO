@@ -1,5 +1,7 @@
 #include "socket.hpp"
 
+using json = nlohmann::json;
+
 int serv_sock;
 std::thread recv_thread, send_thread;
 
@@ -66,8 +68,33 @@ void recv_msg(){
 			// parsing string
 
 			strncpy(buf_recv, buf_cur_recv, BUF_SIZE);
+
+			parsing_json(buf_recv);
+			
 			cv_read.notify_all();		// notify wait read mutex
 		}	// unlock read mutex
+	}
+}
+
+void parsing_json(std::string str_recv){
+	json root = json::parse(str_recv);
+	std::string type = root["type"].get<std::string>();
+
+	if(type.compare("light") == 0){
+		int light_id = root["lightId"].get<int>();
+		light_request.find(light_id)->second.push_back(root["data"].get<json>().dump());
+	}
+	else if(type.compare("lamp") == 0){
+		int lamp_id = root["lampId"].get<int>();
+		lamp_request.find(lamp_id)->second.push_back(root["data"].get<json>().dump());
+	}
+	else if(type.compare("window") == 0){
+		int window_id = root["windowId"].get<int>();
+		window_request.find(window_id)->second.push_back(root["data"].get<json>().dump());
+	}
+	else if(type.compare("curtain") == 0){
+		int curtain_id = root["curtainId"].get<int>();
+		curtain_request.find(curtain_id)->second.push_back(root["data"].get<json>().dump());
 	}
 }
 
