@@ -12,16 +12,21 @@ services:
             - jenkins:/var/jenkins_home
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
-            - mimo
+            - mimo_dev
+            - mimo_ops
         environment:
             - JENKINS_OPTS="--prefix=/jenkins"
 
 networks:
-    mimo:
-        name: mimo-network
+    mimo_dev:
+        name: mimo_dev-network
+        external: true
+    mimo_ops:
+        name: mimo_ops-network
         external: true
 
 volumes:
     jenkins:
         name: jenkins-volume
+        external: true
 
