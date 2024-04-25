@@ -15,12 +15,13 @@ services:
         networks:
             - jenkins-net
         environment:
-            - JENKINS_OPTS="--prefix=/jenkins"
+            - "JENKINS_OPTS=${JENKINS_MASTER_OPS}"
 
     agent:
         build:
             context: .
             dockerfile: Dockerfile.agent
+        entrypoint: sh -c "java -jar agent.jar -url https://k10a204.p.ssafy.io/jenkins/ -secret ${JENKINS_AGENT_SECRET} -name agent -workDir '/home/jenkins'"
         image: jenkins_agent
         container_name: jenkins_agent
         env_file:
@@ -33,8 +34,6 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - jenkins-net
-        args:
-            - AGENT_SECRET=${JENKINS_AGENT_SECRET}
 
 networks:
     jenkins-net:
