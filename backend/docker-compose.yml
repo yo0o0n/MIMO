@@ -1,0 +1,32 @@
+services:
+  dev:
+    build: .
+    image: mimo_dev
+    container_name: mimo_dev
+    env_file:
+      - .env
+    ports:
+      - "${DEV_API_PORT}:8080"
+      - "${DEV_SOCKET_PORT}:65432"
+    networks:
+      - network_dev
+
+  ops:
+    build: .
+    image: mimo_ops
+    container_name: mimo_ops
+    env_file:
+      - .env
+    ports:
+      - "${OPS_API_PORT}:8080"
+      - "${OPS_SOCKET_PORT}:65432"
+    networks:
+      - network_ops
+
+networks:
+  network_dev:
+    name: mimo_dev-network
+    external: true
+  network_ops:
+    name: mimo_ops-network
+    external: true

@@ -1,0 +1,33 @@
+pipeline {
+    agent mimo-ops
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build jar') {
+            steps {
+                dir('backend') {
+                    sh './gradlew clean bootjar'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                dir('backend') {
+                    echo 'Deploying to Operation Environment'
+                    sh 'docker compose up ops --build -d'
+                    sh 'docker image prune -f'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Build completed'
+        }
+    }
+}
+
