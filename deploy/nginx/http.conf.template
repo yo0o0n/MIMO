@@ -24,7 +24,7 @@ server {
     ssl_prefer_server_ciphers on;
 
     location /api {
-        proxy_pass http://api_server/;
+        proxy_pass http://api_server/api;
     }
 
     location /jenkins {

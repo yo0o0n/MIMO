@@ -32,6 +32,8 @@ envsubst '\
     $GREEN_WEIGHT,\
     $DEV_API_PORT,\
     $OPS_API_PORT,\
+    $GREEN_API_PORT,\
+    $BLUE_API_PORT,\
     $SSL_CERT_PATH,\
     $SSL_KEY_PATH\
     ' < ./http.conf.template > ./http.conf
