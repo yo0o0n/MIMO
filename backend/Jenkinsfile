@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+                echo "Current branch is ${BRANCH_NAME}"
+            }
+        }
+        stage('Build jar') {
+            steps {
+                dir('backend') {
+                    echo 'Building jar'
+                    sh 'chmod +x gradlew'
+                    sh './gradlew clean bootjar'
+                }
+            }
+        }
+        stage('Exec docker compose') {
+            steps {
+                dir('backend') {
+                    script {
+                        if (BRANCH_NAME.contains('develop')) {
+                            echo 'Deploying to Development Environment'
+                            sh 'docker compose up dev --build -d'
+                        } else if (BRANCH_NAME.contains('release')) {
+                            echo 'Deploying to Green Environment'
+                            sh 'docker compose up green --build -d'
+                        } else if (BRANCH_NAME.contains('master')) {
+                            echo 'Deploying to Blue Environment'
+                            sh 'docker compose up blue --build -d'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Build completed'
+            sh 'docker image prune -f'
+        }
+    }
+}
+

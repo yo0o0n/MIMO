@@ -1,32 +1,51 @@
 services:
-    jenkins:
-        build: .
-        image: jenkins
-        container_name: jenkins
+    master:
+        build:
+            context: .
+            dockerfile: Dockerfile.master
+        image: jenkins_master
+        container_name: jenkins_master
         env_file:
             - .env
         ports:
-            - "${JENKINS_PORT}:8080"
-            - "${JENKINS_PORT_2}:50000"
+            - "${JENKINS_MASTER_PORT_0}:8080"
+            - "${JENKINS_MASTER_PORT_1}:50000"
         volumes:
-            - jenkins:/var/jenkins_home
+            - master-vol:/var/jenkins_home
+        networks:
+            - jenkins-net
+        environment:
+            - "JENKINS_OPTS=${JENKINS_MASTER_OPTS}"
+
+    agent:
+        build:
+            context: .
+            dockerfile: Dockerfile.agent
+        entrypoint: sh -c "java -jar agent.jar -url https://k10a204.p.ssafy.io/jenkins/ -secret ${JENKINS_AGENT_SECRET} -name agent -workDir '/home/jenkins'"
+        image: jenkins_agent
+        container_name: jenkins_agent
+        env_file:
+            - .env
+        ports:
+            - "${JENKINS_AGENT_PORT_0}:8080"
+            - "${JENKINS_AGENT_PORT_1}:50000"
+        volumes:
+            - agent-vol:/var/jenkins_home
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
-            - mimo_dev
-            - mimo_ops
-        environment:
-            - JENKINS_OPTS="--prefix=/jenkins"
+            - jenkins-net
 
 networks:
-    mimo_dev:
-        name: mimo_dev-network
-        external: true
-    mimo_ops:
-        name: mimo_ops-network
+    jenkins-net:
+        name: jenkins-network
         external: true
 
 volumes:
-    jenkins:
-        name: jenkins-volume
+    master-vol:
+        name: jenkins_master-volume
+        external: true
+
+    agent-vol:
+        name: jenkins_agent-volume
         external: true
 

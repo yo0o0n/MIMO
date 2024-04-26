@@ -13,6 +13,10 @@ elif [ "$1" = "green" ]; then # Starting point
     export BLUE_WEIGHT="down"
     export GREEN_WEIGHT=""
     echo "Switch to GREEN"
+elif [ "$1" = "restart" ]; then # Starting point
+    export BLUE_WEIGHT=""
+    export GREEN_WEIGHT="down"
+    echo "Start with blue"
 else
     echo "WRONG PARAMETER!!!"
     exit
@@ -27,8 +31,7 @@ envsubst '\
     $BLUE_WEIGHT,\
     $GREEN_WEIGHT,\
     $DEV_API_PORT,\
-    $BLUE_API_PORT,\
-    $GREEN_API_PORT,\
+    $OPS_API_PORT,\
     $SSL_CERT_PATH,\
     $SSL_KEY_PATH\
     ' < ./http.conf.template > ./http.conf
@@ -42,6 +45,11 @@ envsubst '\
     $BLUE_SOCKET_PORT,\
     $GREEN_SOCKET_PORT,\
     ' < ./stream.conf.template > ./stream.conf
+
+if [ "$1" = "restart" ]; then
+    docker compose down && docker compose up --build -d
+fi
+
 
 # Reload nginx container
 docker exec nginx nginx -s reload

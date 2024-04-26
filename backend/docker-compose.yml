@@ -1,0 +1,59 @@
+services:
+    dev:
+        build: .
+        image: mimo_dev
+        container_name: mimo_dev
+        ports:
+            - "${DEV_API_PORT}:8080"
+            - "${DEV_SOCKET_PORT}:65432"
+        networks:
+            - network_dev
+        environment:
+            - "MYSQL_URL=${DEV_MYSQL_URL}"
+            - "MYSQL_USERNAME=${DEV_MYSQL_USERNAME}"
+            - "MYSQL_PASSWORD=${DEV_MYSQL_PASSWORD}"
+            - "REDIS_HOST=${DEV_REDIS_HOST}"
+            - "REDIS_PORT=${DEV_REDIS_PORT}"
+            - "REDIS_PASSWORD=${DEV_REDIS_PASSWORD}"
+    green:
+        build: .
+        image: mimo_green
+        container_name: mimo_green
+        ports:
+            - "${GREEN_API_PORT}:8080"
+            - "${GREEN_SOCKET_PORT}:65432"
+        networks:
+            - network_ops
+        environment:
+            - "MYSQL_URL=${OPS_MYSQL_URL}"
+            - "MYSQL_USERNAME=${OPS_MYSQL_USERNAME}"
+            - "MYSQL_PASSWORD=${OPS_MYSQL_PASSWORD}"
+            - "REDIS_HOST=${OPS_REDIS_HOST}"
+            - "REDIS_PORT=${OPS_REDIS_PORT}"
+            - "REDIS_PASSWORD=${OPS_REDIS_PASSWORD}"
+
+
+    blue:
+        build: .
+        image: mimo_blue
+        container_name: mimo_blue
+        ports:
+            - "${BLUE_API_PORT}:8080"
+            - "${BLUE_SOCKET_PORT}:65432"
+        networks:
+            - network_ops
+        environment:
+            - "MYSQL_URL=${OPS_MYSQL_URL}"
+            - "MYSQL_USERNAME=${OPS_MYSQL_USERNAME}"
+            - "MYSQL_PASSWORD=${OPS_MYSQL_PASSWORD}"
+            - "REDIS_HOST=${OPS_REDIS_HOST}"
+            - "REDIS_PORT=${OPS_REDIS_PORT}"
+            - "REDIS_PASSWORD=${OPS_REDIS_PASSWORD}"
+
+networks:
+    network_dev:
+        name: mimo_dev-network
+        external: true
+    network_ops:
+        name: mimo_ops-network
+        external: true
