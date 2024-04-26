@@ -1,36 +1,90 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_HUB_REPOSITORY = 'kimjunha/mimo'
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub')
+    }
+
     stages {
-        stage('Checkout Code') {
+        stage ('Checkout Code') {
             steps {
                 checkout scm
                 echo "Current branch is ${BRANCH_NAME}"
             }
         }
-        stage('Build jar') {
+        stage ('Build') {
             steps {
                 dir('backend') {
-                    echo 'Building jar'
-                    sh 'chmod +x gradlew'
-                    sh './gradlew clean bootjar'
+                    echo "Building jar"
+                    sh "chmod +x gradlew"
+                    sh "./gradlew clean bootjar"
                 }
             }
         }
-        stage('Exec docker compose') {
+        stage ('Docker Hub Login') {
+            steps {
+                echo "Log in..."
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+        stage ('Deploy') {
             steps {
                 dir('backend') {
                     script {
                         if (BRANCH_NAME.contains('develop')) {
-                            echo 'Deploying to Development Environment'
-                            sh 'docker compose up dev --build -d'
+                            TARGET = 'dev'
                         } else if (BRANCH_NAME.contains('release')) {
-                            echo 'Deploying to Green Environment'
-                            sh 'docker compose up green --build -d'
+                            TARGET = 'green'
                         } else if (BRANCH_NAME.contains('master')) {
-                            echo 'Deploying to Blue Environment'
-                            sh 'docker compose up blue --build -d'
+                            TARGET = 'blue'
                         }
+                        echo "Deploying $TARGET"
+                        sh "docker compose up $TARGET -d"
+                    }
+                }
+            }
+        }
+        stage ('Health Check') {
+            steps {
+                script {
+                    STATUS = sh(script: "docker inspect --format='{{.State.Status}}' mimo_$TARGET", returnStdout: true).trim()
+                    echo "Container status: $STATUS"
+                    if (STATUS == 'running') {
+                        STABLE = true
+                    } else {
+                        STABLE = false
+                    }
+                }
+            }
+        }
+        stage ('Unstable: Rollback') {
+            steps {
+                dir('backend') {
+                    script {
+                        if (STABLE) {
+                            echo "Build stable: Skip rollback"
+                        } else {
+                            echo "Build unstable: Start rollback"
+                            echo "Pull previous latest"
+                            sh "docker pull kimjunha/mimo:latest"
+                            sh "docker tag kimjunha/mimo:latest mimo_$TARGET:latest"
+                            sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
+                        }
+                    }
+                }
+            }
+        }
+        stage ('Stabe: Push') {
+            steps {
+                script {
+                    if (STABLE) {
+                        echo "Build unstable: Start push"
+                        sh "docker push kimjunha/mimo:latest"
+                    } else {
+                        echo "Build unstable: Skip push"
                     }
                 }
             }
@@ -38,8 +92,8 @@ pipeline {
     }
     post {
         always {
-            echo 'Build completed'
-            sh 'docker image prune -f'
+            echo "Build completed"
+            sh "docker image prune -f"
         }
     }
 }
