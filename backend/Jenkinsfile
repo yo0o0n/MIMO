@@ -11,6 +11,7 @@ pipeline {
             steps {
                 checkout scm
                 echo "Current branch is ${BRANCH_NAME}"
+                echo "printenv"
             }
         }
         stage ('Build') {
@@ -49,12 +50,23 @@ pipeline {
         }
         stage ('Health Check') {
             steps {
+                echo "Sleep while container is starting"
+                sleep 10
                 script {
-                    STATUS = sh(script: "docker inspect --format='{{.State.Status}}' mimo_$TARGET", returnStdout: true).trim()
-                    echo "Container status: $STATUS"
-                    if (STATUS == 'running') {
-                        STABLE = true
+                    if (TARGET == 'dev') {
+                        TEST_URL = 'https://k10a204.p.ssafy.io/dev/api/v1/houses'
                     } else {
+                        TEST_URL = 'https://k10a204.p.ssafy.io/api/v1/houses'
+                    }
+                    try {
+                        HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL", returnStdout: true).trim()
+                        echo "Container status: $HTTP_RESPONSE"
+                        if (HTTP_RESPONSE >= '400') {
+                            STABLE = false
+                        } else {
+                            STABLE = true
+                        }
+                    } catch (Exception e) {
                         STABLE = false
                     }
                 }
