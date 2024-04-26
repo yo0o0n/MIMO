@@ -42,7 +42,7 @@ pipeline {
                             TARGET = 'blue'
                         }
                         echo "Deploying $TARGET"
-                        sh "docker compose up $TARGET -d"
+                        sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
                     }
                 }
             }
