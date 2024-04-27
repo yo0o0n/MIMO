@@ -10,11 +10,19 @@ pipeline {
         stage ('Checkout Code') {
             steps {
                 checkout scm
-                echo "Current branch is ${BRANCH_NAME}"
-                echo "printenv"
+                echo "Current branch is $BRANCH_NAME"
+                script {
+                    if (BRANCH_NAME.contains('develop')) {
+                        TARGET = 'dev'
+                    } else if (BRANCH_NAME.contains('release')) {
+                        TARGET = 'green'
+                    } else if (BRANCH_NAME.contains('master')) {
+                        TARGET = 'blue'
+                    }
+                }
             }
         }
-        stage ('Build') {
+        stage ('Build Jar') {
             steps {
                 dir('backend') {
                     echo "Building jar"
@@ -23,35 +31,29 @@ pipeline {
                 }
             }
         }
-        stage ('Docker Hub Login') {
+        stage ('Sign in Docker Hub') {
             steps {
-                echo "Log in..."
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                 }
             }
         }
-        stage ('Deploy') {
+        stage ('Build Image and Run') {
             steps {
                 dir('backend') {
                     script {
-                        if (BRANCH_NAME.contains('develop')) {
-                            TARGET = 'dev'
-                        } else if (BRANCH_NAME.contains('release')) {
-                            TARGET = 'green'
-                        } else if (BRANCH_NAME.contains('master')) {
-                            TARGET = 'blue'
-                        }
                         echo "Deploying $TARGET"
                         sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
+                        sh "docker tag mimo_$TARGET:latest $DOCKER_HUB_REPOSITORY:$TARGET-latest"
+                        sh "docker push $DOCKER_HUB_REPOSITORY:$TARGET-latest"
                     }
                 }
             }
         }
         stage ('Health Check') {
             steps {
-                echo "Sleep while container is starting"
-                sleep 10
+                echo "Wait until container get ready..."
+                // sleep 10
                 script {
                     if (TARGET == 'dev') {
                         TEST_URL = 'https://k10a204.p.ssafy.io/dev/api/v1/houses'
@@ -61,13 +63,19 @@ pipeline {
                     try {
                         HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL", returnStdout: true).trim()
                         echo "Container status: $HTTP_RESPONSE"
-                        if (HTTP_RESPONSE >= '400') {
-                            STABLE = false
-                        } else {
+                        if (HTTP_RESPONSE < '100') {
                             STABLE = true
+                            echo "Build stable"
+                            echo "Push latest stable image"
+                        } else {
+                            STABLE = false
+                            echo "Build unstable"
+                            echo "Rollback to previous stable image"
                         }
                     } catch (Exception e) {
                         STABLE = false
+                        echo "Build unstable"
+                        echo "Rollback to previous stable image"
                     }
                 }
             }
@@ -76,27 +84,28 @@ pipeline {
             steps {
                 dir('backend') {
                     script {
-                        if (STABLE) {
-                            echo "Build stable: Skip rollback"
-                        } else {
-                            echo "Build unstable: Start rollback"
-                            echo "Pull previous latest"
-                            sh "docker pull kimjunha/mimo:latest"
-                            sh "docker tag kimjunha/mimo:latest mimo_$TARGET:latest"
-                            sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
+                        if (!STABLE) {
+                            try {
+                                sh "docker tag mimo_$TARGET:latest mimo_$TARGET:last-failed"
+                                sh "docker pull $DOCKER_HUB_REPOSITORY:$TARGET-stable"
+                                sh "docker tag $DOCKER_HUB_REPOSITORY:$TARGET-stable mimo_$TARGET:latest"
+                                sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
+                                echo "Rollback completed"
+                            } catch (Exception e) {
+                                echo "Rollback failed"
+                            }
                         }
                     }
                 }
             }
         }
-        stage ('Stabe: Push') {
+        stage ('Stable: Push') {
             steps {
                 script {
                     if (STABLE) {
-                        echo "Build unstable: Start push"
-                        sh "docker push kimjunha/mimo:latest"
-                    } else {
-                        echo "Build unstable: Skip push"
+                        sh "docker tag mimo_$TARGET:latest $DOCKER_HUB_REPOSITORY:$TARGET-stable"
+                        sh "docker push $DOCKER_HUB_REPOSITORY:$TARGET-stable"
+                        echo "Push completed"
                     }
                 }
             }
@@ -109,4 +118,3 @@ pipeline {
         }
     }
 }
-
