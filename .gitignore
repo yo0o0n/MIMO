@@ -668,3 +668,7 @@ obj/
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/python,java,c,c++,kotlin,androidstudio,android,visualstudiocode,intellij,vim,gradle,macos,linux,dotenv,venv
+
+# Nginx config files
+deploy/nginx/http.conf
+deploy/nginx/stream.conf
