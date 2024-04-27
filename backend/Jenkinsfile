@@ -53,7 +53,7 @@ pipeline {
         stage ('Health Check') {
             steps {
                 echo "Wait until container get ready..."
-                // sleep 10
+                sleep 10
                 script {
                     if (TARGET == 'dev') {
                         TEST_URL = 'https://k10a204.p.ssafy.io/dev/api/v1/houses'
@@ -63,7 +63,7 @@ pipeline {
                     try {
                         HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL", returnStdout: true).trim()
                         echo "Container status: $HTTP_RESPONSE"
-                        if (HTTP_RESPONSE < '100') {
+                        if (HTTP_RESPONSE < '400') {
                             STABLE = true
                             echo "Build stable"
                             echo "Push latest stable image"
