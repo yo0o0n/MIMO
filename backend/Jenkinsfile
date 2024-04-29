@@ -31,8 +31,9 @@ pipeline {
                             sh "chmod +x gradlew"
                             sh "./gradlew clean bootjar"
                         } catch (Exception e) {
+                            echo "Build failed. Check the error message."
                             currentBuild.result = 'FAILURE'
-                            echo "Build failed. Nothing changed. Check the log for details."
+                            error("Build failed while building jar file.")
                         }
                     }
                 }
