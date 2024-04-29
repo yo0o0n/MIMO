@@ -25,9 +25,16 @@ pipeline {
         stage ('Build Jar') {
             steps {
                 dir('backend') {
-                    echo "Building jar"
-                    sh "chmod +x gradlew"
-                    sh "./gradlew clean bootjar"
+                    script {
+                        try {
+                            echo "Building jar"
+                            sh "chmod +x gradlew"
+                            sh "./gradlew clean bootjar"
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            echo "Build failed. Nothing changed. Check the log for details."
+                        }
+                    }
                 }
             }
         }
