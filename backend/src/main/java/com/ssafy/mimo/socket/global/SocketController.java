@@ -1,6 +1,5 @@
 package com.ssafy.mimo.socket.global;
 
-import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,9 +31,9 @@ public class SocketController {
             serverSocket = new ServerSocket(port);
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
-                Integer hubId = getHubId(socket);
+                Long hubId = getHubId(socket);
                 if (hubId != null) {
-                    connections.put(hubId, socket); // 유효한 허브 ID에 대해서만 소켓 저장
+                    connections.put(Math.toIntExact(hubId), socket); // 유효한 허브 ID에 대해서만 소켓 저장
                 }
             }
         } catch (IOException e) {
@@ -42,15 +41,15 @@ public class SocketController {
         }
     }
 
-    private Integer getHubId(Socket socket) {
+    private Long getHubId(Socket socket) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String serialNumber = reader.readLine();  // 클라이언트로부터 시리얼 넘버 읽기
             if (serialNumber != null && !serialNumber.isEmpty()) {
-                // 시리얼 넘버로 등록된 허브가 있는지 확인
-                Hub hub = hubService.getHubIdBySerialNumber(serialNumber);
-                if (hub != null && hub.isRegistered()) {  // 등록된 허브인지 확인
-                    return hub.getHubId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
+                // 시리얼 넘버로 등록된 허브 ID가 있는지 확인
+                Long hubId = hubService.getHubIdBySerialNumber(serialNumber);
+                if (hubId != null && hubService.isValidHub(hubId)) {  // 등록된 허브인지 확인
+                    return hubId;  // 등록된 시리얼 넘버에 대한 허브 ID 반환
                 } else {
                     System.out.println("Unregistered or invalid serial number: " + serialNumber);
                 }
