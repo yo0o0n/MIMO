@@ -18,7 +18,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 public class BaseDeletableEntity extends BaseEntity {
 
 	private Boolean isActive = true;
