@@ -7,12 +7,11 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 #include <uuid.h>
+#include <btio.h>
+#include <gattrib.h>
 #include <poll.h>
 #include <ctype.h>
-
-extern "C" {
-//	#include "uuid.h"
-}
+#include <cassert>
 
 int ble(int, char**);
 static char* parse_name(uint8_t*, size_t);
