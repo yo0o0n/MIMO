@@ -1,7 +1,11 @@
 package com.ssafy.mimo.user.entity;
 
 import java.time.LocalTime;
+import java.util.List;
 
+import com.ssafy.mimo.domain.house.entity.UserHouse;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +23,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Table(name = "USER")
 public class User extends BaseDeletableEntity {
 	@NotNull
@@ -30,4 +35,7 @@ public class User extends BaseDeletableEntity {
 
 	@Nullable
 	private LocalTime wakeupTime;
+
+	@OneToMany(mappedBy = "user")
+	private List<UserHouse> userHouse;
 }

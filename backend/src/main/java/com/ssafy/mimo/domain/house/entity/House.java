@@ -2,10 +2,12 @@ package com.ssafy.mimo.domain.house.entity;
 
 import com.ssafy.mimo.common.BaseDeletableEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,9 +19,9 @@ import javax.validation.constraints.NotNull;
 public class House extends BaseDeletableEntity {
 
     @NotNull
-    private Boolean isHome;
+    private String address;
 
-    @NotNull
-    private String nickname;
+    @OneToMany(mappedBy = "house")
+    private List<UserHouse> userHouse;
 
 }
