@@ -2,7 +2,7 @@ package com.ssafy.mimo.socket.global;
 
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import java.io.BufferedReader;
@@ -13,19 +13,13 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
+@RequiredArgsConstructor
 public class SocketController {
 
     private ServerSocket serverSocket;
     private final ApplicationContext applicationContext;
-    private ConcurrentHashMap<Integer, Socket> connections = new ConcurrentHashMap<>();
-
-    @Autowired
-    private HubService hubService;
-
-    @Autowired
-    public SocketController(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+    private final HubService hubService;
+    private static ConcurrentHashMap<Long, Socket> connections;
 
     public void start(int port) {
         try {
@@ -34,7 +28,7 @@ public class SocketController {
                 Socket socket = serverSocket.accept();
                 Long hubId = getHubId(socket);
                 if (hubId != null) {
-                    connections.put(Math.toIntExact(hubId), socket); // 유효한 허브 ID에 대해서만 소켓 저장
+                    connections.put(hubId, socket); // 유효한 허브 ID에 대해서만 소켓 저장
                 }
             }
         } catch (IOException e) {
@@ -48,7 +42,7 @@ public class SocketController {
             String serialNumber = reader.readLine();  // 클라이언트로부터 시리얼 넘버 읽기
             if (serialNumber != null && !serialNumber.isEmpty()) {
                 // 시리얼 넘버로 등록된 허브 ID가 있는지 확인
-                Hub hub = hubService.findBySerialNumber(serialNumber);
+                Hub hub = hubService.findHubBySerialNumber(serialNumber);
                 if (hub != null && hubService.isValidHub(hub)) {  // 등록된 허브인지 확인
                     return hub.getId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
                 } else {
@@ -79,7 +73,7 @@ public class SocketController {
     }
 
     // 허브 ID에 따라 소켓 반환
-    public Socket getSocket(int hubId) {
+    public Socket getSocket(Long hubId) {
         return connections.get(hubId);
     }
 }
