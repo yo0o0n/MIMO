@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,6 +23,9 @@ public class HubService {
                 .build();
         hub = hubRepository.save(hub);
         return hub.getSerialNumber();
+    }
+    public List<Hub> getHubs(Long houseId) {
+        return hubRepository.findByHouseId(houseId);
     }
     public String registerHub(String serialNumber, Long houseId) {
         Hub hub = hubRepository.findBySerialNumber(serialNumber)
@@ -64,7 +68,6 @@ public class HubService {
             .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 허브가 존재하지 않습니다."));
         return true;
     }
-
     public Hub findBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
