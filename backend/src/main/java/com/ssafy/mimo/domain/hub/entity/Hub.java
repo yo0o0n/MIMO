@@ -1,6 +1,7 @@
 package com.ssafy.mimo.domain.hub.entity;
 
 import com.ssafy.mimo.common.BaseUnregisterableEntity;
+import com.ssafy.mimo.domain.house.entity.House;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +14,9 @@ import org.jetbrains.annotations.NotNull;
 @Entity
 @Table(name = "HUB")
 public class Hub extends BaseUnregisterableEntity {
-//    @ManyToOne
-//    private House house;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "house_id")
+    private House house;
     @NotNull
     private Boolean isRegistered;
     @NotNull
