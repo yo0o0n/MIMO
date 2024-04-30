@@ -18,7 +18,7 @@ public class Hub extends BaseUnregisterableEntity {
     @JoinColumn(name = "house_id")
     private House house;
     @NotNull
-    private Boolean isRegistered;
+    private boolean isRegistered;
     @NotNull
     private String serialNumber;
     @NotNull

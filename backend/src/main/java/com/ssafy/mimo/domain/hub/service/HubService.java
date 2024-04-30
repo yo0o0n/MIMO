@@ -31,7 +31,7 @@ public class HubService {
     public String registerHub(String serialNumber, Long houseId) {
         Hub hub = findHubBySerialNumber(serialNumber);
         House house = houseService.findHouseById(houseId);
-        if (!hub.getIsRegistered()){
+        if (!hub.isRegistered()){
             hub.setIsRegistered(true);
             hub.setRegisteredDttm(LocalDateTime.now());
             hub.setHouse(house);
@@ -44,7 +44,7 @@ public class HubService {
     public String unregisterHub(Long hubId, Long houseId) {
         Hub hub = findHubById(hubId);
         House house = houseService.findHouseById(houseId);
-        if (hub.getIsRegistered() && hub.getHouse().getId().equals(houseId)){
+        if (hub.isRegistered() && hub.getHouse().getId().equals(houseId)){
             hub.setIsRegistered(false);
             hub.setHouse(null);
             hubRepository.save(hub);
