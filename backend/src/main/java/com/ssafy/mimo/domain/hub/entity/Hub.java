@@ -1,11 +1,9 @@
 package com.ssafy.mimo.domain.hub.entity;
 
+import com.ssafy.mimo.common.BaseUnregisterableEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "HUB")
-public class Hub extends BaseDeletableEntity {
+public class Hub extends BaseUnregisterableEntity {
 //    @ManyToOne
 //    private House house;
     @NotNull
