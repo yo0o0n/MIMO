@@ -3,13 +3,16 @@
 
 #include "socket.hpp"
 #include "client_test.hpp"
+#include "ble.hpp"
 
-int main(){
-	std::thread thread_socket = std::thread(set_socket);	// socket thread
-	std::thread thread_client = std::thread(client);
+int main(int argc, char *argv[]){
+//	std::thread thread_socket = std::thread(set_socket);	// socket thread
+//	std::thread thread_client = std::thread(client);
+	std::thread thread_ble = std::thread(ble, argc, argv);
 
-	thread_socket.join();	// wait socket thread
-	thread_client.join();
+//	thread_socket.join();	// wait socket thread
+//	thread_client.join();
+	thread_ble.join();
 
 	return 0;
 }
