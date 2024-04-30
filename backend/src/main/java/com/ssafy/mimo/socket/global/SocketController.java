@@ -3,7 +3,6 @@ package com.ssafy.mimo.socket.global;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import java.io.BufferedReader;
@@ -43,7 +42,7 @@ public class SocketController {
             String serialNumber = reader.readLine();  // 클라이언트로부터 시리얼 넘버 읽기
             if (serialNumber != null && !serialNumber.isEmpty()) {
                 // 시리얼 넘버로 등록된 허브 ID가 있는지 확인
-                Hub hub = hubService.findBySerialNumber(serialNumber);
+                Hub hub = hubService.findHubBySerialNumber(serialNumber);
                 if (hub != null && hubService.isValidHub(hub)) {  // 등록된 허브인지 확인
                     return hub.getId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
                 } else {

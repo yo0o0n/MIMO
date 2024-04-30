@@ -17,6 +17,7 @@ import java.util.UUID;
 @Transactional
 public class HubService {
     private final HubRepository hubRepository;
+    private final HouseService houseService;
     public String releaseHub() {
         Hub hub = Hub.builder()
                 .serialNumber(UUID.randomUUID().toString())
@@ -28,10 +29,8 @@ public class HubService {
         return hubRepository.findByHouseId(houseId);
     }
     public String registerHub(String serialNumber, Long houseId) {
-        Hub hub = hubRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
-        House house = houseRepository.findById()
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 집이 존재하지 않습니다."));
+        Hub hub = findHubBySerialNumber(serialNumber);
+        House house = houseService.findHouseById(houseId);
         if (!hub.getIsRegistered()){
             hub.setIsRegistered(true);
             hub.setRegisteredDttm(LocalDateTime.now());
@@ -42,11 +41,9 @@ public class HubService {
             throw new IllegalArgumentException("이미 등록된 허브입니다.");
         }
     }
-    public String unregisterHub(String serialNumber, Long houseId) {
-        Hub hub = hubRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
-        House house = houseRepository.findById()
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 집이 존재하지 않습니다."));
+    public String unregisterHub(Long hubId, Long houseId) {
+        Hub hub = findHubById(hubId);
+        House house = houseService.findHouseById(houseId);
         if (hub.getIsRegistered() && hub.getHouse().getId().equals(houseId)){
             hub.setIsRegistered(false);
             hub.setHouse(null);
@@ -68,8 +65,12 @@ public class HubService {
             .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 허브가 존재하지 않습니다."));
         return true;
     }
-    public Hub findBySerialNumber(String serialNumber) {
+    public Hub findHubBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
+    }
+    public Hub findHubById(Long hubId) {
+        return hubRepository.findById(hubId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 허브가 존재하지 않습니다."));
     }
 }
