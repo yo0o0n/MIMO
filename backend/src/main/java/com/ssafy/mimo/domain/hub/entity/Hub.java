@@ -2,6 +2,8 @@ package com.ssafy.mimo.domain.hub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
@@ -12,19 +14,13 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "HUB")
-public class Hub {
-    @Column
-    private Integer id;
+public class Hub extends BaseDeletableEntity {
 //    @ManyToOne
 //    private House house;
-    @Column(columnDefinition = "boolean default false")
+    @NotNull
     private Boolean isRegistered;
-    @Column
+    @NotNull
     private String serialNumber;
-    @Column
-    private LocalDateTime registeredDttm;
-    @Column
-    private LocalDateTime unregisteredDttm;
-    @Column
+    @NotNull
     private String nickname;
 }

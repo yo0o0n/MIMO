@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HubController {
     private final HubService hubService;
-    @GetMapping("/release")
-    public ResponseEntity<String> releaseHub() {
+    @GetMapping("/new")
+    public ResponseEntity<String> releaseNewHub() {
         return ResponseEntity.ok(hubService.releaseHub());
     }
 }
