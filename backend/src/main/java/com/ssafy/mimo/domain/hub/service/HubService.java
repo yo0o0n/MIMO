@@ -61,9 +61,7 @@ public class HubService {
         return "허브 닉네임 변경 성공";
     }
     public Boolean isValidHub(Hub hub) {
-        hubRepository.findById(hub.getId())
-            .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 허브가 존재하지 않습니다."));
-        return true;
+        return hub.isRegistered();
     }
     public Hub findHubBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 @Table(name = "HUB")
 public class Hub extends BaseUnregisterableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "house_id")
+    @JoinColumn(name = "HOUSE_ID")
     private House house;
     @NotNull
     private boolean isRegistered;
