@@ -33,7 +33,7 @@ public class HubService {
         return true;
     }
 
-    public Integer getHubIdBySerialNumber(String serialNumber) {
+    public Long getHubIdBySerialNumber(String serialNumber) {
         Hub hub = hubRepository.findBySerialNumber(serialNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
         return hub.getId();
