@@ -24,6 +24,7 @@ public class User extends BaseDeletableEntity {
 	@NotNull
 	private Integer providerId;
 
+	@Builder.Default
 	@NotNull
 	private Boolean isSuperUser = false;
 
