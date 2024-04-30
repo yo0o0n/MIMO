@@ -27,10 +27,10 @@ public class HubController {
     public ResponseEntity<String> registerHub(@RequestBody RegisterHubDto registerNewHubDto) {
         return ResponseEntity.ok(hubService.registerHub(registerNewHubDto.serialNumber(), registerNewHubDto.houseId()));
     }
-    @DeleteMapping("unregister?=serialNumber={serialNumber}&houseId={houseId}")
-    public ResponseEntity<String> unregisterHub(@RequestParam String serialNumber,
+    @DeleteMapping("unregister?hubId={hubId}&houseId={houseId}")
+    public ResponseEntity<String> unregisterHub(@RequestParam Long hubId,
                                                 @RequestParam Long houseId) {
-        return ResponseEntity.ok(hubService.unregisterHub(serialNumber, houseId));
+        return ResponseEntity.ok(hubService.unregisterHub(hubId, houseId));
     }
     @PutMapping("/nickname")
     public ResponseEntity<String> updateHubNickname(@RequestBody HubNicknameDto hubNicknameDto) {
