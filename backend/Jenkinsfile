@@ -69,10 +69,7 @@ pipeline {
                         TEST_URL = 'https://k10a204.p.ssafy.io/api/check'
                     }
                     try {
-                        echo "1"
                         DEV_PW = sh(script: "docker logs mimo_$TARGET | grep 'Using generated security password: ' | awk '{print \$NF}'", returnStdout: true).trim()
-                        echo "2"
-                        echo "DEV_PW = $DEV_PW"
                         HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL -u user:$DEV_PW", returnStdout: true).trim()
                         echo "Container status: $HTTP_RESPONSE"
                         if (HTTP_RESPONSE < '400') {
