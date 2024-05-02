@@ -1,5 +1,13 @@
 #include "ble.hpp"
 
+typedef struct {
+	void 	(*connect_cb)(void*, const char*, void*, int, void*);
+	int 	connected;
+	int 	timeout;
+	GError 	*error;
+	void 	*user_data;
+} io_connect_arg_t;
+
 int ble(int argc, char *argv[]){
 	if(argc < 3){
 		std::cout << "./program mac_address uuid\n";
@@ -113,22 +121,43 @@ int ble(int argc, char *argv[]){
 			psm = ((options >> 11) && 0x3FF);
 			mtu = ((options >> 21) && 0x3FF);
 
-			//initialize_gattlib_connection(adapter_mac_addr, mac_addr, 0x01, bt_io_sec_level, psm, mtu, on_device_connect, NULL);
+			io_connect_arg_t* io_connect_arg = (io_connect_arg_t*)malloc(sizeof(io_connect_arg_t));
+			io_connect_arg->user_data = NULL;
 
-			/*
+			//initialize_gattlib_connection(adapter_mac_addr, mac_addr, 0x01, bt_io_sec_level, psm, mtu, on_device_connect, io_connect_arg);
+
 			bdaddr_t sba, dba;
 			GError *err = NULL;
-			if(str2ba(mac_addr, &dba) < 0){
-				fprintf(stderr, "Destination address '%s' is not valid.\n", dst);
+			io_connect_arg->error = NULL;
+			if(str2ba(mac_addr, &dba) != 0){
+				fprintf(stderr, "Destination address '%s' is not valid.\n", mac_addr);
 				break;
 			}
-			bacpy(&sba, BDADDR_ANY);
+			for(int i = 0; i < 6; i++){
+				sba.b[i] = 0u;
+			}
 
 //			gattlib_context_t *conn_context = calloc(sizeof(gattlib_context_t), 1);
 //			gattlib_connection_t *conn = calloc(sizeof(gattlib_connection_t), 1);
 //			conn->context = conn_context;
-*/
+
+//			io_connect_arg->conn = conn;
+//			io_connect_arg->connect_cb = NULL;
+			io_connect_arg->connected = FALSE;
+			io_connect_arg->timeout = FALSE;
+			io_connect_arg->error = NULL;
 			
+			bt_io_connect(
+					io_connect_cb, io_connect_arg, NULL, &err,
+					BT_IO_OPT_SOURCE_BDADDR, &sba,
+					BT_IO_OPT_SOURCE_TYPE, BDADDR_LE_PUBLIC,
+					BT_IO_OPT_DEST_BDADDR, &dba,
+					BT_IO_OPT_DEST_TYPE, 0x01,
+					BT_IO_OPT_CID, 4,
+					BT_IO_OPT_SEC_LEVEL, bt_io_sec_level,
+					25, 2,
+					BT_IO_OPT_INVALID
+					);
 
 			break;
 		}
@@ -177,4 +206,32 @@ static int stricmp(char const *a, char const *b) {
         if (d != 0 || !*a)
             return d;
     }
+}
+
+static void io_connect_cb(GIOChannel *io, GError *err, gpointer user_data) {
+	io_connect_arg_t* io_connect_arg = (io_connect_arg_t*)user_data;
+
+	if (err) {
+		io_connect_arg->error = err;
+	} else {
+//		gattlib_context_t* conn_context = io_connect_arg->conn->context;
+
+		g_attrib_new(io, 23, false);
+
+		GSource *source = g_idle_source_new ();
+		assert(source != NULL);
+
+		g_source_set_callback(source, io_listen_cb, io_connect_arg->conn, NULL);
+
+		gattlib_discover_char(io_connect_arg->conn, &conn_context->characteristics, &conn_context->characteristic_count);
+
+		if (io_connect_arg->connect_cb) {
+			io_connect_arg->connect_cb(io_connect_arg->conn, io_connect_arg->user_data);
+		}
+
+		io_connect_arg->connected = TRUE;
+	}
+	if (io_connect_arg->connect_cb) {
+		free(io_connect_arg);
+	}
 }

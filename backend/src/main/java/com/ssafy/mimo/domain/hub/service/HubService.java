@@ -32,7 +32,7 @@ public class HubService {
         Hub hub = findHubBySerialNumber(serialNumber);
         House house = houseService.findHouseById(houseId);
         if (!hub.isRegistered()){
-            hub.setIsRegistered(true);
+            hub.setRegistered(true);
             hub.setRegisteredDttm(LocalDateTime.now());
             hub.setHouse(house);
             hubRepository.save(hub);
@@ -45,7 +45,7 @@ public class HubService {
         Hub hub = findHubById(hubId);
         House house = houseService.findHouseById(houseId);
         if (hub.isRegistered() && hub.getHouse().getId().equals(houseId)){
-            hub.setIsRegistered(false);
+            hub.setRegistered(false);
             hub.setHouse(null);
             hubRepository.save(hub);
             return "허브 등록 해제 성공";
@@ -65,7 +65,8 @@ public class HubService {
     }
     public Hub findHubBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
+                .orElse(null);
+//                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
     }
     public Hub findHubById(Long hubId) {
         return hubRepository.findById(hubId)

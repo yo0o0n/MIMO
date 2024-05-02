@@ -20,7 +20,7 @@ import lombok.Setter;
 @MappedSuperclass
 public class BaseDeletableEntity extends BaseEntity {
 
-	private Boolean isActive = true;
+	private boolean isActive = true;
 
 	@CreatedDate
 	@Column(columnDefinition = "datetime(0) default now(0)", nullable = false, updatable = false)

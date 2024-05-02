@@ -31,6 +31,18 @@ spring:
         show-sql: true
     defer-datasource-initialization: true
 
+jwt:
+  access:
+    token:
+      expiration:
+        seconds: 3600
+  refresh:
+    token:
+      expiration:
+        seconds: 604800
+  token:
+    secret-key: ${JWT_SECRET_KEY}
+
 logging:
   level:
     root: info
