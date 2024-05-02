@@ -65,7 +65,8 @@ public class HubService {
     }
     public Hub findHubBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
+                .orElse(null);
+//                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
     }
     public Hub findHubById(Long hubId) {
         return hubRepository.findById(hubId)
