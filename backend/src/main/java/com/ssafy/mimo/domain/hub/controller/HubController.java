@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/hubs")
+@RequestMapping("/api/v1/hubs")
 @RequiredArgsConstructor
 public class HubController {
     private final HubService hubService;

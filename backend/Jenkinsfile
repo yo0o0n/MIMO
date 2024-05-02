@@ -64,9 +64,9 @@ pipeline {
                 sleep 10
                 script {
                     if (TARGET == 'dev') {
-                        TEST_URL = 'https://k10a204.p.ssafy.io/dev/check'
+                        TEST_URL = 'https://k10a204.p.ssafy.io/dev/api/check'
                     } else {
-                        TEST_URL = 'https://k10a204.p.ssafy.io/check'
+                        TEST_URL = 'https://k10a204.p.ssafy.io/api/check'
                     }
                     try {
                         HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL", returnStdout: true).trim()

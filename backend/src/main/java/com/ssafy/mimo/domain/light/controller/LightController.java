@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/light")
+@RequestMapping("/api/v1/light")
 public class LightController {
     @PostMapping("/register")
     public ResponseEntity<String> registerLight(@RequestBody LightRegisterRequestDto lightRegisterRequestDto) {
