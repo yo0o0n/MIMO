@@ -48,13 +48,33 @@ public class HouseService {
 
 	public void updateInfo(Long userId, Long userHouseId, HouseUpdateRequestDto houseUpdateRequestDto) {
 		UserHouse userHouse = userHouseRepository.findById(userHouseId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 ID의 UserHouse가 존재하지 않습니다: " + userHouseId));
+				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userHouseId));
 
 		if (!userHouse.getUser().getId().equals(userId)) {
-			throw new IllegalArgumentException("집을 수정할 수 있는 권한이 없습니다.");
+			throw new IllegalArgumentException("집을 수정할 권한이 없습니다.");
 		}
 
 		userHouse.updateNickname(houseUpdateRequestDto.getNickname());
+	}
+
+	public void deleteUserHouse(Long userId, Long userHouseId) {
+		UserHouse userHouse = userHouseRepository.findById(userHouseId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userHouseId));
+
+		User user = userHouse.getUser();
+		// 요청한 사용자 ID와 UserHouse의 사용자 ID가 같은지 확인
+		if (!user.getId().equals(userId)) {
+			throw new IllegalArgumentException("집을 삭제할 권한이 없습니다.");
+		}
+
+		userHouseRepository.delete(userHouse);
+		userHouseRepository.flush();  // 즉시 데이터베이스와 동기화
+
+		// 해당 House에 더 이상 연결된 UserHouse가 없는지 확인
+		House house = userHouse.getHouse();
+		if (userHouseRepository.findByHouse(house).isEmpty()) {
+			houseRepository.delete(house);
+		}
 	}
 
 	public House findHouseById(Long houseId) {

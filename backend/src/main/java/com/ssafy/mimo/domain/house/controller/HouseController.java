@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/houses")
+@RequestMapping("/api/v1/houses")
 @RequiredArgsConstructor
 public class HouseController {
 
@@ -37,4 +37,14 @@ public class HouseController {
 			put("message", "Success");
 		}});
 	}
+
+	@DeleteMapping("/{userHouseId}")
+	public ResponseEntity<Void> deleteUserHouse(HttpServletRequest request,
+										   @PathVariable("userHouseId") Long userHouseId) {
+		Long userId = (Long) request.getAttribute("userId");
+
+		houseService.deleteUserHouse(userId, userHouseId);
+		return ResponseEntity.noContent().build();
+	}
+
 }
