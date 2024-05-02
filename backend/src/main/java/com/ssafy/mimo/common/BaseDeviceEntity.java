@@ -7,6 +7,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -16,13 +17,13 @@ import org.jetbrains.annotations.NotNull;
 public class BaseDeviceEntity extends BaseUnregisterableEntity {
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    @NotNull
+    @Nullable
     private User user;
     @ManyToOne
     @JoinColumn(name = "HUB_ID")
-    @NotNull
+    @Nullable
     private Hub hub;
-    @NotNull
+    @Nullable
     private String nickname;
     private boolean isAccessible;
 }
