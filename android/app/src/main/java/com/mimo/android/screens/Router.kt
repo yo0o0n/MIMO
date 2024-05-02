@@ -18,9 +18,15 @@ fun Router(
     currentLocation: String?,
     onClickForeground: () -> Unit,
 ){
-    NavHost(navController = navController, startDestination = Screen.MyHomeScreen.route) {
+    NavHost(navController = navController, startDestination = Screen.EmptyScreen.route) {
         //val availability by healthConnectManager.availability
 
+        // default
+        composable(Screen.EmptyScreen.route) {
+            EmptyScreen()
+        }
+
+        // main
         composable(Screen.MyHomeScreen.route) {
             MyHomeScreen()
         }
@@ -40,6 +46,7 @@ fun Router(
 }
 
 enum class Screen(val route: String, val titleId: Int) {
+    EmptyScreen("empty_screen", R.string.empty_screen),
     MyHomeScreen("my_home_screen", R.string.my_home_screen),
     SleepScreen("sleep_screen", R.string.sleep_screen),
     MyProfileScreen("my_profile_screen", R.string.my_profile_screen),

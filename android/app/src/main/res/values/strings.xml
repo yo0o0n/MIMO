@@ -33,6 +33,7 @@
     <string name="foreground_service_sample_last_location_fetching">Fetching…</string>
 
     <!-- screens -->
+    <string name="empty_screen">empty_screen</string>
     <string name="login_screen">login_screen</string>
     <string name="first_setting_root_screen">first_setting_root_screen</string>
     <string name="first_setting_start_screen">first_setting_start_screen</string>

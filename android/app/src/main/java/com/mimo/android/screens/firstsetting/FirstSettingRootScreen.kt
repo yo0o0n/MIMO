@@ -1,14 +1,18 @@
 package com.mimo.android.screens.firstsetting
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.mimo.android.components.base.DetectOSBackButton
 
 @Composable
 fun FirstSettingRootScreen(
-    onFinishFirstSetting: () -> Unit
+    onFinishFirstSetting: (() -> Unit)? = null,
+    checkCameraPermission: (() -> Unit)? = null
 ){
     var step by remember { mutableStateOf("0") }
 
@@ -20,10 +24,15 @@ fun FirstSettingRootScreen(
     }
 
     if (step == "1") {
-        ReadQRCodeScreen(
-            goPrev = { step = "0" },
-            goNext = { step = "2" }
-        )
+        DetectOSBackButton(
+            event = { step = "0" }
+        ) {
+            checkCameraPermission?.invoke()
+            ReadQRCodeScreen(
+                goPrev = { step = "0" },
+                goNext = { step = "2" },
+            )
+        }
         return
     }
 }

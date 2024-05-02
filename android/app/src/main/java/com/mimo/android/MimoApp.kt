@@ -30,7 +30,8 @@ fun MimoApp(
     context: Context,
     serviceRunning: Boolean,
     currentLocation: String?,
-    onClickForeground: () -> Unit
+    onClickForeground: () -> Unit,
+    checkCameraPermission: (() -> Unit)? = null,
     ){
     MaterialTheme {
         BackgroundImage {
@@ -77,7 +78,8 @@ fun MimoApp(
 
             if (!isFinishedFirstSetting) {
                 FirstSettingRootScreen(
-                    onFinishFirstSetting = ::handleFinishFirstSetting
+                    onFinishFirstSetting = ::handleFinishFirstSetting,
+                    checkCameraPermission = checkCameraPermission
                 )
                 return@BackgroundImage
             }

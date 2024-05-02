@@ -2,8 +2,10 @@ package com.mimo.android
 
 import android.app.AlertDialog
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -19,7 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.health.connect.client.HealthConnectClient
 import androidx.lifecycle.lifecycleScope
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import com.mimo.android.health.HealthConnectManager
+import com.mimo.android.health.checkAvailability
+import com.mimo.android.health.checkHealthConnectPermission
+import com.mimo.android.health.createHealthConnectPermissionRequest
 import com.mimo.android.service.ExampleLocationForegroundService
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
@@ -28,11 +35,67 @@ import kotlinx.coroutines.launch
 private const val TAG = "Mimo"
 
 class MainActivity : ComponentActivity() {
+    // QR code Scanner
+    private val textResult = mutableStateOf("")
+
+    private val barCodeLauncher = registerForActivityResult(ScanContract()) {
+        result ->
+        if (result.contents == null) {
+            Toast.makeText(
+                this@MainActivity,
+                "취소",
+                Toast.LENGTH_SHORT
+            ).show()
+            return@registerForActivityResult
+        }
+        textResult.value = result.contents
+        Toast.makeText(
+            this@MainActivity,
+            "${result.contents}",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun showCamera(){
+        val options = ScanOptions()
+        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+        options.setPrompt("QR코드를 스캔해주세요")
+        options.setCameraId(0)
+        options.setBeepEnabled(false)
+        options.setOrientationLocked(false)
+
+        barCodeLauncher.launch(options)
+    }
+
+    private val qrRequestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        isGranted ->
+        if (isGranted) {
+            showCamera()
+        }
+    }
+
+    private fun checkCameraPermission(context: Context){
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            showCamera()
+            return
+        }
+
+        if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+            Toast.makeText(this@MainActivity, "Camera required", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        qrRequestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+    }
+
+    // health-connect
     private lateinit var healthConnectManager: HealthConnectManager
     private lateinit var healthConnectPermissionRequest: ActivityResultLauncher<Set<String>>
 
+    // location-foreground sample
     private var exampleService: ExampleLocationForegroundService? = null
-
     private var serviceBoundState by mutableStateOf(false)
     private var displayableLocation by mutableStateOf<String?>(null)
 
@@ -96,8 +159,16 @@ class MainActivity : ComponentActivity() {
 
         // check health-connect permission
         if (checkAvailability()) {
-            createHealthConnectPermissionRequest()
-            checkHealthConnectPermission(false)
+            healthConnectPermissionRequest = createHealthConnectPermissionRequest(
+                healthConnectManager = healthConnectManager,
+                context = this
+            )
+            checkHealthConnectPermission(
+                showInfo = false,
+                healthConnectManager = healthConnectManager,
+                context = this,
+                healthConnectPermissionRequest = healthConnectPermissionRequest
+            )
         }
 
         // check location permission
@@ -110,83 +181,9 @@ class MainActivity : ComponentActivity() {
                 context = this,
                 serviceRunning = serviceBoundState,
                 currentLocation = displayableLocation,
-                onClickForeground = ::onStartOrStopForegroundServiceClick
+                onClickForeground = ::onStartOrStopForegroundServiceClick,
+                checkCameraPermission = { checkCameraPermission(this) }
             )
-        }
-    }
-
-    private fun checkAvailability(): Boolean {
-        val healthConnectSdkStatus = HealthConnectClient.getSdkStatus(this)
-
-        if (healthConnectSdkStatus == HealthConnectClient.SDK_UNAVAILABLE) {
-            runOnUiThread {
-                Toast.makeText(
-                    this,
-                    R.string.not_supported_description,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            return false
-        }
-
-        if (healthConnectSdkStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
-            runOnUiThread {
-                Toast.makeText(
-                    this,
-                    R.string.not_installed_description,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            return false
-        }
-
-        return true
-    }
-
-    private fun createHealthConnectPermissionRequest() {
-        healthConnectPermissionRequest =
-            registerForActivityResult(healthConnectManager.requestPermissionActivityContract) { granted ->
-                lifecycleScope.launch {
-                    if (granted.isNotEmpty() && healthConnectManager.hasAllPermissions()) {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.permission_granted,
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    } else {
-                        AlertDialog.Builder(this@MainActivity)
-                            .setMessage(R.string.permission_denied)
-                            .setPositiveButton(R.string.ok, null)
-                            .show()
-                    }
-                }
-            }
-    }
-
-    private fun checkHealthConnectPermission(showInfo: Boolean) {
-        lifecycleScope.launch {
-            try {
-                if (healthConnectManager.hasAllPermissions()) {
-                    if (showInfo) {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.permission_granted,
-                            Toast.LENGTH_LONG,
-                        ).show()
-                    }
-                } else {
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.permission_denied,
-                        Toast.LENGTH_LONG,
-                    ).show()
-                    healthConnectPermissionRequest.launch(healthConnectManager.permissions)
-                }
-            } catch (exception: Exception) {
-                Log.e(TAG, exception.toString())
-                Toast.makeText(this@MainActivity, "Error: $exception", Toast.LENGTH_LONG)
-                    .show()
-            }
         }
     }
 
