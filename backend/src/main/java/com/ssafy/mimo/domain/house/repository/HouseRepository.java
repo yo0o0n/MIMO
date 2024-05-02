@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface UserHouseRepository extends JpaRepository<UserHouse, Long> {
+public interface HouseRepository extends JpaRepository<UserHouse, Long> {
 
     List<UserHouse> findAllByUser_Id(Long userId);
 
