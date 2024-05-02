@@ -33,4 +33,8 @@ public class UserHouse extends BaseDeletableEntity {
     @JoinColumn(name = "house_id")
     private House house;
 
+    public void updateNickname(String nickname) {
+        this.setNickname(nickname);
+    }
+
 }
