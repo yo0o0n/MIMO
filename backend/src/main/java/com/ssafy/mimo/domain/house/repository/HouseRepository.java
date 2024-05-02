@@ -1,12 +1,9 @@
 package com.ssafy.mimo.domain.house.repository;
 
-import com.ssafy.mimo.domain.house.entity.UserHouse;
+import com.ssafy.mimo.domain.house.entity.House;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+public interface HouseRepository extends JpaRepository<House, Long> {
 
-public interface HouseRepository extends JpaRepository<UserHouse, Long> {
-
-    List<UserHouse> findAllByUser_Id(Long userId);
 
 }
