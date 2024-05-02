@@ -6,7 +6,6 @@ import com.ssafy.mimo.domain.hub.service.UserService;
 import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.domain.light.repository.LightRepository;
 import com.ssafy.mimo.user.entity.User;
-import com.ssafy.mimo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +25,9 @@ public class LightService {
     }
     private String registerLight(Long lightId, Long userId, Long hubId, String nickname) {
         Light light = findLightById(lightId);
+        if (light.isRegistered()) {
+            return "Light already registered!";
+        }
         User user = userService.findUserById(userId);
         Hub hub = hubService.findHubById(hubId);
         try {
@@ -39,5 +41,22 @@ public class LightService {
             return "Failed to register light!";
         }
         return "Light registered!";
+    }
+    public String unregisterLight(Long lightId) {
+        Light light = findLightById(lightId);
+        if (!light.isRegistered()) {
+            return "Light already unregistered!";
+        }
+        try {
+            light.setUser(null);
+            light.setHub(null);
+            light.setRegistered(false);
+            light.setUnregisteredDttm(LocalDateTime.now());
+            light.setNickname(null);
+            lightRepository.save(light);
+        } catch (Exception e) {
+            return "Failed to unregister light!";
+        }
+        return "Light unregistered!";
     }
 }

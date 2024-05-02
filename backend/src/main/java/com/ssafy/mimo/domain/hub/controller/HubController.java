@@ -27,7 +27,7 @@ public class HubController {
     public ResponseEntity<String> registerHub(@RequestBody HubRegisterRequestDto registerNewHubDto) {
         return ResponseEntity.ok(hubService.registerHub(registerNewHubDto.serialNumber(), registerNewHubDto.houseId()));
     }
-    @DeleteMapping("unregister?hubId={hubId}&houseId={houseId}")
+    @DeleteMapping("/unregister?hubId={hubId}&houseId={houseId}")
     public ResponseEntity<String> unregisterHub(@RequestParam Long hubId,
                                                 @RequestParam Long houseId) {
         return ResponseEntity.ok(hubService.unregisterHub(hubId, houseId));
