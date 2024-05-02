@@ -1,13 +1,16 @@
 package com.ssafy.mimo.user.entity;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,8 +18,10 @@ import com.ssafy.mimo.common.BaseDeletableEntity;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
 import com.ssafy.mimo.user.enums.UserRole;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -32,35 +37,29 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "USER")
-public class User extends BaseDeletableEntity implements UserDetails {
-	@NotNull
-	private Long providerId;
+public class User extends BaseDeletableEntity  implements UserDetails{
 
-	@Builder.Default
-	@NotNull
-	private Boolean isSuperUser = false;
+	@Column(length = 100, nullable = false, unique = true)
+	private String keyCode; // 로그인 식별키
 
-	@Nullable
-	private LocalTime wakeupTime;
+	@ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
+	private List<String> roles = new ArrayList<>();
 
+	@Override   //사용자의 권한 목록 리턴
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return this.roles.stream()
+			.map(SimpleGrantedAuthority::new)
+			.collect(Collectors.toList());
+	}
 
-	private long id;
-	private String email;
-	private String password;
-	private Collection<? extends GrantedAuthority> authorities;
-	@Setter
-	private Map<String, Object> attributes;
+	@Override
+	public String getUsername() {
+		return keyCode;
+	}
 
-	public static UserPrincipal create(UserDto user) {
-		List<GrantedAuthority> authorities =
-			Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRole()));
-		return new UserPrincipal(
-			user.getId(),
-			user.getEmail(),
-			"",
-			authorities,
-			null
-		);
+	@Override
+	public String getPassword() {
+		return null;
 	}
 
 	@Override
@@ -83,10 +82,16 @@ public class User extends BaseDeletableEntity implements UserDetails {
 		return true;
 	}
 
-	@Override
-	public String getUsername() {
-		return email;
-	}
+
+	@NotNull
+	private Long providerId;
+
+	@Builder.Default
+	@NotNull
+	private Boolean isSuperUser = false;
+
+	@Nullable
+	private LocalTime wakeupTime;
 
 	@OneToMany(mappedBy = "user")
 	private List<UserHouse> userHouse;

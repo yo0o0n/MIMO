@@ -2,17 +2,11 @@
 //
 // import java.io.IOException;
 //
-// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+// import org.springframework.security.core.Authentication;
 // import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.util.StringUtils;
 // import org.springframework.web.filter.GenericFilterBean;
 //
-// import com.ssafy.mimo.exception.CustomException;
-// import com.ssafy.mimo.exception.ErrorCode;
-// import com.ssafy.mimo.user.entity.User;
-// import com.ssafy.mimo.user.service.JwtTokenService;
-// import com.ssafy.mimo.user.service.UserService;
+// import com.ssafy.mimo.user.service.JwtTokenProvider;
 //
 // import jakarta.servlet.FilterChain;
 // import jakarta.servlet.ServletException;
@@ -22,43 +16,23 @@
 // import lombok.RequiredArgsConstructor;
 //
 // @RequiredArgsConstructor
-// public class JwtFilter extends GenericFilterBean {
-// 	public static final String AUTHORIZATION_HEADER = "Authorization";
-// 	private final JwtTokenService jwtTokenService;
-// 	private final UserService userService;
+// public class JwtAuthFilter extends GenericFilterBean {
 //
-// 	// 요 Filter 에서 액세스토큰이 유효한지 확인 후 SecurityContext에 계정정보 저장
+// 	private final JwtTokenProvider jwtTokenProvider;
+//
 // 	@Override
-// 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws
+// 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws
 // 		IOException, ServletException {
-// 		HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-// 		logger.info("[JwtFilter] : " + httpServletRequest.getRequestURL().toString());
-// 		String jwt = resolveToken(httpServletRequest);
+// 		// 클라이언트의 API 요청 헤더에서 토큰 추출
+// 		String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
 //
-// 		if (StringUtils.hasText(jwt) && jwtTokenService.validateToken(jwt)) {
-// 			Long userId = Long.valueOf(jwtTokenService.getPayload(jwt)); // 토큰 Payload에 있는 userId 가져오기
-// 			User user = userService.findUserById(userId); // userId로
-// 			if(user == null) {
-// 				throw new CustomException(ErrorCode.NOT_EXIST_USER);
-// 			}
-// 			UserDetails userDetails = User.create(user);
-// 			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+// 		// 유효성 검사 후 SecurityContext에 저장
+// 		if (token != null && jwtTokenProvider.validateToken(token)) {
+// 			Authentication authentication = jwtTokenProvider.getAuthentication(token);
 // 			SecurityContextHolder.getContext().setAuthentication(authentication);
-// 		} else {
-// 			throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
 // 		}
 //
-// 		filterChain.doFilter(servletRequest, servletResponse);
-// 	}
-//
-// 	// Header에서 Access Token 가져오기
-// 	private String resolveToken(HttpServletRequest request) {
-// 		String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-//
-// 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-// 			return bearerToken.substring(7);
-// 		}
-//
-// 		return null;
+// 		// 다음 필터링
+// 		chain.doFilter(request, response);
 // 	}
 // }
