@@ -10,7 +10,6 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class UserDto {
-	private Long id;
 	private Long providerId;
 	private String email;
 	private String platform;

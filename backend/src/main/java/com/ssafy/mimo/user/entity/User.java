@@ -1,24 +1,23 @@
 package com.ssafy.mimo.user.entity;
 
 import java.time.LocalTime;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-import com.ssafy.mimo.domain.house.entity.UserHouse;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.ssafy.mimo.common.BaseDeletableEntity;
-import com.ssafy.mimo.user.dto.UserDto;
+import com.ssafy.mimo.domain.house.entity.UserHouse;
 import com.ssafy.mimo.user.enums.UserRole;
 
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +34,7 @@ import lombok.Setter;
 @Table(name = "USER")
 public class User extends BaseDeletableEntity implements UserDetails {
 	@NotNull
-	private Integer providerId;
+	private Long providerId;
 
 	@Builder.Default
 	@NotNull
@@ -44,15 +43,18 @@ public class User extends BaseDeletableEntity implements UserDetails {
 	@Nullable
 	private LocalTime wakeupTime;
 
+
+	private long id;
 	private String email;
 	private String password;
 	private Collection<? extends GrantedAuthority> authorities;
+	@Setter
 	private Map<String, Object> attributes;
 
-	public static User create(UserDto user) {
+	public static UserPrincipal create(UserDto user) {
 		List<GrantedAuthority> authorities =
 			Collections.singletonList(new SimpleGrantedAuthority(UserRole.USER.getRole()));
-		return new User(
+		return new UserPrincipal(
 			user.getId(),
 			user.getEmail(),
 			"",
@@ -84,11 +86,6 @@ public class User extends BaseDeletableEntity implements UserDetails {
 	@Override
 	public String getUsername() {
 		return email;
-	}
-
-	@Override
-	public String getPassword() {
-		return null;
 	}
 
 	@OneToMany(mappedBy = "user")
