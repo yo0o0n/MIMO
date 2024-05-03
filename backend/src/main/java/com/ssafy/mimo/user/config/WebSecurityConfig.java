@@ -31,6 +31,7 @@ public class WebSecurityConfig {
 			.httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable())
 			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers("/api/v1/auth").permitAll()
+				.requestMatchers("/api/check").permitAll()
 				.anyRequest().authenticated())
 			// Http 요청에 대한 Jwt 유효성 선 검사
 			.addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
@@ -40,6 +41,6 @@ public class WebSecurityConfig {
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.ignoring().requestMatchers("/api/v1/auth");
+		return (web) -> web.ignoring().requestMatchers("/api/v1/auth", "/api/check");
 	}
 }

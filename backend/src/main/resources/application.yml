@@ -45,6 +45,6 @@ jwt:
 
 logging:
   level:
-    root: info
+    root: DEBUG
     com.ssafy.mimo: DEBUG
 
