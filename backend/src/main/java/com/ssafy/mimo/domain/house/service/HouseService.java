@@ -81,18 +81,18 @@ public class HouseService {
 		// 현재 거주지인 집을 찾아 해제
 		UserHouse currentHome = userHouseRepository.findCurrentHomeByUserId(userId);
 		if (currentHome != null) {
-			currentHome.deactivateHome();  // 직접적인 메소드 호출로 상태 변경
+			currentHome.deactivateHome();
 			userHouseRepository.save(currentHome);
 		}
 
 		// 새로운 집을 현재 거주지로 설정
 		UserHouse newHome = userHouseRepository.findByIdAndUserId(userHouseId, userId);
 		if (newHome != null) {
-			newHome.activateHome();  // 직접적인 메소드 호출로 상태 변경
+			newHome.activateHome();
 			userHouseRepository.save(newHome);
-			return true;  // 성공적으로 새로운 집을 현재 거주지로 설정
+			return true;
 		}
-		return false;  // 실패 (주어진 ID의 집을 찾지 못함)
+		return false;
 	}
 
 	public House findHouseById(Long houseId) {

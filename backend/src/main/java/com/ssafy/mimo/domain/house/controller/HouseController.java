@@ -47,7 +47,7 @@ public class HouseController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@PutMapping("/{userHouseId}/setHome")
+	@PutMapping("/{userHouseId}/home")
 	public ResponseEntity<?> updateHouseStatus(HttpServletRequest request,
 										@PathVariable("userHouseId") Long userHouseId) {
 		Long userId = (Long) request.getAttribute("userId");
