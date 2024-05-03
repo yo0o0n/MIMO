@@ -40,3 +40,16 @@ target_link_libraries(
 		server
 		pthread
 		)
+
+add_executable(
+		ble_test
+		ble.cpp
+		)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB REQUIRED IMPORTED_TARGET glib-2.0)
+
+target_link_libraries(
+		ble_test
+		PkgConfig::GLIB
+		)
