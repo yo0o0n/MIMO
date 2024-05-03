@@ -3,9 +3,7 @@ package com.ssafy.mimo.user.entity;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.ssafy.mimo.common.BaseDeletableEntity;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
-import com.ssafy.mimo.user.enums.UserRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -37,7 +34,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "USER")
-public class User extends BaseDeletableEntity  implements UserDetails{
+public class User extends BaseDeletableEntity implements UserDetails {
 
 	@Column(length = 100, nullable = false, unique = true)
 	private String keyCode; // 로그인 식별키
@@ -81,10 +78,6 @@ public class User extends BaseDeletableEntity  implements UserDetails{
 	public boolean isEnabled() {
 		return true;
 	}
-
-
-	@NotNull
-	private Long providerId;
 
 	@Builder.Default
 	@NotNull

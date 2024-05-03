@@ -1,5 +1,9 @@
 package com.ssafy.mimo.user.service;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,21 +19,29 @@ public class KakaoAuthService {
 
 	private final KakaoUserInfo kakaoUserInfo;
 	private final UserRepository userRepository;
-
-	@Transactional(readOnly = true)
-	public User isSignedUp(String token) {
-		KakaoUserInfoResponseDto userInfo = kakaoUserInfo.getUserInfo(token);
-
-		return userRepository.findByKeyCode(userInfo.getId().toString())
-			.orElseGet(() -> signup(userInfo));
-	}
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Transactional
-	public User signup(KakaoUserInfoResponseDto userInfo) {
-		User user = new User();
-		// user 정보 설정
-		user.setKeyCode(userInfo.getId().toString());
-		// 필요한 경우 다른 필드도 설정
+	public Long isSignedUp(String token) {
+		KakaoUserInfoResponseDto userInfo = kakaoUserInfo.getUserInfo(token);
+		String keyCode = userInfo.getId().toString();
+		Optional<User> optionalUser = userRepository.findByKeyCode(keyCode);
+		if (optionalUser.isPresent()) {
+			User user = optionalUser.get();
+			return user.getId();
+		} else {
+			User user = signUp(keyCode);
+			return user.getId();
+		}
+	}
+
+	public User signUp(String keyCode) {
+		User user = User.builder()
+				.keyCode(keyCode)
+				.build();
+
 		return userRepository.save(user);
 	}
+
+
 }

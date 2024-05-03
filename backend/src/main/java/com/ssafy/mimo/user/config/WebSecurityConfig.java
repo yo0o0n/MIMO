@@ -1,6 +1,7 @@
 package com.ssafy.mimo.user.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
+@Configuration
 public class WebSecurityConfig {
 
 	private final JwtTokenProvider jwtTokenProvider;
@@ -28,7 +30,7 @@ public class WebSecurityConfig {
 			.formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable())
 			.httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable())
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers("/api/v1/auth/**'").permitAll()
+				.requestMatchers("/api/v1/auth").permitAll()
 				.anyRequest().authenticated())
 			// Http 요청에 대한 Jwt 유효성 선 검사
 			.addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
@@ -38,6 +40,6 @@ public class WebSecurityConfig {
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.ignoring().requestMatchers("/api/v1/auth/**");
+		return (web) -> web.ignoring().requestMatchers("/api/v1/auth");
 	}
 }

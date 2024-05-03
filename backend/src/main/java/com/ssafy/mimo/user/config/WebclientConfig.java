@@ -16,7 +16,7 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 import reactor.netty.http.client.HttpClient;
 
 @Configuration
-public class WebClientConfig {
+public class WebclientConfig {
 
 	@Bean
 	public ReactorResourceFactory resourceFactory() {
