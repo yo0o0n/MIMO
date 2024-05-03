@@ -35,58 +35,45 @@ fun Navigation(
 
     val scope = rememberCoroutineScope()
 
-    Scaffold (
-        bottomBar = {
-            BottomAppBar(
-                content = {
-                    HorizontalButtonNavigation(navController)
-                }
-            )
+    Row {
+        Button(
+            contentPadding = PaddingValues(0.dp),
+            shape = MaterialTheme.shapes.small,
+            onClick = {
+                navController.navigate(Screen.MyHomeScreen.route)
+            }
+        ) {
+            Text(text = "우리집")
         }
-    ) {
 
-    }
-}
-
-@Composable
-fun HorizontalButtonNavigation(navController: NavController) {
-    Button(
-        contentPadding = PaddingValues(0.dp),
-        shape = MaterialTheme.shapes.small,
-        onClick = {
-            navController.navigate(Screen.MyHomeScreen.route)
+        Button(
+            contentPadding = PaddingValues(0.dp),
+            shape = MaterialTheme.shapes.small,
+            onClick = {
+                navController.navigate(Screen.SleepScreen.route)
+            }
+        ) {
+            Text(text = "수면")
         }
-    ) {
-        Text(text = "우리집")
-    }
 
-    Button(
-        contentPadding = PaddingValues(0.dp),
-        shape = MaterialTheme.shapes.small,
-        onClick = {
-            navController.navigate(Screen.SleepScreen.route)
+        Button(
+            contentPadding = PaddingValues(0.dp),
+            shape = MaterialTheme.shapes.small,
+            onClick = {
+                navController.navigate(Screen.MyProfileScreen.route)
+            }
+        ) {
+            Text(text = "내정보")
         }
-    ) {
-        Text(text = "수면")
-    }
 
-    Button(
-        contentPadding = PaddingValues(0.dp),
-        shape = MaterialTheme.shapes.small,
-        onClick = {
-            navController.navigate(Screen.MyProfileScreen.route)
+        Button(
+            contentPadding = PaddingValues(0.dp),
+            shape = MaterialTheme.shapes.small,
+            onClick = {
+                navController.navigate(Screen.ForegroundServiceSampleScreen.route)
+            }
+        ) {
+            Text(text = "테스트1")
         }
-    ) {
-        Text(text = "내정보")
-    }
-
-    Button(
-        contentPadding = PaddingValues(0.dp),
-        shape = MaterialTheme.shapes.small,
-        onClick = {
-            navController.navigate(Screen.ForegroundServiceSampleScreen.route)
-        }
-    ) {
-        Text(text = "테스트1")
     }
 }

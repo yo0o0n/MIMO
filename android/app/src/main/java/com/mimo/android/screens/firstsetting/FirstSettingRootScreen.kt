@@ -7,18 +7,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.MutableLiveData
 import com.mimo.android.components.base.DetectOSBackButton
 
 @Composable
 fun FirstSettingRootScreen(
     onFinishFirstSetting: (() -> Unit)? = null,
-    checkCameraPermission: (() -> Unit)? = null
+    checkCameraPermission: (() -> Unit)? = null,
+    qrData: String? = null
 ){
     var step by remember { mutableStateOf("0") }
 
     if (step == "0") {
         FirstSettingStartScreen(
-            goNext = { step = "1" }
+            goNext = {
+                step = "1"
+            }
         )
         return
     }
@@ -27,11 +31,14 @@ fun FirstSettingRootScreen(
         DetectOSBackButton(
             event = { step = "0" }
         ) {
-            checkCameraPermission?.invoke()
             ReadQRCodeScreen(
                 goPrev = { step = "0" },
                 goNext = { step = "2" },
+                checkCameraPermission = checkCameraPermission
             )
+
+            checkCameraPermission?.invoke()
+            println("QR data : ${qrData}")
         }
         return
     }

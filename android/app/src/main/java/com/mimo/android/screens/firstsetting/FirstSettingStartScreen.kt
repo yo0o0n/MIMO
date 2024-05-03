@@ -108,7 +108,7 @@ fun FirstSettingStartScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom
         ) {
-            Button(text = "시작하기", onClick = ::handleGoNext)
+            Button(text = "허브 등록하기", onClick = ::handleGoNext)
         }
     }
 }

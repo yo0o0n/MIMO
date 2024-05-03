@@ -1,14 +1,19 @@
 package com.mimo.android.screens.login
 
-import androidx.compose.runtime.Composable
+import com.mimo.android.R
+import com.mimo.android.components.*
+import com.mimo.android.components.base.Size
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.*
 import androidx.compose.ui.tooling.preview.Preview
-import com.mimo.android.components.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-
-import com.mimo.android.components.base.Size
 
 @Preview
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -26,6 +31,32 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.padding(10.dp))
 
-        Button(text = "카카오로 로그인", onClick = onLoginWithKakao)
+        SocialLoginButton(
+            onClick = onLoginWithKakao,
+            desc = "KaKao",
+            imageResource = R.drawable.kakao_login_large_narrow
+        )
+    }
+}
+
+@Composable
+fun SocialLoginButton(
+    onClick: (() -> Unit)? = null,
+    desc: String,
+    imageResource: Int
+){
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(id = imageResource),
+            contentDescription = "${desc} Login Button",
+            modifier = Modifier
+                .width(330.dp)
+                .height(56.dp)
+                .clip(RoundedCornerShape(12.dp)) // border-radius를 16dp로 설정
+                .clickable { onClick?.invoke() }
+        )
     }
 }

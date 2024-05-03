@@ -1,11 +1,8 @@
 package com.mimo.android
 
-import android.app.AlertDialog
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -17,16 +14,20 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import androidx.health.connect.client.HealthConnectClient
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
+import com.kakao.sdk.common.KakaoSdk
+import com.kakao.sdk.common.util.Utility
 import com.mimo.android.health.HealthConnectManager
 import com.mimo.android.health.checkAvailability
 import com.mimo.android.health.checkHealthConnectPermission
 import com.mimo.android.health.createHealthConnectPermissionRequest
+import com.mimo.android.qr.checkCameraPermission
+import com.mimo.android.qr.createQRRequestPermissionLauncher
 import com.mimo.android.service.ExampleLocationForegroundService
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
@@ -35,12 +36,13 @@ import kotlinx.coroutines.launch
 private const val TAG = "Mimo"
 
 class MainActivity : ComponentActivity() {
-    // QR code Scanner
-    private val textResult = mutableStateOf("")
+    private var qrData by mutableStateOf<String?>(null)
 
+    // QR code Scanner
     private val barCodeLauncher = registerForActivityResult(ScanContract()) {
-        result ->
+            result ->
         if (result.contents == null) {
+            qrData = null
             Toast.makeText(
                 this@MainActivity,
                 "취소",
@@ -48,7 +50,7 @@ class MainActivity : ComponentActivity() {
             ).show()
             return@registerForActivityResult
         }
-        textResult.value = result.contents
+        qrData = result.contents
         Toast.makeText(
             this@MainActivity,
             "${result.contents}",
@@ -56,39 +58,9 @@ class MainActivity : ComponentActivity() {
         ).show()
     }
 
-    private fun showCamera(){
-        val options = ScanOptions()
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-        options.setPrompt("QR코드를 스캔해주세요")
-        options.setCameraId(0)
-        options.setBeepEnabled(false)
-        options.setOrientationLocked(false)
-
-        barCodeLauncher.launch(options)
-    }
-
-    private val qrRequestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        isGranted ->
-        if (isGranted) {
-            showCamera()
-        }
-    }
-
-    private fun checkCameraPermission(context: Context){
-        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            showCamera()
-            return
-        }
-
-        if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-            Toast.makeText(this@MainActivity, "Camera required", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        qrRequestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-    }
+    private val qRRequestPermissionLauncher = createQRRequestPermissionLauncher(
+        barCodeLauncher = barCodeLauncher
+    )
 
     // health-connect
     private lateinit var healthConnectManager: HealthConnectManager
@@ -155,6 +127,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        var keyHash = Utility.getKeyHash(this)
+        Log.e(TAG, "해시 키 값 : ${keyHash}")
+
+        // kakao sdk 초기화
+        KakaoSdk.init(this, "2fa7b989f12635ed266010d85b0a513e")
+
         healthConnectManager = (application as BaseApplication).healthConnectManager
 
         // check health-connect permission
@@ -182,7 +160,12 @@ class MainActivity : ComponentActivity() {
                 serviceRunning = serviceBoundState,
                 currentLocation = displayableLocation,
                 onClickForeground = ::onStartOrStopForegroundServiceClick,
-                checkCameraPermission = { checkCameraPermission(this) }
+                checkCameraPermission = { checkCameraPermission(
+                    context = this,
+                    barCodeLauncher = barCodeLauncher,
+                    qRRequestPermissionLauncher = qRRequestPermissionLauncher
+                ) },
+                qrData = qrData
             )
         }
     }
