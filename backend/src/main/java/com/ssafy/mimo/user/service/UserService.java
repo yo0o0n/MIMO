@@ -2,9 +2,7 @@ package com.ssafy.mimo.user.service;
 
 import org.springframework.stereotype.Service;
 
-// import com.ssafy.mimo.user.dto.UserDto;
 import com.ssafy.mimo.user.entity.User;
-// import com.ssafy.mimo.user.mapper.UserMapper;
 import com.ssafy.mimo.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -12,31 +10,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-	private  final UserRepository userRepository;
-	// private final UserMapper userMapper;
+	private final UserRepository userRepository;
 
-	// 유저 id로 검색하기
 	public User findUserById(Long id) {
 		return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
 	}
-
-	// public void save(UserDto userDto) {
-	// 	userMapper.save(userDto);
-	// }
-	//
-	// public UserDto findByProviderId(Long id) {
-	// 	return userMapper.findByProviderId(id);
-	// }
-	//
-	// public UserDto findByRefreshToken(String refreshToken) {
-	// 	return userMapper.findByRefreshToken(refreshToken);
-	// }
-	//
-	// public void update(UserDto userDto) {
-	// 	userMapper.update(userDto);
-	// }
-	//
-	// public void updateRefreshToken(UserDto userDto) {
-	// 	userMapper.updateRefreshToken(userDto);
-	// }
 }
