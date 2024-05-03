@@ -33,6 +33,9 @@ public class JwtTokenProvider {
 		secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
 	}
 
+	@Value("${jwt.access.token.expiration.seconds}")
+	private Long accessTokenExpiration;
+
 	// 토큰 생성
 	public String createToken(String userPk) {
 		Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위
@@ -40,7 +43,7 @@ public class JwtTokenProvider {
 		return Jwts.builder()
 			.setClaims(claims) // 정보 저장
 			.setIssuedAt(now) // 토큰 발행 시간 정보
-			.setExpiration(new Date(now.getTime() + (60 * 60 * 24 *1000L))) // 토큰 유효시각 설정 (24시간)
+			.setExpiration(new Date(now.getTime() + (accessTokenExpiration * 1000L))) // 토큰 유효시각 설정 (24시간)
 			.signWith(SignatureAlgorithm.HS256, secretKey)  // 암호화 알고리즘과, secret 값
 			.compact();
 	}
