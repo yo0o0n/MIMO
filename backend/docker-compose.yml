@@ -15,6 +15,7 @@ services:
             - "REDIS_HOST=${DEV_REDIS_HOST}"
             - "REDIS_PORT=${DEV_REDIS_PORT}"
             - "REDIS_PASSWORD=${DEV_REDIS_PASSWORD}"
+            - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
     green:
         build: .
         image: mimo_green
@@ -31,8 +32,7 @@ services:
             - "REDIS_HOST=${OPS_REDIS_HOST}"
             - "REDIS_PORT=${OPS_REDIS_PORT}"
             - "REDIS_PASSWORD=${OPS_REDIS_PASSWORD}"
-
-
+            - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
     blue:
         build: .
         image: mimo_blue
@@ -49,6 +49,7 @@ services:
             - "REDIS_HOST=${OPS_REDIS_HOST}"
             - "REDIS_PORT=${OPS_REDIS_PORT}"
             - "REDIS_PASSWORD=${OPS_REDIS_PASSWORD}"
+            - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
 
 networks:
     network_dev:
