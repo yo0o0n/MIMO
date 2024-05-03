@@ -5,24 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.base.Size
-import com.mimo.android.health.HealthConnectManager
-import java.time.Instant
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
+import com.mimo.android.services.health.HealthConnectManager
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable

@@ -1,5 +1,7 @@
 package com.mimo.android
 
+import com.journeyapps.barcodescanner.ScanContract
+import com.mimo.android.services.locationforegroundexample.ExampleLocationForegroundService
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
@@ -14,21 +16,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import com.journeyapps.barcodescanner.ScanContract
-import com.kakao.sdk.common.KakaoSdk
-import com.kakao.sdk.common.util.Utility
-import com.mimo.android.health.HealthConnectManager
-import com.mimo.android.health.checkAvailability
-import com.mimo.android.health.checkHealthConnectPermission
-import com.mimo.android.health.createHealthConnectPermissionRequest
-import com.mimo.android.qr.checkCameraPermission
-import com.mimo.android.qr.createQRRequestPermissionLauncher
-import com.mimo.android.service.ExampleLocationForegroundService
+import com.mimo.android.services.health.HealthConnectManager
+import com.mimo.android.services.health.checkAvailability
+import com.mimo.android.services.health.checkHealthConnectPermission
+import com.mimo.android.services.health.createHealthConnectPermissionRequest
+import com.mimo.android.services.qrcode.checkCameraPermission
+import com.mimo.android.services.qrcode.createQRRequestPermissionLauncher
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -36,13 +32,15 @@ import kotlinx.coroutines.launch
 private const val TAG = "Mimo"
 
 class MainActivity : ComponentActivity() {
-    private var qrData by mutableStateOf<String?>(null)
+    private val authViewModel = AuthViewModel()
+    private val firstSettingFunnelsViewModel = FirstSettingFunnelsViewModel()
+    private val qrCodeViewModel = QrCodeViewModel()
 
     // QR code Scanner
     private val barCodeLauncher = registerForActivityResult(ScanContract()) {
             result ->
         if (result.contents == null) {
-            qrData = null
+            qrCodeViewModel.removeQrCode()
             Toast.makeText(
                 this@MainActivity,
                 "취소",
@@ -50,12 +48,15 @@ class MainActivity : ComponentActivity() {
             ).show()
             return@registerForActivityResult
         }
-        qrData = result.contents
+        qrCodeViewModel.updateQrCode(result.contents)
         Toast.makeText(
             this@MainActivity,
             "${result.contents}",
             Toast.LENGTH_SHORT
         ).show()
+
+        // TODO: qrCode의 결과에 따라 funnel "2-1" or "2-2"로 이동
+        // firstSettingFunnelsViewModel.updateCurrentStep(stepId = "")
     }
 
     private val qRRequestPermissionLauncher = createQRRequestPermissionLauncher(
@@ -127,11 +128,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var keyHash = Utility.getKeyHash(this)
-        Log.e(TAG, "해시 키 값 : ${keyHash}")
-
-        // kakao sdk 초기화
-        KakaoSdk.init(this, "2fa7b989f12635ed266010d85b0a513e")
+        // TODO: kakao sdk 초기화
+//        var keyHash = Utility.getKeyHash(this)
+//        Log.e(TAG, "해시 키 값 : ${keyHash}")
+//        KakaoSdk.init(this, "2fa7b989f12635ed266010d85b0a513e")
 
         healthConnectManager = (application as BaseApplication).healthConnectManager
 
@@ -154,7 +154,22 @@ class MainActivity : ComponentActivity() {
         tryToBindToServiceIfRunning()
 
         setContent {
+
+            // check user
+            authViewModel.init()
+
+            // check firstSetting
+            // TODO: 로그인이 됐는지 확인하고 로그인이 된 상태이며 집이나 허브가 없다면 아래 init() 실행
+            if (true) {
+                firstSettingFunnelsViewModel.init(
+                    currentStepId = R.string.first_setting_start_funnel
+                )
+            }
+
             MimoApp(
+                authViewModel = authViewModel,
+                qrCodeViewModel = qrCodeViewModel,
+                firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
                 healthConnectManager = healthConnectManager,
                 context = this,
                 serviceRunning = serviceBoundState,
@@ -164,8 +179,7 @@ class MainActivity : ComponentActivity() {
                     context = this,
                     barCodeLauncher = barCodeLauncher,
                     qRRequestPermissionLauncher = qRRequestPermissionLauncher
-                ) },
-                qrData = qrData
+                ) }
             )
         }
     }

@@ -1,4 +1,4 @@
-package com.mimo.android.health
+package com.mimo.android.services.health
 
 import android.content.Context
 import android.os.RemoteException

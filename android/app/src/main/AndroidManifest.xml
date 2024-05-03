@@ -57,7 +57,7 @@
 
         <!--  Declare the foreground service type  -->
         <service
-            android:name=".service.ExampleLocationForegroundService"
+            android:name=".services.locationforegroundexample.ExampleLocationForegroundService"
             android:exported="false"
             android:foregroundServiceType="location" />
 

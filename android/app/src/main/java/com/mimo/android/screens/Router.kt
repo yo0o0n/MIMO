@@ -1,14 +1,14 @@
 package com.mimo.android.screens
 
+import com.mimo.android.R
+import com.mimo.android.screens.myhome.MyHomeScreen
+import com.mimo.android.services.health.HealthConnectManager
+import com.mimo.android.screens.myprofile.MyProfileScreen
+import com.mimo.android.screens.sleep.SleepScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mimo.android.R
-import com.mimo.android.health.HealthConnectManager
-import com.mimo.android.screens.myhome.MyHomeScreen
-import com.mimo.android.screens.myprofile.MyProfileScreen
-import com.mimo.android.screens.sleep.SleepScreen
 
 @Composable
 fun Router(

@@ -1,43 +1,34 @@
 package com.mimo.android
 
-
 import androidx.compose.material3.*
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.kakao.sdk.auth.AuthApiClient
-import com.kakao.sdk.user.UserApiClient
 import com.mimo.android.components.BackgroundImage
-
-import com.mimo.android.health.HealthConnectManager
+import com.mimo.android.services.health.HealthConnectManager
 import com.mimo.android.screens.Navigation
 import com.mimo.android.screens.Router
-import com.mimo.android.screens.firstsetting.FirstSettingRootScreen
+import com.mimo.android.screens.firstsettingfunnels.*
 import com.mimo.android.screens.login.LoginScreen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MimoApp(
+    authViewModel: AuthViewModel,
+    qrCodeViewModel: QrCodeViewModel,
+    firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel,
     healthConnectManager: HealthConnectManager,
     context: Context,
     serviceRunning: Boolean,
     currentLocation: String?,
     onClickForeground: () -> Unit,
     checkCameraPermission: (() -> Unit)? = null,
-    qrData: String? = null
     ){
     MaterialTheme {
         BackgroundImage {
@@ -49,48 +40,19 @@ fun MimoApp(
 
             val availability by healthConnectManager.availability
 
-            var isLoading by remember { mutableStateOf(true) }
-            var isLoggedIn by remember { mutableStateOf(AuthApiClient.instance.hasToken()) }
-            var isFinishedFirstSetting by remember { mutableStateOf(false) }
+            val authUiState by authViewModel.uiState.collectAsState()
+            val firstSettingFunnelsUiState by firstSettingFunnelsViewModel.uiState.collectAsState()
 
-            LaunchedEffect(key1 = Unit) {
-                try {
-                    val hasToken = AuthApiClient.instance.hasToken()
-                    println(hasToken)
-                } catch(e: Exception){
-                    e.printStackTrace()
-                } finally {
-                    isLoading = false
-                }
-            }
-
-            // TODO: kakao Login
-            fun handleKakaoLogin(){
-                UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
-                    if (error != null) {
-                        Log.e("MIMO Kakao", "로그인 실패", error)
-                    }
-                    else if (token != null) {
-                        Log.i("MIMO Kakao", "로그인 성공 ${token.accessToken}")
-                        println("accessToken : ${token.accessToken}")
-                        println("refreshToken : ${token.refreshToken}")
-                        isLoggedIn = true
-                    }
-                }
-            }
-
+            // TODO: 실제 kakao-login 구현
             fun handleKakaoLoginMock(){
-                scope.launch {
-                    delay(2000)
-                    isLoggedIn = true
-                }
-            }
-
-            fun handleFinishFirstSetting(){
-                scope.launch {
-                    delay(2000)
-                    isFinishedFirstSetting = true
-                }
+                val user = User(
+                    username = "용상윤",
+                    accessToken = "123",
+                    refreshToken = "456"
+                )
+                authViewModel.login(
+                    user = user
+                )
             }
 
             Router(
@@ -101,22 +63,18 @@ fun MimoApp(
                 onClickForeground = onClickForeground,
             )
 
-            if (isLoading) {
-                return@BackgroundImage
-            }
-
-            if (!isLoggedIn) {
+            if (authUiState.user == null) {
                 LoginScreen(
-                    onLoginWithKakao = ::handleKakaoLogin
+                    onLoginWithKakao = ::handleKakaoLoginMock
                 )
                 return@BackgroundImage
             }
 
-            if (!isFinishedFirstSetting) {
-                FirstSettingRootScreen(
-                    onFinishFirstSetting = ::handleFinishFirstSetting,
-                    checkCameraPermission = checkCameraPermission,
-                    qrData = qrData
+            if (firstSettingFunnelsUiState.currentStepId != null) {
+                FirstSettingFunnelsRoot(
+                    qrCodeViewModel = qrCodeViewModel,
+                    firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+                    checkCameraPermission = checkCameraPermission
                 )
                 return@BackgroundImage
             }

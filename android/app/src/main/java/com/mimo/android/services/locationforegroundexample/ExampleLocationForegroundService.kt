@@ -1,4 +1,4 @@
-package com.mimo.android.service
+package com.mimo.android.services.locationforegroundexample
 
 import android.app.Service
 import android.content.Intent

@@ -1,32 +1,20 @@
-package com.mimo.android.screens.firstsetting
+package com.mimo.android.screens.firstsettingfunnels
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import com.mimo.android.R
-import com.mimo.android.components.Button
-import com.mimo.android.components.HeadingLarge
-import com.mimo.android.components.HeadingSmall
-import com.mimo.android.components.Logo
-import com.mimo.android.components.Text
-import com.mimo.android.components.TransparentCard
-import com.mimo.android.components.HorizontalDivider
-import com.mimo.android.components.Icon
-import com.mimo.android.components.base.GifImage
-import com.mimo.android.components.base.Size
-import com.mimo.android.ui.theme.Teal100
-import com.mimo.android.ui.theme.Teal50
+import com.mimo.android.components.*
+import com.mimo.android.components.base.*
+import com.mimo.android.ui.theme.*
 
 @Preview
 @Composable
-fun FirstSettingStartScreen(
+fun FirstSettingStartFunnel(
     goNext: (() -> Unit)? = null
 ){
 

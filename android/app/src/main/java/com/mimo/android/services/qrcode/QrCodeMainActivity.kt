@@ -1,4 +1,4 @@
-package com.mimo.android.qr
+package com.mimo.android.services.qrcode
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -8,26 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.journeyapps.barcodescanner.ScanOptions
 import com.mimo.android.MainActivity
-
-//fun MainActivity.createBarcodeLauncher(context: Context): ActivityResultLauncher<ScanOptions>{
-//    return registerForActivityResult(ScanContract()) {
-//            result ->
-//        if (result.contents == null) {
-//            Toast.makeText(
-//                context,
-//                "취소",
-//                Toast.LENGTH_SHORT
-//            ).show()
-//            return@registerForActivityResult
-//        }
-//        // textResult.value = result.contents
-//        Toast.makeText(
-//            context,
-//            "${result.contents}",
-//            Toast.LENGTH_SHORT
-//        ).show()
-//    }
-//}
 
 fun MainActivity.createQRRequestPermissionLauncher(barCodeLauncher: ActivityResultLauncher<ScanOptions>): ActivityResultLauncher<String> {
     return registerForActivityResult(

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">스마트슬립 Mimo</string>
+
+    <!-- health connect -->
     <string name="menu">menu</string>
     <string name="not_supported_description">
         This device does not meet minimum SDK version for Health Connect.
@@ -10,10 +12,7 @@
     <string name="permission_denied">Permissions are not granted. Please grant data permissions in the Health Connect permission settings.</string>
     <string name="permission_granted">All permissions granted.</string>
     <string name="ok">OK</string>
-
     <string name="health_connect_logo">Health Connect logo</string>
-
-    <!-- Health Connect settings -->
     <string name="settings">Settings</string>
 
     <!-- foreground sample -->
@@ -34,12 +33,27 @@
 
     <!-- screens -->
     <string name="empty_screen">empty_screen</string>
+
+    <!-- login -->
     <string name="login_screen">login_screen</string>
-    <string name="first_setting_root_screen">first_setting_root_screen</string>
-    <string name="first_setting_start_screen">first_setting_start_screen</string>
-    <string name="read_qr_code_screen">read_qr_code_screen</string>
+
+    <!-- first setting funnels -->
+    <string name="first_setting_funnels_root">first_setting_funnels_root</string>
+    <string name="first_setting_start_funnel">first_setting_start_funnel</string>
+    <string name="qr_code_scan_funnel">qr_code_scan_funnel</string>
+    <string name="hub_find_waiting_funnel">hub_find_waiting_funnel</string>
+    <string name="if_first_find_hub_then_go_main_funnel">if_first_find_hub_then_go_main_funnel</string>
+    <string name="if_find_new_hub_then_go_register_location_funnel">if_find_new_hub_then_go_register_location_funnel</string>
+
+    <!-- my home -->
     <string name="my_home_screen">my_home_screen</string>
+
+    <!-- sleep -->
     <string name="sleep_screen">sleep_screen</string>
+
+    <!-- my profile -->
     <string name="my_profile_screen">my_profile_screen</string>
+
+    <!-- foreground sample -->
     <string name="foreground_service_sample_screen">foreground_service_sample_screen</string>
 </resources>
