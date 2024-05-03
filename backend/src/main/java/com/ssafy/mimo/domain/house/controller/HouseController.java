@@ -47,4 +47,14 @@ public class HouseController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@PutMapping("/{userHouseId}/setHome")
+	public ResponseEntity<?> updateHouseStatus(HttpServletRequest request,
+										@PathVariable("userHouseId") Long userHouseId) {
+		Long userId = (Long) request.getAttribute("userId");
+		boolean isHome = houseService.updateHouseStatus(userId, userHouseId);
+		return isHome ?
+				ResponseEntity.ok().body("{\"is_home\": \"true\"}") :
+				ResponseEntity.ok().body("{\"is_home\": \"false\"}");
+	}
+
 }

@@ -10,4 +10,8 @@ public interface UserHouseRepository extends JpaRepository<UserHouse, Long> {
     List<UserHouse> findAllByUser_Id(Long userId);
 
     List<UserHouse> findByHouse(House house);
+
+    UserHouse findCurrentHomeByUserId(Long userId);
+
+    UserHouse findByIdAndUserId(Long userHouseId, Long userId);
 }

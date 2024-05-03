@@ -77,6 +77,24 @@ public class HouseService {
 		}
 	}
 
+	public boolean updateHouseStatus(Long userId, Long userHouseId) {
+		// 현재 거주지인 집을 찾아 해제
+		UserHouse currentHome = userHouseRepository.findCurrentHomeByUserId(userId);
+		if (currentHome != null) {
+			currentHome.deactivateHome();  // 직접적인 메소드 호출로 상태 변경
+			userHouseRepository.save(currentHome);
+		}
+
+		// 새로운 집을 현재 거주지로 설정
+		UserHouse newHome = userHouseRepository.findByIdAndUserId(userHouseId, userId);
+		if (newHome != null) {
+			newHome.activateHome();  // 직접적인 메소드 호출로 상태 변경
+			userHouseRepository.save(newHome);
+			return true;  // 성공적으로 새로운 집을 현재 거주지로 설정
+		}
+		return false;  // 실패 (주어진 ID의 집을 찾지 못함)
+	}
+
 	public House findHouseById(Long houseId) {
 		return houseRepository.findById(houseId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 집이 존재하지 않습니다."));
