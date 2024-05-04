@@ -16,9 +16,7 @@ fun QrCodeScanFunnel(
     checkCameraPermission: (() -> Unit)? = null,
 ){
     fun handleScanQRCode(){
-        if (checkCameraPermission != null) {
-            checkCameraPermission()
-        }
+        checkCameraPermission?.invoke()
     }
 
     fun handleGoPrev(){

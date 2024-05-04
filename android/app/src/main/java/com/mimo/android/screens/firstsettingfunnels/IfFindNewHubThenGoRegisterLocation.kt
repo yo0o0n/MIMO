@@ -13,10 +13,9 @@ import com.mimo.android.components.base.Size
 
 @Preview
 @Composable
-fun HubFindWaitingFunnel(
+fun IfFindNewHubThenGoRegisterLocation(
     goNext: (() -> Unit)? = null
 ){
-    goNext?.invoke()
 
     BackHandler {
         return@BackHandler
@@ -25,8 +24,8 @@ fun HubFindWaitingFunnel(
     Column {
         Spacer(modifier = Modifier.padding(30.dp))
 
-        HeadingLarge(text = "허브를 찾고 있어요", fontSize = Size.lg)
+        HeadingLarge(text = "새로운 허브를 발견했어요!", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(4.dp))
-        HeadingLarge(text = "잠시만 기다려주세요", fontSize = Size.lg)
+        HeadingLarge(text = "장소 등록 화면으로 이동할게요", fontSize = Size.lg)
     }
 }

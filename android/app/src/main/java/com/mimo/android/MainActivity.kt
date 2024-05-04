@@ -161,8 +161,11 @@ class MainActivity : ComponentActivity() {
             // check firstSetting
             // TODO: 로그인이 됐는지 확인하고 로그인이 된 상태이며 집이나 허브가 없다면 아래 init() 실행
             if (true) {
+//                firstSettingFunnelsViewModel.init(
+//                    currentStepId = R.string.first_setting_start_funnel
+//                )
                 firstSettingFunnelsViewModel.init(
-                    currentStepId = R.string.first_setting_start_funnel
+                    currentStepId = R.string.test_funnel
                 )
             }
 

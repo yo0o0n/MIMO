@@ -38,6 +38,7 @@
     <string name="login_screen">login_screen</string>
 
     <!-- first setting funnels -->
+    <string name="test_funnel">test_funnel</string>
     <string name="first_setting_funnels_root">first_setting_funnels_root</string>
     <string name="first_setting_start_funnel">first_setting_start_funnel</string>
     <string name="qr_code_scan_funnel">qr_code_scan_funnel</string>
