@@ -37,5 +37,8 @@ fun TestFunnel(
         Button(text = "if find new hub then go register loc", onClick = {
             firstSettingFunnelsViewModel?.updateCurrentStep(R.string.if_find_new_hub_then_go_register_location_funnel)
         })
+        Button(text = "auto register location", onClick = {
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.auto_register_location_funnel)
+        })
     }
 }

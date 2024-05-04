@@ -21,3 +21,7 @@ val Teal600 = Color(0xFF2C7A7B)
 val Teal700 = Color(0xFF285E61)
 val Teal800 = Color(0xFF234E52)
 val Teal900 = Color(0xFF1D4044)
+
+// gray
+val Gray400 = Color(0xFF6F7976)
+val Gray600 = Color(0xFF515856)

@@ -43,12 +43,3 @@ fun IfFirstFindHubThenGoMain(
         HeadingLarge(text = "메인 화면으로 이동할게요", fontSize = Size.lg)
     }
 }
-
-@Preview
-@Composable
-fun PreviewUi(){
-    IfFirstFindHubThenGoMain(
-        homeName = "상윤이의 본가",
-        homeLocation = "경기도 고양시 일산서구 산현로 34"
-    )
-}

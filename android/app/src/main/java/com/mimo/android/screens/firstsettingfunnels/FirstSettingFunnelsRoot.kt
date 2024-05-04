@@ -1,15 +1,12 @@
 package com.mimo.android.screens.firstsettingfunnels
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import com.mimo.android.FirstSettingFunnelsViewModel
-import com.mimo.android.components.HeadingLarge
 import com.mimo.android.QrCodeViewModel
 import com.mimo.android.R
 import com.mimo.android.components.Icon
@@ -71,8 +68,11 @@ fun FirstSettingFunnelsRoot(
             return
         }
 
-        if (firstSettingFunnelsUiState.currentStepId == 5) {
-            HeadingLarge(text = "5페이지..")
+        if (firstSettingFunnelsUiState.currentStepId == R.string.auto_register_location_funnel) {
+            AutoRegisterLocationFunnel(
+                location = "서울특별시 강남구 테헤란로 212",
+                onDirectlyEnterLocation = {}
+            )
             return
         }
 
