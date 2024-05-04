@@ -23,5 +23,6 @@ val Teal800 = Color(0xFF234E52)
 val Teal900 = Color(0xFF1D4044)
 
 // gray
-val Gray400 = Color(0xFF6F7976)
+val Gray300 = Color(0xFF6F7976)
+val Gray400 = Color(0xFFC4C4C4)
 val Gray600 = Color(0xFF515856)

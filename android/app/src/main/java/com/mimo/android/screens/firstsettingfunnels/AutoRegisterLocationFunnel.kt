@@ -1,5 +1,6 @@
 package com.mimo.android.screens.firstsettingfunnels
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.runtime.Composable
@@ -14,6 +15,11 @@ fun AutoRegisterLocationFunnel(
     location: String,
     onDirectlyEnterLocation: (() -> Unit)? = null
 ){
+
+    BackHandler {
+        return@BackHandler
+    }
+
     Column {
         Spacer(modifier = Modifier.padding(30.dp))
 

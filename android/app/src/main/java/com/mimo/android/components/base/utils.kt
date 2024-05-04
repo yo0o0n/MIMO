@@ -31,8 +31,8 @@ val TextSizeMatcher = mapOf(
     Size.lg to 18.sp,
     Size.xl to 20.sp,
     Size.xl2 to 24.sp,
-    Size.xl3 to 30.sp,
-    Size.xl4 to 36.sp,
-    Size.xl5 to 48.sp,
-    Size.xl6 to 60.sp
+    Size.xl3 to 28.sp,
+    Size.xl4 to 32.sp,
+    Size.xl5 to 36.sp,
+    Size.xl6 to 40.sp
 )

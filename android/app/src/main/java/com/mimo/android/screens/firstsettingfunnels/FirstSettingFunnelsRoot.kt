@@ -76,6 +76,15 @@ fun FirstSettingFunnelsRoot(
             return
         }
 
+        if (firstSettingFunnelsUiState.currentStepId == R.string.make_location_alias_funnel){
+            MakeLocationAliasFunnel(
+                location = "서울특별시 강남구 테헤란로 212",
+                goPrev = {},
+                onComplete = {}
+            )
+            return
+        }
+
         if (firstSettingFunnelsUiState.currentStepId == R.string.test_funnel) {
             TestFunnel(
                 firstSettingFunnelsViewModel = firstSettingFunnelsViewModel

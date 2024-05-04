@@ -46,6 +46,7 @@
     <string name="if_first_find_hub_then_go_main_funnel">if_first_find_hub_then_go_main_funnel</string>
     <string name="if_find_new_hub_then_go_register_location_funnel">if_find_new_hub_then_go_register_location_funnel</string>
     <string name="auto_register_location_funnel">auto_register_location_funnel</string>
+    <string name="make_location_alias_funnel">make_location_alias_funnel</string>
 
     <!-- my home -->
     <string name="my_home_screen">my_home_screen</string>
