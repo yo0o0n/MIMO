@@ -24,7 +24,6 @@ fun RedirectMainAfterFindExistingHub(
 ){
 
     LaunchedEffect(Unit) {
-        delay(1000)
         goNext()
     }
 

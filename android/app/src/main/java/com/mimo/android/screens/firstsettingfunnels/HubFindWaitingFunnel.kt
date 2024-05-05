@@ -11,14 +11,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.base.Size
-import kotlinx.coroutines.delay
 
 @Composable
 fun HubFindWaitingFunnel(
     goNext: () -> Unit
 ){
     LaunchedEffect(Unit) {
-        delay(1000)
         goNext()
     }
 

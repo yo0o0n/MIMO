@@ -13,7 +13,6 @@ import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.HeadingSmall
 import com.mimo.android.components.base.Size
 import com.mimo.android.ui.theme.Teal100
-import kotlinx.coroutines.delay
 
 @Composable
 fun RedirectMainAfterRegisterHubAndLocation(
@@ -22,7 +21,6 @@ fun RedirectMainAfterRegisterHubAndLocation(
     goNext: () -> Unit
 ){
     LaunchedEffect(Unit) {
-        delay(1000)
         goNext()
     }
     

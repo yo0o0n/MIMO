@@ -1,5 +1,6 @@
 package com.mimo.android.screens.firstsettingfunnels
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -14,7 +15,6 @@ import com.mimo.android.FirstSettingFunnelsViewModel
 import com.mimo.android.QrCodeViewModel
 import com.mimo.android.R
 import com.mimo.android.components.Icon
-
 @Composable
 fun FirstSettingFunnelsRoot(
     qrCodeViewModel: QrCodeViewModel,
@@ -22,17 +22,21 @@ fun FirstSettingFunnelsRoot(
     checkCameraPermission: () -> Unit
 ){
 
-    val qrCodeUiState by qrCodeViewModel.uiState.collectAsState()
+    FunnelMatcher(
+        qrCodeViewModel = qrCodeViewModel,
+        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+        checkCameraPermission = checkCameraPermission
+    )
 
-    TestFunnelWrapper(
-        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
-    ) {
-        FunnelMatcher(
-            qrCodeViewModel = qrCodeViewModel,
-            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-            checkCameraPermission = checkCameraPermission
-        )
-    }
+//    TestFunnelWrapper(
+//        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+//    ) {
+//        FunnelMatcher(
+//            qrCodeViewModel = qrCodeViewModel,
+//            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+//            checkCameraPermission = checkCameraPermission
+//        )
+//    }
 }
 
 @Composable
@@ -42,6 +46,7 @@ fun FunnelMatcher(
     checkCameraPermission: () -> Unit
 ){
     val firstSettingFunnelsUiState by firstSettingFunnelsViewModel.uiState.collectAsState()
+    val qrCodeUiState by qrCodeViewModel.uiState.collectAsState()
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_start_funnel) {
         FirstSettingStartFunnel(
@@ -64,23 +69,36 @@ fun FunnelMatcher(
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.hub_find_waiting_funnel) {
         HubFindWaitingFunnel(
-            goNext = {}
+            goNext = {
+                val qrCode = qrCodeUiState.qrCode
+
+                // TODO: 이건 로직상 에러 상황임.. 이 상황이 발생하면 비상...
+                if (qrCode == null) {
+                    println("QR CODE 없음...")
+                    return@HubFindWaitingFunnel
+                }
+                firstSettingFunnelsViewModel.setHubAndRedirect(qrCode)
+            }
         )
         return
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.redirect_main_after_find_existing_hub) {
         RedirectMainAfterFindExistingHub(
-            homeName = "상윤이의 본가",
-            homeLocation = "경기도 고양시 일산서구 산현로 34",
-            goNext = {}
+            homeName = firstSettingFunnelsUiState.hub?.locationAlias as String,
+            homeLocation = firstSettingFunnelsUiState.hub?.location as String,
+            goNext = {
+                firstSettingFunnelsViewModel.redirectMain()
+            }
         )
         return
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.redirect_location_register_after_find_new_hub) {
         RedirectLocationRegisterAfterFindNewHub(
-            goNext = {}
+            goNext = {
+                firstSettingFunnelsViewModel.redirectAutoRegisterLocationFunnel()
+            }
         )
         return
     }

@@ -19,7 +19,6 @@ fun RedirectLocationRegisterAfterFindNewHub(
 ){
 
     LaunchedEffect(Unit) {
-        delay(1000)
         goNext()
     }
 
