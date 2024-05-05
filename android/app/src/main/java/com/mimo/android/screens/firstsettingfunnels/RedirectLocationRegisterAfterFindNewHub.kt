@@ -14,7 +14,7 @@ import com.mimo.android.components.base.Size
 import kotlinx.coroutines.delay
 
 @Composable
-fun IfFindNewHubThenGoRegisterLocation(
+fun RedirectLocationRegisterAfterFindNewHub(
     goNext: () -> Unit
 ){
 
@@ -38,8 +38,8 @@ fun IfFindNewHubThenGoRegisterLocation(
 
 @Preview
 @Composable
-fun IfFindNewHubThenGoRegisterLocationPreview() {
-    IfFindNewHubThenGoRegisterLocation(
+fun RedirectLocationRegisterAfterFindNewHubPreview() {
+    RedirectLocationRegisterAfterFindNewHub(
         goNext = {}
     )
 }

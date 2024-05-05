@@ -34,8 +34,8 @@ fun TestFunnel(
         Button(text = "redirect_main_after_find_existing_hub", onClick = {
             firstSettingFunnelsViewModel?.updateCurrentStep(R.string.redirect_main_after_find_existing_hub)
         })
-        Button(text = "if find new hub then go register loc", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.if_find_new_hub_then_go_register_location_funnel)
+        Button(text = "redirect_location_register_after_find_new_hub", onClick = {
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.redirect_location_register_after_find_new_hub)
         })
         Button(text = "auto register location", onClick = {
             firstSettingFunnelsViewModel?.updateCurrentStep(R.string.auto_register_location_funnel)

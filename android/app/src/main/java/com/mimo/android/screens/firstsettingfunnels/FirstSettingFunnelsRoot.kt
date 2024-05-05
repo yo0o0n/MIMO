@@ -78,8 +78,8 @@ fun FunnelMatcher(
         return
     }
 
-    if (firstSettingFunnelsUiState.currentStepId == R.string.if_find_new_hub_then_go_register_location_funnel) {
-        IfFindNewHubThenGoRegisterLocation(
+    if (firstSettingFunnelsUiState.currentStepId == R.string.redirect_location_register_after_find_new_hub) {
+        RedirectLocationRegisterAfterFindNewHub(
             goNext = {}
         )
         return

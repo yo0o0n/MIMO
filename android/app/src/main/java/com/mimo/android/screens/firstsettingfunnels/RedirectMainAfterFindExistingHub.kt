@@ -51,7 +51,7 @@ fun RedirectMainAfterFindExistingHub(
 
 @Preview
 @Composable
-fun IfFirstFindHubThenGoMainPreview(){
+fun RedirectMainAfterFindExistingHubPreview(){
     RedirectMainAfterFindExistingHub(
         homeName = "상윤이의 본가",
         homeLocation = "경기도 고양시 일산서구 산현로 34",
