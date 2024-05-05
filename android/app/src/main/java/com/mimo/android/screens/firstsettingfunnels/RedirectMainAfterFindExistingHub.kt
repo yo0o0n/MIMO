@@ -17,7 +17,7 @@ import com.mimo.android.ui.theme.Teal100
 import kotlinx.coroutines.delay
 
 @Composable
-fun IfFirstFindHubThenGoMain(
+fun RedirectMainAfterFindExistingHub(
     homeName: String,
     homeLocation: String,
     goNext: () -> Unit
@@ -52,7 +52,7 @@ fun IfFirstFindHubThenGoMain(
 @Preview
 @Composable
 fun IfFirstFindHubThenGoMainPreview(){
-    IfFirstFindHubThenGoMain(
+    RedirectMainAfterFindExistingHub(
         homeName = "상윤이의 본가",
         homeLocation = "경기도 고양시 일산서구 산현로 34",
         goNext = {}

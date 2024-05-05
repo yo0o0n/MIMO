@@ -43,11 +43,11 @@
     <string name="first_setting_start_funnel">first_setting_start_funnel</string>
     <string name="qr_code_scan_funnel">qr_code_scan_funnel</string>
     <string name="hub_find_waiting_funnel">hub_find_waiting_funnel</string>
-    <string name="if_first_find_hub_then_go_main_funnel">if_first_find_hub_then_go_main_funnel</string>
-    <string name="if_find_new_hub_then_go_register_location_funnel">if_find_new_hub_then_go_register_location_funnel</string>
     <string name="auto_register_location_funnel">auto_register_location_funnel</string>
     <string name="make_location_alias_funnel">make_location_alias_funnel</string>
     <string name="check_entered_hub_info_funnel">check_entered_hub_info_funnel</string>
+    <string name="redirect_main_after_find_existing_hub">redirect_main_after_find_existing_hub</string>
+    <string name="if_find_new_hub_then_go_register_location_funnel">if_find_new_hub_then_go_register_location_funnel</string>
     <string name="redirect_main_after_register_hub_and_location">redirect_main_after_register_hub_and_location</string>
 
     <!-- my home -->

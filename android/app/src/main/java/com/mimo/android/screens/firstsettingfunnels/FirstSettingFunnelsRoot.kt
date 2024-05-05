@@ -69,8 +69,8 @@ fun FunnelMatcher(
         return
     }
 
-    if (firstSettingFunnelsUiState.currentStepId == R.string.if_first_find_hub_then_go_main_funnel) {
-        IfFirstFindHubThenGoMain(
+    if (firstSettingFunnelsUiState.currentStepId == R.string.redirect_main_after_find_existing_hub) {
+        RedirectMainAfterFindExistingHub(
             homeName = "상윤이의 본가",
             homeLocation = "경기도 고양시 일산서구 산현로 34",
             goNext = {}
