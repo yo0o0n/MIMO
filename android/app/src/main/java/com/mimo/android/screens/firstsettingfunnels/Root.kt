@@ -115,15 +115,19 @@ fun FunnelMatcher(
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_funnel_auto_register_location) {
+        // TODO: manage state...
         FunnelAutoRegisterLocation(
             location = "서울특별시 강남구 테헤란로 212",
-            onDirectlyEnterLocation = {},
+            onDirectlyEnterLocation = {
+                  firstSettingFunnelsViewModel.updateCurrentStep(R.string.first_setting_funnel_enter_location_to_register_hub)
+            },
             onConfirm = {}
         )
         return
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_funnel_make_location_alias){
+        // TODO: manage state...
         FunnelMakeLocationAlias(
             location = "서울특별시 강남구 테헤란로 212",
             goPrev = {},
@@ -133,6 +137,7 @@ fun FunnelMatcher(
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_funnel_check_entered_hub_info) {
+        // TODO: manage state...
         FunnelCheckEnteredHubInfo(
             location = "서울특별시 강남구 테헤란로 212",
             locationAlias = "서울특별시 집",
@@ -144,12 +149,25 @@ fun FunnelMatcher(
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_redirect_main_after_register_hub_and_location) {
+        // TODO: manage state...
         RedirectMainAfterRegisterHubAndLocation(
             locationAlias = "서울특별시 집",
             location = "서울특별시 강남구 테헤란로 212",
             goNext = {}
         )
         return
+    }
+
+    if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_funnel_enter_location_to_register_hub) {
+        // TODO: manage state...
+        FunnelEnterLocationToRegisterHub(
+            goPrev = {
+                firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.first_setting_funnel_auto_register_location)
+            },
+            onSelectLocation = {
+                // TODO
+            }
+        )
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.test_funnel) {

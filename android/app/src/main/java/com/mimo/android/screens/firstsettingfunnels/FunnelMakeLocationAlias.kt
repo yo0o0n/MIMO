@@ -53,14 +53,15 @@ fun FunnelMakeLocationAlias(
         HeadingSmall(text = location, color = Teal100)
         Spacer(modifier = Modifier.padding(16.dp))
         HeadingLarge(text = "이 장소의 별칭을 지어주세요", fontSize = Size.lg)
-        Spacer(modifier = Modifier.padding(16.dp))
+        
+        Spacer(modifier = Modifier.padding(8.dp))
 
         FunnelInput(
             text = inputText,
             onChange = { newText ->  handleChange(newText) },
             onClear = { handleChange("") },
             placeholder = setPlaceholder(location),
-            description = "주소 입력",
+            description = "장소 별칭",
         )
 
         Spacer(modifier = Modifier.weight(1f))
