@@ -44,7 +44,7 @@ class FirstSettingFunnelsViewModel: ViewModel() {
             // TODO: 이미 집이 등록되어있기 때문에 이 유저를 집과허브(?)에 등록시켜야함. 아무튼 등록시켜야함
             _uiState.update {
                 prevState -> prevState.copy(
-                    currentStepId = R.string.redirect_main_after_find_existing_hub,
+                    currentStepId = R.string.first_setting_redirect_main_after_find_existing_hub,
                     hub = Hub(
                         qrCode = qrCode,
                         location = "경기도 고양시 일산서구 산현로 34",
@@ -54,9 +54,9 @@ class FirstSettingFunnelsViewModel: ViewModel() {
             }
 
             // FIXME: Case2 새로운 허브라서 등록 화면으로 이동
-//            _uiState.update {
-//                      prevState -> prevState.copy(currentStepId = R.string.redirect_location_register_after_find_new_hub)
-//            }
+            _uiState.update {
+                      prevState -> prevState.copy(currentStepId = R.string.first_setting_redirect_location_register_after_find_new_hub)
+            }
         }
     }
 
@@ -77,7 +77,7 @@ class FirstSettingFunnelsViewModel: ViewModel() {
             // TODO: Loading UI State
 
             _uiState.update {
-                    prevState -> prevState.copy(currentStepId = R.string.auto_register_location_funnel)
+                    prevState -> prevState.copy(currentStepId = R.string.first_setting_funnel_auto_register_location)
             }
         }
     }

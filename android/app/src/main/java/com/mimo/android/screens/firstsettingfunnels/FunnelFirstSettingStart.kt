@@ -14,7 +14,7 @@ import com.mimo.android.ui.theme.*
 
 @Preview
 @Composable
-fun FirstSettingStartFunnel(
+fun FunnelFirstSettingStart(
     goNext: (() -> Unit)? = null
 ){
 

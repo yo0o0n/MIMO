@@ -23,31 +23,31 @@ fun TestFunnel(
             .verticalScroll(rememberScrollState())
     ) {
         Button(text = "first setting start", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_start_funnel)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_funnel_first_setting_start)
         })
         Button(text = "qr code scan", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.qr_code_scan_funnel)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_funnel_qr_code_scan)
         })
         Button(text = "hub find waiting", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.hub_find_waiting_funnel)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_funnel_hub_find_waiting)
         })
         Button(text = "redirect_main_after_find_existing_hub", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.redirect_main_after_find_existing_hub)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_redirect_main_after_find_existing_hub)
         })
         Button(text = "redirect_location_register_after_find_new_hub", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.redirect_location_register_after_find_new_hub)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_redirect_location_register_after_find_new_hub)
         })
         Button(text = "auto register location", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.auto_register_location_funnel)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_funnel_auto_register_location)
         })
         Button(text = "make location alias", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.make_location_alias_funnel)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_funnel_make_location_alias)
         })
         Button(text = "check entered hub info", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.check_entered_hub_info_funnel)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_funnel_check_entered_hub_info)
         })
         Button(text = "redirect_main_after_register_hub_and_location", onClick = {
-            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.redirect_main_after_register_hub_and_location)
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.first_setting_redirect_main_after_register_hub_and_location)
         })
     }
 }

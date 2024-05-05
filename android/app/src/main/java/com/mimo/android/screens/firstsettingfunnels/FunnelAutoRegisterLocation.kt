@@ -12,7 +12,7 @@ import com.mimo.android.components.base.*
 import com.mimo.android.ui.theme.*
 
 @Composable
-fun AutoRegisterLocationFunnel(
+fun FunnelAutoRegisterLocation(
     location: String,
     onDirectlyEnterLocation: () -> Unit,
     onConfirm: () -> Unit
@@ -51,8 +51,8 @@ fun AutoRegisterLocationFunnel(
 
 @Preview
 @Composable
-fun AutoRegisterLocationFunnelPreview(){
-    AutoRegisterLocationFunnel(
+fun FunnelAutoRegisterLocationPreview(){
+    FunnelAutoRegisterLocation(
         location = "서울특별시 강남구 테헤란로 212",
         onDirectlyEnterLocation = {},
         onConfirm = {}

@@ -13,7 +13,7 @@ import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.base.Size
 
 @Composable
-fun HubFindWaitingFunnel(
+fun FunnelHubFindWaiting(
     goNext: () -> Unit
 ){
     LaunchedEffect(Unit) {
@@ -35,8 +35,8 @@ fun HubFindWaitingFunnel(
 
 @Preview
 @Composable
-fun HubFindWaitingFunnelPreview(){
-    HubFindWaitingFunnel(
+fun FunnelHubFindWaitingPreview(){
+    FunnelHubFindWaiting(
         goNext = {}
     )
 }

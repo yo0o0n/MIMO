@@ -25,7 +25,6 @@ import com.mimo.android.services.health.checkHealthConnectPermission
 import com.mimo.android.services.health.createHealthConnectPermissionRequest
 import com.mimo.android.services.qrcode.checkCameraPermission
 import com.mimo.android.services.qrcode.createQRRequestPermissionLauncher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -51,12 +50,12 @@ class MainActivity : ComponentActivity() {
         }
         Toast.makeText(
             this@MainActivity,
-            "${result.contents}",
+            result.contents,
             Toast.LENGTH_SHORT
         ).show()
 
         qrCodeViewModel.updateQrCode(result.contents)
-        firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.hub_find_waiting_funnel)
+        firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.first_setting_funnel_hub_find_waiting)
     }
 
     private val qRRequestPermissionLauncher = createQRRequestPermissionLauncher(
@@ -161,12 +160,12 @@ class MainActivity : ComponentActivity() {
             // check firstSetting
             // TODO: 로그인이 됐는지 확인하고 로그인이 된 상태이며 집이나 허브가 없다면 아래 init() 실행
             if (true) {
-                firstSettingFunnelsViewModel.init(
-                    currentStepId = R.string.first_setting_start_funnel
-                )
 //                firstSettingFunnelsViewModel.init(
-//                    currentStepId = R.string.test_funnel
+//                    currentStepId = R.string.first_setting_funnel_first_setting_start
 //                )
+                firstSettingFunnelsViewModel.init(
+                    currentStepId = R.string.test_funnel
+                )
             }
 
             MimoApp(

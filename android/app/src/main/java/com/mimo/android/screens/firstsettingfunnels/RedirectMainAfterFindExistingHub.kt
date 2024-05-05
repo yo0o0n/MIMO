@@ -10,18 +10,30 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mimo.android.Hub
 import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.HeadingSmall
 import com.mimo.android.components.base.Size
 import com.mimo.android.ui.theme.Teal100
-import kotlinx.coroutines.delay
 
 @Composable
 fun RedirectMainAfterFindExistingHub(
-    homeName: String,
-    homeLocation: String,
-    goNext: () -> Unit
+    hub: Hub?,
+    goNext: () -> Unit,
+    redirectAfterCatchError: () -> Unit,
 ){
+    if (hub == null) {
+        redirectAfterCatchError()
+        return
+    }
+
+    val homeName = hub.locationAlias
+    val homeLocation = hub.location
+
+    if (homeName == null || homeLocation == null) {
+        redirectAfterCatchError()
+        return
+    }
 
     LaunchedEffect(Unit) {
         goNext()
@@ -52,8 +64,12 @@ fun RedirectMainAfterFindExistingHub(
 @Composable
 fun RedirectMainAfterFindExistingHubPreview(){
     RedirectMainAfterFindExistingHub(
-        homeName = "상윤이의 본가",
-        homeLocation = "경기도 고양시 일산서구 산현로 34",
-        goNext = {}
+        hub = Hub(
+            location = "경기도 고양시 일산서구 산현로 34",
+            locationAlias = "상윤이의 본가",
+            qrCode = ""
+        ),
+        goNext = {},
+        redirectAfterCatchError = {}
     )
 }

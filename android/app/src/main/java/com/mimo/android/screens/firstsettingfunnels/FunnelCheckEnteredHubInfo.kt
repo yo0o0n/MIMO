@@ -25,7 +25,7 @@ import com.mimo.android.ui.theme.Gray600
 import com.mimo.android.ui.theme.Teal100
 
 @Composable
-fun CheckEnteredHubInfoFunnel(
+fun FunnelCheckEnteredHubInfo(
     locationAlias: String,
     location: String,
     goPrev: () -> Unit,
@@ -87,8 +87,8 @@ fun CheckEnteredHubInfoFunnel(
 
 @Preview
 @Composable
-fun CheckEnteredHubInfoFunnelPreview() {
-    CheckEnteredHubInfoFunnel(
+fun FunnelCheckEnteredHubInfoPreview() {
+    FunnelCheckEnteredHubInfo(
         location = "서울특별시 강남구 테헤란로 212",
         locationAlias = "서울특별시 집",
         goPrev = {},

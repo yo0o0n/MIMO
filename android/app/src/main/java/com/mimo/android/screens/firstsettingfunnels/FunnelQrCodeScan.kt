@@ -12,7 +12,7 @@ import com.mimo.android.components.*
 import com.mimo.android.components.base.*
 
 @Composable
-fun QrCodeScanFunnel(
+fun FunnelQrCodeScan(
     goPrev: () -> Unit,
     checkCameraPermission: (() -> Unit)? = null,
 ){
@@ -34,8 +34,8 @@ fun QrCodeScanFunnel(
 
 @Preview
 @Composable
-fun QrCodeScanFunnelPreview(){
-    QrCodeScanFunnel(
+fun FunnelQrCodeScanPreview(){
+    FunnelQrCodeScan(
         goPrev = {}
     )
 }

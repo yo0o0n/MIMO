@@ -23,7 +23,7 @@ import com.mimo.android.components.base.Size
 import com.mimo.android.ui.theme.Teal100
 
 @Composable
-fun MakeLocationAliasFunnel(
+fun FunnelMakeLocationAlias(
     location: String,
     goPrev: () -> Unit,
     onComplete: (aliasText: String) -> Unit
@@ -78,8 +78,8 @@ fun setPlaceholder(location: String): String {
 
 @Preview
 @Composable
-fun MakeLocationAliasFunnelPreview(){
-    MakeLocationAliasFunnel(
+fun FunnelMakeLocationAliasPreview(){
+    FunnelMakeLocationAlias(
         location = "서울특별시 강남구 테헤란로 212",
         goPrev = {},
         onComplete = {}

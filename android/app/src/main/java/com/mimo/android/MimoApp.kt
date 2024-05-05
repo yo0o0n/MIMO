@@ -74,7 +74,8 @@ fun MimoApp(
                 FirstSettingFunnelsRoot(
                     qrCodeViewModel = qrCodeViewModel,
                     firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-                    checkCameraPermission = checkCameraPermission
+                    checkCameraPermission = checkCameraPermission,
+                    context = context
                 )
                 return@BackgroundImage
             }
