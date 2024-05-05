@@ -43,5 +43,8 @@ fun TestFunnel(
         Button(text = "make location alias", onClick = {
             firstSettingFunnelsViewModel?.updateCurrentStep(R.string.make_location_alias_funnel)
         })
+        Button(text = "check entered hub info", onClick = {
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.check_entered_hub_info_funnel)
+        })
     }
 }

@@ -5,17 +5,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.base.Size
+import kotlinx.coroutines.delay
 
-@Preview
 @Composable
 fun IfFindNewHubThenGoRegisterLocation(
-    goNext: (() -> Unit)? = null
+    goNext: () -> Unit
 ){
+
+    LaunchedEffect(Unit) {
+        delay(1000)
+        goNext()
+    }
 
     BackHandler {
         return@BackHandler
@@ -28,4 +34,12 @@ fun IfFindNewHubThenGoRegisterLocation(
         Spacer(modifier = Modifier.padding(4.dp))
         HeadingLarge(text = "장소 등록 화면으로 이동할게요", fontSize = Size.lg)
     }
+}
+
+@Preview
+@Composable
+fun IfFindNewHubThenGoRegisterLocationPreview() {
+    IfFindNewHubThenGoRegisterLocation(
+        goNext = {}
+    )
 }

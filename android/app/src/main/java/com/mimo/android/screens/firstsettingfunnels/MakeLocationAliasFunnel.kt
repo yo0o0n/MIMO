@@ -1,10 +1,8 @@
 package com.mimo.android.screens.firstsettingfunnels
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -14,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mimo.android.components.Button
 import com.mimo.android.components.FunnelInput
@@ -26,8 +25,8 @@ import com.mimo.android.ui.theme.Teal100
 @Composable
 fun MakeLocationAliasFunnel(
     location: String,
-    goPrev: (() -> Unit)? = null,
-    onComplete: ((aliasText: String) -> Unit)? = null
+    goPrev: () -> Unit,
+    onComplete: (aliasText: String) -> Unit
 ){
     var inputText by remember { mutableStateOf("") }
 
@@ -39,11 +38,12 @@ fun MakeLocationAliasFunnel(
         if (inputText.isEmpty()) {
             return
         }
-        onComplete?.invoke(inputText)
+        onComplete.invoke(inputText)
     }
 
     BackHandler {
-        goPrev?.invoke()
+        goPrev.invoke()
+        return@BackHandler
     }
 
     Column {
@@ -74,4 +74,14 @@ fun setPlaceholder(location: String): String {
         return "우리집"
     }
     return "${locationStringList[0]} 집"
+}
+
+@Preview
+@Composable
+fun MakeLocationAliasFunnelPreview(){
+    MakeLocationAliasFunnel(
+        location = "서울특별시 강남구 테헤란로 212",
+        goPrev = {},
+        onComplete = {}
+    )
 }

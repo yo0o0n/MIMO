@@ -28,7 +28,7 @@ fun MimoApp(
     serviceRunning: Boolean,
     currentLocation: String?,
     onClickForeground: () -> Unit,
-    checkCameraPermission: (() -> Unit)? = null,
+    checkCameraPermission: () -> Unit
     ){
     MaterialTheme {
         BackgroundImage {
