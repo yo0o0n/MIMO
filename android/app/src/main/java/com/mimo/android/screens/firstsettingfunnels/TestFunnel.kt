@@ -40,5 +40,8 @@ fun TestFunnel(
         Button(text = "auto register location", onClick = {
             firstSettingFunnelsViewModel?.updateCurrentStep(R.string.auto_register_location_funnel)
         })
+        Button(text = "make location alias", onClick = {
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.make_location_alias_funnel)
+        })
     }
 }
