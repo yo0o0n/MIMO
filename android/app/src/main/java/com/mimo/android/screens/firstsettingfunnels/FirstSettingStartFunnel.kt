@@ -92,11 +92,7 @@ fun FirstSettingStartFunnel(
             }
         }
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            Button(text = "허브 등록하기", onClick = ::handleGoNext)
-        }
+        Spacer(modifier = Modifier.weight(1f))
+        Button(text = "허브 등록하기", onClick = ::handleGoNext)
     }
 }

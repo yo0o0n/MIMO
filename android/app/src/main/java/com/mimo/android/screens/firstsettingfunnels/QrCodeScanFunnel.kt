@@ -33,11 +33,7 @@ fun QrCodeScanFunnel(
 
         HeadingLarge(text = "허브를 등록할게요", fontSize = Size.lg)
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            Button(text = "QR코드 스캔", onClick = ::handleScanQRCode)
-        }
+        Spacer(modifier = Modifier.weight(1f))
+        Button(text = "QR코드 스캔", onClick = ::handleScanQRCode)
     }
 }

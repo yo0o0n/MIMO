@@ -1,8 +1,10 @@
 package com.mimo.android.screens.firstsettingfunnels
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mimo.android.components.Button
 import com.mimo.android.components.FunnelInput
 import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.HeadingSmall
@@ -33,8 +36,10 @@ fun MakeLocationAliasFunnel(
     }
 
     fun handleComplete(){
-        // TODO: inputText가 없으면 return
-        onComplete?.invoke("TODO...")
+        if (inputText.isEmpty()) {
+            return
+        }
+        onComplete?.invoke(inputText)
     }
 
     BackHandler {
@@ -51,13 +56,15 @@ fun MakeLocationAliasFunnel(
         Spacer(modifier = Modifier.padding(16.dp))
 
         FunnelInput(
-            //TODO: 키보드 올라올때 버튼 모양 바꾸기...
             text = inputText,
             onChange = { newText ->  handleChange(newText) },
             onClear = { handleChange("") },
             placeholder = setPlaceholder(location),
             description = "주소 입력",
         )
+
+        Spacer(modifier = Modifier.weight(1f))
+        Button(text = "다음", onClick = ::handleComplete)
     }
 }
 

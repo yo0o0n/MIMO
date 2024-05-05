@@ -3,6 +3,7 @@ package com.mimo.android.screens.firstsettingfunnels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,7 +23,7 @@ fun FirstSettingFunnelsRoot(
 
     // FIXME: 이 Column은 Test용 입니다
     Column {
-        Icon(imageVector = Icons.Filled.ArrowBack, onClick = {
+        Icon(imageVector = Icons.Filled.Home, onClick = {
             firstSettingFunnelsViewModel.updateCurrentStep(R.string.test_funnel)
         })
 
