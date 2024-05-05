@@ -114,6 +114,15 @@ fun FunnelMatcher(
         return
     }
 
+    if (firstSettingFunnelsUiState.currentStepId == R.string.redirect_main_after_register_hub_and_location) {
+        RedirectMainAfterRegisterHubAndLocation(
+            locationAlias = "서울특별시 집",
+            location = "서울특별시 강남구 테헤란로 212",
+            goNext = {}
+        )
+        return
+    }
+
     if (firstSettingFunnelsUiState.currentStepId == R.string.test_funnel) {
         TestFunnel(
             firstSettingFunnelsViewModel = firstSettingFunnelsViewModel

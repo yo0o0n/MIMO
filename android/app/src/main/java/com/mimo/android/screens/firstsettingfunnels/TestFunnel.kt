@@ -46,5 +46,8 @@ fun TestFunnel(
         Button(text = "check entered hub info", onClick = {
             firstSettingFunnelsViewModel?.updateCurrentStep(R.string.check_entered_hub_info_funnel)
         })
+        Button(text = "redirect_main_after_register_hub_and_location", onClick = {
+            firstSettingFunnelsViewModel?.updateCurrentStep(R.string.redirect_main_after_register_hub_and_location)
+        })
     }
 }

@@ -48,6 +48,7 @@
     <string name="auto_register_location_funnel">auto_register_location_funnel</string>
     <string name="make_location_alias_funnel">make_location_alias_funnel</string>
     <string name="check_entered_hub_info_funnel">check_entered_hub_info_funnel</string>
+    <string name="redirect_main_after_register_hub_and_location">redirect_main_after_register_hub_and_location</string>
 
     <!-- my home -->
     <string name="my_home_screen">my_home_screen</string>
