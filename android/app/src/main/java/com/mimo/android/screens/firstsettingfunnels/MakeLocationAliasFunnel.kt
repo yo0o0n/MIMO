@@ -7,16 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.mimo.android.components.FunnelInput
 import com.mimo.android.components.HeadingLarge
@@ -24,9 +19,7 @@ import com.mimo.android.components.HeadingSmall
 import com.mimo.android.components.Icon
 import com.mimo.android.components.base.Size
 import com.mimo.android.ui.theme.Teal100
-import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MakeLocationAliasFunnel(
     location: String,
@@ -34,7 +27,6 @@ fun MakeLocationAliasFunnel(
     onComplete: ((aliasText: String) -> Unit)? = null
 ){
     var inputText by remember { mutableStateOf("") }
-    val keyboard = LocalSoftwareKeyboardController.current
 
     fun handleChange(newText: String){
         inputText = newText
@@ -43,11 +35,6 @@ fun MakeLocationAliasFunnel(
     fun handleComplete(){
         // TODO: inputText가 없으면 return
         onComplete?.invoke("TODO...")
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        delay(100)
-        keyboard?.show()
     }
 
     BackHandler {
@@ -64,7 +51,6 @@ fun MakeLocationAliasFunnel(
         Spacer(modifier = Modifier.padding(16.dp))
 
         FunnelInput(
-            //TODO: text state management
             //TODO: 키보드 올라올때 버튼 모양 바꾸기...
             text = inputText,
             onChange = { newText ->  handleChange(newText) },
