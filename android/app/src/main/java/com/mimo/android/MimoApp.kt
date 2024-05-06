@@ -22,13 +22,13 @@ import com.mimo.android.screens.login.LoginScreen
 fun MimoApp(
     authViewModel: AuthViewModel,
     qrCodeViewModel: QrCodeViewModel,
+    checkCameraPermission: () -> Unit,
     firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel,
     healthConnectManager: HealthConnectManager,
     context: Context,
-    serviceRunning: Boolean,
-    currentLocation: String?,
-    onClickForeground: () -> Unit,
-    checkCameraPermission: () -> Unit
+//    serviceRunning: Boolean? = null,
+//    currentLocation: String? = null,
+//    onClickForeground: (() -> Unit)? = null,
     ){
     MaterialTheme {
         BackgroundImage {
@@ -58,9 +58,9 @@ fun MimoApp(
             Router(
                 navController = navController,
                 healthConnectManager = healthConnectManager,
-                serviceRunning = serviceRunning,
-                currentLocation = currentLocation,
-                onClickForeground = onClickForeground,
+//                serviceRunning = serviceRunning,
+//                currentLocation = currentLocation,
+//                onClickForeground = onClickForeground,
             )
 
             if (authUiState.user == null) {

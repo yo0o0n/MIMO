@@ -15,9 +15,9 @@ import com.mimo.android.examples.ForegroundServiceSampleScreen
 fun Router(
     navController: NavHostController,
     healthConnectManager: HealthConnectManager,
-    serviceRunning: Boolean,
-    currentLocation: String?,
-    onClickForeground: () -> Unit,
+    serviceRunning: Boolean? = null,
+    currentLocation: String? = null,
+    onClickForeground: (() -> Unit)? = null,
 ){
     NavHost(navController = navController, startDestination = Screen.EmptyScreen.route) {
         //val availability by healthConnectManager.availability
@@ -38,10 +38,10 @@ fun Router(
             MyProfileScreen(healthConnectManager)
         }
         composable(Screen.ForegroundServiceSampleScreen.route) {
-            ForegroundServiceSampleScreen(
-                serviceRunning = serviceRunning,
-                currentLocation = currentLocation,
-                onClick = onClickForeground)
+//            ForegroundServiceSampleScreen(
+//                serviceRunning = serviceRunning,
+//                currentLocation = currentLocation,
+//                onClick = onClickForeground)
         }
     }
 }
