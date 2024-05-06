@@ -1,6 +1,5 @@
 package com.mimo.android.screens.firstsettingfunnels
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding

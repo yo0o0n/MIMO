@@ -1,6 +1,5 @@
 package com.mimo.android.screens.firstsettingfunnels
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.runtime.Composable
@@ -25,7 +24,7 @@ fun FunnelAutoRegisterLocation(
         HeadingSmall(text = location, color = Teal100, fontSize = Size.sm)
         
         Spacer(modifier = Modifier.padding(16.dp))
-        HeadingLarge(text = "이 장소에 허브를 등록할까요?", fontSize = Size.lg)
+        HeadingLarge(text = "이 주소에 허브를 등록할까요?", fontSize = Size.lg)
 
         Spacer(modifier = Modifier.weight(1f))
         LazyVerticalGrid(

@@ -1,6 +1,5 @@
 package com.mimo.android.screens.firstsettingfunnels
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -26,7 +25,7 @@ fun RedirectLocationRegisterAfterFindNewHub(
 
         HeadingLarge(text = "새로운 허브를 발견했어요!", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(4.dp))
-        HeadingLarge(text = "장소 등록 화면으로 이동할게요", fontSize = Size.lg)
+        HeadingLarge(text = "주소 등록 화면으로 이동할게요", fontSize = Size.lg)
     }
 }
 

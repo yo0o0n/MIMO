@@ -13,11 +13,7 @@ import com.mimo.android.components.base.Size
 
 @Composable
 fun SleepScreen(){
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Spacer(modifier = Modifier.padding(24.dp))
-
+    Column {
         HeadingLarge(text = "수면,,,zzZ", fontSize = Size.lg)
     }
 }

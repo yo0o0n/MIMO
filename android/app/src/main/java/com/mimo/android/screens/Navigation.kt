@@ -27,7 +27,9 @@ fun Navigation(
             contentPadding = PaddingValues(0.dp),
             shape = MaterialTheme.shapes.small,
             onClick = {
-                navController.navigate(Screen.MyHomeScreen.route)
+                navController.navigate(Screen.MyHomeScreen.route) {
+                    popUpTo(0)
+                }
             }
         ) {
             Text(text = "우리집")
@@ -37,7 +39,9 @@ fun Navigation(
             contentPadding = PaddingValues(0.dp),
             shape = MaterialTheme.shapes.small,
             onClick = {
-                navController.navigate(Screen.SleepScreen.route)
+                navController.navigate(Screen.SleepScreen.route) {
+                    popUpTo(0)
+                }
             }
         ) {
             Text(text = "수면")
@@ -47,7 +51,9 @@ fun Navigation(
             contentPadding = PaddingValues(0.dp),
             shape = MaterialTheme.shapes.small,
             onClick = {
-                navController.navigate(Screen.MyProfileScreen.route)
+                navController.navigate(Screen.MyProfileScreen.route) {
+                    popUpTo(0)
+                }
             }
         ) {
             Text(text = "내정보")

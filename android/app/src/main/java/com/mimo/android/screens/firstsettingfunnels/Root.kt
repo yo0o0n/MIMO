@@ -1,7 +1,6 @@
 package com.mimo.android.screens.firstsettingfunnels
 
 import android.content.Context
-import android.location.Location
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

@@ -12,11 +12,7 @@ import com.mimo.android.components.base.Size
 
 @Composable
 fun MyHomeScreen(){
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Spacer(modifier = Modifier.padding(24.dp))
-
+    Column {
         HeadingLarge(text = "우리 집,,", fontSize = Size.lg)
     }
 }

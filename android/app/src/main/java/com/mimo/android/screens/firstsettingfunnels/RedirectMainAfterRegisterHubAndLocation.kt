@@ -1,6 +1,5 @@
 package com.mimo.android.screens.firstsettingfunnels
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -31,7 +30,7 @@ fun RedirectMainAfterRegisterHubAndLocation(
         Spacer(modifier = Modifier.padding(8.dp))
         HeadingSmall(text = location, color = Teal100, fontSize = Size.sm)
         Spacer(modifier = Modifier.padding(16.dp))
-        HeadingLarge(text = "허브와 장소를 등록했어요!", fontSize = Size.lg)
+        HeadingLarge(text = "허브와 주소를 등록했어요!", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(4.dp))
         HeadingLarge(text = "메인 화면으로 이동할게요", fontSize = Size.lg)
 

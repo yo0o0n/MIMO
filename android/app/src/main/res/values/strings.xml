@@ -15,8 +15,6 @@
     <string name="health_connect_logo">Health Connect logo</string>
     <string name="settings">Settings</string>
 
-    <!-- screens:default -->
-    <string name="empty_screen">empty_screen</string>
     <!-- screens:login -->
     <string name="login_screen">login_screen</string>
     <!-- screens:first setting funnels -->

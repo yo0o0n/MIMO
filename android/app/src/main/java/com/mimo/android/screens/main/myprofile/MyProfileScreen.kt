@@ -16,11 +16,7 @@ import com.mimo.android.services.health.HealthConnectManager
 @Composable
 fun MyProfileScreen(healthConnectManager: HealthConnectManager){
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Spacer(modifier = Modifier.padding(24.dp))
-
+    Column {
         HeadingLarge(text = "내 정보,,", fontSize = Size.lg)
     }
 

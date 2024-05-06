@@ -51,7 +51,7 @@ fun MimoApp(
                     refreshToken = "456"
                 )
 
-                val hasHomeOrHub = false // FIXME: 있다 치고 메인으로 이동
+                val hasHomeOrHub = true // FIXME: 있다 치고 메인으로 이동
 
                 // TODO: 로그인이 됐는지 확인하고 로그인이 된 상태이며 집이나 허브가 없다면... MainActivity도..
                 if (!hasHomeOrHub) {
