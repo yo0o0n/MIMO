@@ -1,7 +1,110 @@
 #include <iostream>
 #include <glib-2.0/glib.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/sdp.h>
+#include <glib.h>
+
+#include "uuid.h"
+#include "org-bluez-adaptater1.h"
+#include "org-bluez-device1.h"
 
 #define DEFAULT_ADAPTER "hci0"
+#define BLE_SUCCESS 0
+#define BLE_ERROR 1
+
+typedef struct _ble_handler ble_handler;
+typedef struct _ble_adapter ble_adapter;
+typedef struct _ble_device ble_device;
+typedef struct _discovered_device_args discovered_device_args;
+typedef void (*discovered_device_t)(ble_adapter*, const char*, const char*, void*);
+typedef void (*connect_cb_t)(ble_adapter*, const char*, ble_connection*, int, void*);
+
+struct _execute_task_arg{
+	void* (*task)(void* arg);
+	void *arg;
+};
+
+struct _ble_handler {
+	union {
+		discovered_device_t discovered_device;
+		connect_cb_t connection_handler;
+	} callback;
+
+	void *user_data;
+	GThread *thread;
+	GThreadPool *thread_pool;
+};
+
+enum device_state {
+	NOT_FOUND = 0,
+	CONNECTING,
+	CONNECTED,
+	DISCONNECTING,
+	DISCONNECTED
+};
+
+struct _ble_adapter {
+	char *id;
+	char *name;
+	uintptr_t reference_counter;
+	GSList *devices;
+
+	GDBusObjectManager *device_manager;
+	OrgBluezAdapter1 *adapter_proxy;
+	struct {
+		int added_signal_id;
+		int changed_signal_id;
+		int removed_signal_id;
+
+		size_t ble_scan_timeout;
+		guint ble_scan_timeout_id;
+
+		GThread *scan_loop_thread;
+		bool is_scanning;
+		uint32_t enabled_filters;
+	} ble_scan;
+
+	ble_handler discovered_device_callback;
+};
+
+struct _ble_device {
+	ble_adapter *adapter;
+	char *device_id;
+	uintptr_t reference_counter;
+	enum device_state state;
+	ble_connection connection;
+};
+
+struct _discovered_device_args {
+	ble_adapter *adapter;
+	char *mac_address;
+	char *name;
+	OrgBluezDevice1 *device1;
+};
 
 int main(int, char**);
-int adapter_open(const char*, gpointer*);
+
+int string_to_uuid(const char*, size_t, uuid_t*);
+void *_execute_task(void*);
+void *ble_task(void*);
+
+int adapter_open(const char*, ble_adapter**);
+
+void wait_for_scan(ble_adapter*);
+int stricmp(char const*, char const*);
+void ble_discovered_device(ble_adapter*, const char*, const char*, void*);
+gint _compare_device_with_device_id(gconstpointer, gconstpointer);
+int device_set_state(ble_adapter*, const char*, enum device_state);
+discovered_device_args *_discovered_device_args_allocator(va_list);
+void *_discovered_device_thread(gpointer);
+void on_discovered_device(ble_adapter*, discovered_device_args*, ...);
+void device_manager_on_added_device1_signal(const char*, ble_adapter*);
+void on_dbus_object_added(GDBusObjectManager*, GDBusObject*, ble_adapter*);
+void on_dbus_object_removed(GDBusObjectManager*, GDBusObject*, ble_adapter*);
+int _adapter_scan_enable(ble_adapter*, uuid_t**, int16_t, uint32_t, discovered_device_t, size_t, void*);
+int _stop_scan_on_timeout(gpointer);
+gboolean adapter_scan_disable(ble_adapter*);
+void *_ble_scan_loop_thread(gpointer);
+int adapter_scan_enable(ble_adapter*, uuid_t**, int16_t, uint32_t, discovered_device_t, size_t, void*);
+
+int ble_connect(ble_adapter*, const char*, unsigned long, connect_cb_t, void*);

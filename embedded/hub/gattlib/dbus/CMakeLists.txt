@@ -15,7 +15,7 @@ pkg_search_module(GLIB REQUIRED glib-2.0)
 pkg_search_module(GIO_UNIX REQUIRED gio-unix-2.0)
 
 # Needed by 'bluez5/lib/uuid.c'
-pkg_search_module(BLUEZ REQUIRED bluez)
+#pkg_search_module(BLUEZ REQUIRED bluez)
 
 message("Build DBus gattlib for Bluez v${BLUEZ_VERSION_MAJOR}.${BLUEZ_VERSION_MINOR}")
 
