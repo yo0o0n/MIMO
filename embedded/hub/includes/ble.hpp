@@ -6,7 +6,7 @@
 #include <pthread.h>
 
 #include "uuid.h"
-#include "org-bluez-adaptater1.h"
+#include "org-bluez-adapter1.h"
 #include "org-bluez-device1.h"
 
 #define DEFAULT_ADAPTER "hci0"
