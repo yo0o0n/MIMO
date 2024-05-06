@@ -12,6 +12,9 @@ GSList *m_adapter_list = NULL;
 GMutex mtx_loop;
 GCond cond_loop;
 
+pthread_mutex_t m_connection_terminated_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t m_connection_terminated = PTHREAD_COND_INITIALIZER;
+
 int main(int argc, char *argv[]){
 	if(argc < 4){
 		std::cout << "ble_test mac_address uuid data\n";
@@ -97,6 +100,14 @@ void *ble_task(void *arg){
 			adapter,
 			NULL, 0, 0,
 			ble_discovered_device, 10, addr);
+	if(ret){
+		std::cout << "Failed to scan\n";
+		return NULL;
+	}
+
+	pthread_mutex_lock(&m_connection_terminated_lock);
+	pthread_cond_wait(&m_connection_terminated, &m_connection_terminated_lock);
+	pthread_mutex_unlock(&m_connection_terminated_lock);
 
 	return NULL;
 }
@@ -152,14 +163,6 @@ int adapter_open(const char *adapter_name, ble_adapter **adapter){
 	return BLE_SUCCESS;
 }
 
-void wait_for_scan(ble_adapter *adapter){
-	g_mutex_lock(&mtx_loop);
-	if(adapter->ble_scan.is_scanning){
-		g_cond_wait(&cond_loop, &mtx_loop);
-	}
-	g_mutex_unlock(&mtx_loop);
-}
-
 int stricmp(char const *a, char const *b){
 	for(;; a++, b++){
 		int d = tolower((unsigned char)*a) - tolower((unsigned char)*b);
@@ -183,6 +186,24 @@ void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *n
 	if(ret != BLE_SUCCESS){
 		std::cout << "Failed to connect to the bluetooth device '" << addr << "'\n";
 	}
+}
+
+void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *connection, int, void *user_data){
+	std::cout << "device connected\n";
+
+	ble_disconnect(connection, false);
+
+	pthread_mutex_lock(&m_connection_terminated_lock);
+	pthread_cond_signal(&m_connection_terminated);
+	pthread_mutex_unlock(&m_connection_terminated_lock);
+}
+
+void wait_for_scan(ble_adapter *adapter){
+	g_mutex_lock(&mtx_loop);
+	if(adapter->ble_scan.is_scanning){
+		g_cond_wait(&cond_loop, &mtx_loop);
+	}
+	g_mutex_unlock(&mtx_loop);
 }
 
 gint _compare_device_with_device_id(gconstpointer a, gconstpointer b){
@@ -227,6 +248,7 @@ int device_set_state(ble_adapter *adapter, const char *device_id, enum device_st
 			device->adapter = adapter;
 			device->device_id = g_strdup(device_id);
 			device->state = new_state;
+			device->connection.device = device;
 
 			adapter->devices = g_slist_append(adapter->devices, device);
 		}
@@ -364,11 +386,11 @@ void on_dbus_object_added(GDBusObjectManager *device_manager, GDBusObject *objec
 
 	GDBusInterface *interface = g_dbus_object_manager_get_interface(device_manager, object_path, "org.bluez.Device1");
 	if(!interface){
-		std::cout << "DBUS: on_object_added: " << object_path << " (has 'org.bluez.Device1')\n";
+//		std::cout << "DBUS: on_object_added: " << object_path << " (has 'org.bluez.Device1')\n";
 		return;
 	}
 
-	std::cout << "DBUS: on_object_added: " << object_path << " (has 'org.bluez.Device1')\n";
+//	std::cout << "DBUS: on_object_added: " << object_path << " (has 'org.bluez.Device1')\n";
 
 	device_manager_on_added_device1_signal(object_path, user_data);
 
@@ -632,6 +654,143 @@ int adapter_scan_enable(ble_adapter *adapter, uuid_t **uuid_list, int16_t rssi_t
 	return BLE_SUCCESS;
 }
 
+void end_notification(void *notified_characteristic){
+
+}
+
+void on_disconnected_device(ble_connection *connection){
+	if((&connection->on_disconnection != NULL) && (connection->on_disconnection.callback.callback != NULL)){
+		connection->on_disconnection.callback.disconnection_handler(connection, connection->on_disconnection.user_data);
+	}
+
+	char *device_id = connection->device->device_id;
+
+	if(connection->on_handle_device_property_change_id != 0){
+		g_signal_handler_disconnect(connection->bluez_device, connection->on_handle_device_property_change_id);
+		connection->on_handle_device_property_change_id = 0;
+	}
+
+	if(connection->connection_timeout_id){
+		g_source_remove(connection->connection_timeout_id);
+		connection->connection_timeout_id = 0;
+	}
+
+	if(connection->device_object_path != NULL){
+		free(connection->device_object_path);
+		connection->device_object_path = NULL;
+	}
+
+	g_list_free_full(connection->dbus_objects, g_object_unref);
+
+	g_list_free_full((GList*)g_steal_pointer(&connection->notified_characteristics), end_notification);
+
+	device_set_state(connection->device->adapter, device_id, DISCONNECTED);
+}
+
+ble_connection *_connected_device_args_allocator(va_list args){
+	return (ble_connection*)va_arg(args, ble_connection*);
+}
+
+gpointer _connected_device_thread(gpointer data){
+	ble_connection *connection = (ble_connection*)data;
+	const gchar *device_mac_address = org_bluez_device1_get_address(connection->bluez_device);
+
+	connection->on_connection.callback.connection_handler(
+			connection->device->adapter,
+			device_mac_address,
+			connection, 0,
+			connection->on_connection.user_data);
+
+	return NULL;
+}
+
+void on_connected_device(ble_handler *handler, ble_connection* (*args_allocator)(va_list), ...){
+	GError *error = NULL;
+
+	va_list args;
+	va_start(args, args_allocator);
+	ble_connection *thread_args = args_allocator(args);
+	va_end(args);
+
+	handler->thread = g_thread_try_new("connected_device", _connected_device_thread, thread_args, &error);
+	if(handler->thread == NULL){
+		std::cout << "Failed to create thread 'connected_device': " << error->message << '\n';
+		g_error_free(error);
+		return;
+	}
+}
+
+void _on_device_connect(ble_connection *connection){
+	GDBusObjectManager *device_manager;
+	GError *error = NULL;
+	
+	if(connection->connection_timeout_id){
+		g_source_remove(connection->connection_timeout_id);
+		connection->connection_timeout_id = 0;
+	}
+
+	connection->device->adapter->device_manager = g_dbus_object_manager_client_new_for_bus_sync(
+			G_BUS_TYPE_SYSTEM,
+			G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+			"org.bluez",
+			"/",
+			NULL, NULL, NULL, NULL,
+			&error);
+	device_manager = connection->device->adapter->device_manager;
+
+	if(device_manager == NULL){
+		if(error != NULL){
+			g_error_free(error);
+		}
+		return;
+	}
+	
+	connection->dbus_objects = g_dbus_object_manager_get_objects(device_manager);
+
+	device_set_state(connection->device->adapter, connection->device->device_id, CONNECTED);
+
+	on_connected_device(&connection->on_connection, _connected_device_args_allocator, connection);
+}
+
+gboolean on_handle_device_property_change(GDBusProxy *proxy, GVariant *arg_changed_properties, const gchar *const *arg_invalidated_properties, ble_connection *connection){
+	if (g_variant_n_children(arg_changed_properties) > 0) {
+		const gchar *device_object_path = g_dbus_proxy_get_object_path(proxy);
+		GVariantIter *iter;
+		const gchar *key;
+		GVariant *value;
+
+		g_variant_get(arg_changed_properties, "a{sv}", &iter);
+		while(g_variant_iter_loop(iter, "{&sv}", &key, &value)){
+			if(strcmp(key, "Connected") == 0){
+				if(!g_variant_get_boolean(value)){
+					std::cout << "DBUS: device_property_change(" << device_object_path << "): Disconnection\n";
+					on_disconnected_device(connection);
+				}
+				else{
+					std::cout << "DBUS: device_property_change(" << device_object_path << "): Connection\n";
+				}
+			}
+			else if(strcmp(key, "ServicesResolved") == 0){
+				if(g_variant_get_boolean(value)){
+					std::cout << "DBUS: device_property_change(" << device_object_path << "): Service Resolved\n";
+					_on_device_connect(connection);
+				}
+			}
+		}
+		g_variant_iter_free(iter);
+	}
+
+	return TRUE;
+}
+
+gboolean _stop_connect_on_timeout(gpointer data){
+	ble_connection *connection = (ble_connection*)data;
+
+	connection->connection_timeout_id = 0;
+
+	return FALSE;
+}
+
 int ble_connect(ble_adapter *adapter, const char *dst, unsigned long options, connect_cb_t connect_cb, void *user_data){
 	const char *adapter_name = NULL;
 	GError *error = NULL;
@@ -670,7 +829,7 @@ int ble_connect(ble_adapter *adapter, const char *dst, unsigned long options, co
 	snprintf(object_path, sizeof(object_path), "/org/bluez/%s/dev_%s", adapter_name, device_address_str);
 
 	ble_device *device;
-	GSList *item = g_slist_find_custom(adapter->devices, device_id, _compare_device_with_device_id);
+	GSList *item = g_slist_find_custom(adapter->devices, object_path, _compare_device_with_device_id);
 	if(item == NULL){
 		return BLE_ERROR;
 	}
@@ -684,4 +843,90 @@ int ble_connect(ble_adapter *adapter, const char *dst, unsigned long options, co
 			return BLE_ERROR;
 		}
 	}
+
+	device->connection.on_connection.callback.connection_handler = connect_cb;
+	device->connection.on_connection.user_data = user_data;
+
+	device_set_state(device->adapter, device->device_id, CONNECTING);
+
+	OrgBluezDevice1 *bluez_device = org_bluez_device1_proxy_new_for_bus_sync(
+			G_BUS_TYPE_SYSTEM,
+			G_DBUS_PROXY_FLAGS_NONE,
+			"org.bluez",
+			object_path,
+			NULL,
+			&error);
+	if(bluez_device == NULL){
+		std::cout << "Failed to connect to DBus Device";
+		if(error){
+			std::cout << ": " << error->message;
+			g_error_free(error);
+		}
+		std::cout << '\n';
+		return BLE_ERROR;
+	}
+	else{
+		device->connection.bluez_device = bluez_device;
+		device->connection.device_object_path = strdup(object_path);
+	}
+
+	device->connection.on_handle_device_property_change_id = g_signal_connect(
+			bluez_device,
+			"g-properties-changed",
+			G_CALLBACK(on_handle_device_property_change),
+			&device->connection);
+
+	error = NULL;
+	org_bluez_device1_call_connect_sync(bluez_device, NULL, &error);
+	if(error){
+		const char *m_dbus_error_unknown_object = "GDBus.Error:org.freedesktop.DBus.Error.UnknownObject";
+		if(strncmp(error->message, m_dbus_error_unknown_object, strlen(m_dbus_error_unknown_object)) == 0){
+			std::cout << "Device '" << dst << "' cannot be found (" << error->domain << ", " << error->code << ")\n";
+		}
+		else if((error->domain == 238) && (error->code == 60952)){
+			std::cout << "Device '" << dst << "': " << error->message << '\n';
+		}
+		else{
+			std::cout << "Device connected error (device:" << device->connection.device_object_path << "): " << error->message << '\n';
+		}
+		
+		g_error_free(error);
+
+		device_set_state(adapter, device->device_id, DISCONNECTED);
+
+		ret = BLE_ERROR;
+	}
+	else{
+		device->connection.connection_timeout_id = g_timeout_add_seconds(10, _stop_connect_on_timeout, &device->connection);
+		return BLE_SUCCESS;
+	}
+
+	free(device->connection.device_object_path);
+	device->connection.device_object_path = NULL;
+
+//	adapter_close(adapter);
+
+//	connect_cb(adapter, dst, NULL, BLE_ERROR, user_data);
+
+	return ret;
+}
+
+int ble_disconnect(ble_connection *connection, bool wait_disconnection){
+	GError *error = NULL;
+	int ret = BLE_SUCCESS;
+
+	if(connection == NULL){
+		std::cout << "Cannot disconnect - connection parameter is not valid\n";
+		return BLE_ERROR;
+	}
+
+	org_bluez_device1_call_disconnect_sync(connection->bluez_device, NULL, &error);
+	if(error){
+		std::cout << "Failed to disconnect DBus Bluez Device: " << error->message << '\n';
+		g_error_free(error);
+	}
+
+	device_set_state(connection->device->adapter, connection->device->device_id, DISCONNECTING);
+
+	return ret;
 }
