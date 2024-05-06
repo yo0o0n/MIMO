@@ -1,20 +1,32 @@
 package com.mimo.android.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.mimo.android.ui.theme.Teal400
+import com.mimo.android.ui.theme.Teal900
 
 /**
  * Provides the navigation in the app.
  */
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun Navigation(
     navController: NavHostController
@@ -22,7 +34,11 @@ fun Navigation(
 
     val scope = rememberCoroutineScope()
 
-    Row {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Teal900)
+    ) {
         Button(
             contentPadding = PaddingValues(0.dp),
             shape = MaterialTheme.shapes.small,
@@ -59,4 +75,10 @@ fun Navigation(
             Text(text = "내정보")
         }
     }
+}
+
+@Preview
+@Composable
+fun NavigationPreview(){
+    Navigation(navController = NavHostController(LocalContext.current))
 }

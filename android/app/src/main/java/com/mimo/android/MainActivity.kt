@@ -150,11 +150,8 @@ class MainActivity : ComponentActivity() {
 //        tryToBindToServiceIfRunning()
 
         setContent {
-
-            // check user
+            // TODO: 이미 로그인이 되어있는지 아닌지 확인 (처음부터 로그인이 되어있는 경우를 체크)
             authViewModel.init(user = null)
-
-            // TODO: 이미 로그인이 되어있는지 아닌지 확인
 
             // TODO: 로그인이 되어있는 상태가 아니라면 초기설정퍼널을 시작할것인지 아닌지 결정(집이나 허브가 없다면 시작)
 

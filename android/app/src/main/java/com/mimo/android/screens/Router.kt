@@ -1,18 +1,15 @@
 package com.mimo.android.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import com.mimo.android.R
 import com.mimo.android.screens.main.myhome.MyHomeScreen
 import com.mimo.android.services.health.HealthConnectManager
 import com.mimo.android.screens.main.myprofile.MyProfileScreen
 import com.mimo.android.screens.main.sleep.SleepScreen
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.mimo.android.screens.main.Layout
 
 @Composable
 fun Router(
@@ -27,29 +24,37 @@ fun Router(
 
         // main
         composable(Screen.MyHomeScreen.route) {
-            Column (
-                modifier = Modifier.fillMaxSize()
-            ) {
-                MyHomeScreen()
-                Spacer(modifier = Modifier.weight(1f))
-                Navigation(navController = navController)
-            }
+            Layout(
+                navController = navController,
+                children = {
+                    MyHomeScreen(
+                        navController = navController
+                    )
+                }
+            )
             return@composable
         }
         composable(Screen.SleepScreen.route) {
-            Column {
-                SleepScreen()
-                Spacer(modifier = Modifier.weight(1f))
-                Navigation(navController = navController)
-            }
+            Layout(
+                navController = navController,
+                children = {
+                    SleepScreen(
+                        navController = navController
+                    )
+                }
+            )
             return@composable
         }
         composable(Screen.MyProfileScreen.route) {
-            Column {
-                MyProfileScreen(healthConnectManager)
-                Spacer(modifier = Modifier.weight(1f))
-                Navigation(navController = navController)
-            }
+            Layout(
+                navController = navController,
+                children = {
+                    MyProfileScreen(
+                        navController = navController,
+                        healthConnectManager = healthConnectManager
+                    )
+                }
+            )
             return@composable
         }
 

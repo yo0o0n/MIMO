@@ -2,22 +2,24 @@ package com.mimo.android.screens.main.myprofile
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.base.Size
 import com.mimo.android.services.health.HealthConnectManager
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MyProfileScreen(healthConnectManager: HealthConnectManager){
-
-    Column {
-        HeadingLarge(text = "내 정보,,", fontSize = Size.lg)
+fun MyProfileScreen(
+    navController: NavHostController,
+    healthConnectManager: HealthConnectManager
+){
+    Column (
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        HeadingLarge(text = "내 정보", fontSize = Size.lg)
     }
 
 //    var stepCount by remember {

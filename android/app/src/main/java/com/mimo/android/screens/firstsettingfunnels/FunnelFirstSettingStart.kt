@@ -31,22 +31,25 @@ fun FunnelFirstSettingStart(
         HeadingLarge(text = "MIMO", fontSize = Size.lg)
         HeadingLarge(text = "허브 등록을 시작할게요", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(12.dp))
-        TransparentCard {
-            Row(
-                modifier = Modifier.padding(vertical = 32.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                GifImage(R.drawable.moon_animation_image)
-                Column {
-                    HeadingSmall(text = "이제부터 MIMO가", fontSize = Size.lg, color = Teal50)
-                    Text(text = "당신의 수면 활동을 도와드릴게요")
+        TransparentCard(
+            children = {
+                Row {
+                    Row(
+                        modifier = Modifier.padding(vertical = 32.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        GifImage(R.drawable.moon_animation_image)
+                        Column {
+                            HeadingSmall(text = "이제부터 MIMO가", fontSize = Size.lg, color = Teal50)
+                            Text(text = "당신의 수면 활동을 도와드릴게요")
+                        }
+                    }
                 }
             }
-        }
-        Spacer(modifier = Modifier.padding(12.dp))
+        )
+        Spacer(modifier = Modifier.padding(8.dp))
         HorizontalDivider()
-
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
         HeadingSmall(text = "MIMO와 함께하면", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(16.dp))
 
@@ -63,7 +66,7 @@ fun FunnelFirstSettingStart(
                 Icon(imageVector = Icons.Outlined.CheckCircle, color = Teal100)
             }
 
-            Spacer(modifier = Modifier.padding(12.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -77,7 +80,7 @@ fun FunnelFirstSettingStart(
                 Icon(imageVector = Icons.Outlined.CheckCircle, color = Teal100)
             }
 
-            Spacer(modifier = Modifier.padding(12.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
