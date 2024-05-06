@@ -15,6 +15,7 @@ import com.mimo.android.components.BackgroundImage
 import com.mimo.android.services.health.HealthConnectManager
 import com.mimo.android.screens.Navigation
 import com.mimo.android.screens.Router
+import com.mimo.android.screens.Screen
 import com.mimo.android.screens.firstsettingfunnels.*
 import com.mimo.android.screens.login.LoginScreen
 
@@ -53,7 +54,8 @@ fun MimoApp(
                     refreshToken = "456"
                 )
                 authViewModel.login(
-                    user = user
+                    user = user,
+                    cb = { navController.navigate(Screen.MyHomeScreen.route) }
                 )
             }
 

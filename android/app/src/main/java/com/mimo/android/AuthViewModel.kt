@@ -7,13 +7,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AuthViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    fun init(){
+    fun init(user: User?){
         // TODO: jwt-token이 있는지 확인하고 없으면 not-login 처리 / 있으면 그걸 가지고 백엔드에 요청해서 확인
 
         // TODO: 1. jwt-token이 있는가?
@@ -21,19 +22,23 @@ class AuthViewModel: ViewModel() {
         // TODO: 2. jwt-token이 있으면 백엔드에 요청
         viewModelScope.launch {
             delay(1000)
-            try {
-
-            } catch(e: Exception) {
-
+            if (user != null) {
+                _uiState.update { prevState ->
+                    prevState.copy(user = user)
+                }
             }
         }
     }
 
-    fun login(user: User){
+    fun login(
+        user: User,
+        cb: () -> Unit
+    ){
         viewModelScope.launch {
             delay(1000)
             try {
                 _uiState.value = AuthUiState(user = user)
+                cb()
             } catch(e: Exception) {
                 Log.d("AuthViewModel login function error", "${e.message}")
             }

@@ -1,4 +1,4 @@
-package com.mimo.android.screens.myhome
+package com.mimo.android.screens.main.myhome
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

@@ -19,6 +19,7 @@ import com.mimo.android.components.HeadingLarge
 import com.mimo.android.components.Icon
 import com.mimo.android.components.base.Size
 
+// TODO: 근데 굳이 위치를 따로 입력받아야하나...
 @Composable
 fun FunnelEnterLocationToRegisterHub(
     goPrev: () -> Unit,

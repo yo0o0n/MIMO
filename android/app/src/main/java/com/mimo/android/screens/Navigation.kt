@@ -52,15 +52,5 @@ fun Navigation(
         ) {
             Text(text = "내정보")
         }
-
-        Button(
-            contentPadding = PaddingValues(0.dp),
-            shape = MaterialTheme.shapes.small,
-            onClick = {
-                navController.navigate(Screen.ForegroundServiceSampleScreen.route)
-            }
-        ) {
-            Text(text = "테스트1")
-        }
     }
 }

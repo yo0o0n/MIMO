@@ -1,4 +1,4 @@
-package com.mimo.android.screens.sleep
+package com.mimo.android.screens.main.sleep
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

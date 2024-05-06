@@ -29,25 +29,25 @@ fun FirstSettingFunnelsRoot(
     context: Context
 ){
 
-    FunnelMatcher(
-            qrCodeViewModel = qrCodeViewModel,
-            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-            checkCameraPermission = checkCameraPermission,
-            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
-            context = context
-    )
-
-//    TestFunnelWrapper(
-//        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
-//    ) {
-//        FunnelMatcher(
+//    FunnelMatcher(
 //            qrCodeViewModel = qrCodeViewModel,
 //            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
 //            checkCameraPermission = checkCameraPermission,
 //            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
 //            context = context
-//        )
-//    }
+//    )
+
+    TestFunnelWrapper(
+        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+    ) {
+        FunnelMatcher(
+            qrCodeViewModel = qrCodeViewModel,
+            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+            checkCameraPermission = checkCameraPermission,
+            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
+            context = context
+        )
+    }
 }
 
 @Composable
@@ -186,6 +186,7 @@ fun FunnelMatcher(
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_funnel_enter_location_to_register_hub) {
         // TODO: manage state...
+        // TODO: 근데 굳이 위치를 따로 입력받아야하나...
         FunnelEnterLocationToRegisterHub(
             goPrev = {
                 firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.first_setting_funnel_auto_register_location)

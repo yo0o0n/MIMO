@@ -1,4 +1,4 @@
-package com.mimo.android.screens.myprofile
+package com.mimo.android.screens.main.myprofile
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
