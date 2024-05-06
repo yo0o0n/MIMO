@@ -1,12 +1,24 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  *
  *  BlueZ - Bluetooth protocol stack for Linux
  *
  *  Copyright (C) 2011  Nokia Corporation
  *  Copyright (C) 2011  Marcel Holtmann <marcel@holtmann.org>
- *  Copyright 2023 NXP
  *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -76,7 +88,6 @@ extern "C" {
 #define HDP_SINK_UUID		"00001402-0000-1000-8000-00805f9b34fb"
 
 #define HID_UUID		"00001124-0000-1000-8000-00805f9b34fb"
-#define HOG_UUID		"00001812-0000-1000-8000-00805f9b34fb"
 
 #define DUN_GW_UUID		"00001103-0000-1000-8000-00805f9b34fb"
 
@@ -108,7 +119,6 @@ extern "C" {
 #define GATT_CHARAC_RECONNECTION_ADDRESS		0x2A03
 #define GATT_CHARAC_PERIPHERAL_PREF_CONN		0x2A04
 #define GATT_CHARAC_SERVICE_CHANGED			0x2A05
-#define GATT_CHARAC_BATTERY_LEVEL			0x2A19
 #define GATT_CHARAC_SYSTEM_ID				0x2A23
 #define GATT_CHARAC_MODEL_NUMBER_STRING			0x2A24
 #define GATT_CHARAC_SERIAL_NUMBER_STRING		0x2A25
@@ -117,7 +127,6 @@ extern "C" {
 #define GATT_CHARAC_SOFTWARE_REVISION_STRING		0x2A28
 #define GATT_CHARAC_MANUFACTURER_NAME_STRING		0x2A29
 #define GATT_CHARAC_PNP_ID				0x2A50
-#define GATT_CHARAC_CAR					0x2AA6
 
 /* GATT Characteristic Descriptors */
 #define GATT_CHARAC_EXT_PROPER_UUID			0x2900
@@ -129,118 +138,6 @@ extern "C" {
 #define GATT_CHARAC_VALID_RANGE_UUID			0x2906
 #define GATT_EXTERNAL_REPORT_REFERENCE			0x2907
 #define GATT_REPORT_REFERENCE				0x2908
-
-/* GATT Mesh Services */
-#define MESH_PROV_SVC_UUID	"00001827-0000-1000-8000-00805f9b34fb"
-#define MESH_PROXY_SVC_UUID	"00001828-0000-1000-8000-00805f9b34fb"
-
-/* GATT Mesh Characteristic Types */
-#define MESH_PROVISIONING_DATA_IN			0x2ADB
-#define MESH_PROVISIONING_DATA_OUT			0x2ADC
-#define MESH_PROXY_DATA_IN				0x2ADD
-#define MESH_PROXY_DATA_OUT				0x2ADE
-
-/* GATT Caching attributes */
-#define GATT_CHARAC_CLI_FEAT				0x2B29
-#define GATT_CHARAC_DB_HASH				0x2B2A
-
-/* GATT Server Supported features */
-#define GATT_CHARAC_SERVER_FEAT				0x2B3A
-
-/* TODO: Update these on final UUID is given */
-#define PACS_UUID					0x1850
-#define PAC_SINK_CHRC_UUID				0x2bc9
-#define PAC_SINK_UUID		"00002bc9-0000-1000-8000-00805f9b34fb"
-#define PAC_SINK_LOC_CHRC_UUID				0x2bca
-
-#define PAC_SOURCE_CHRC_UUID				0x2bcb
-#define PAC_SOURCE_UUID		"00002bcb-0000-1000-8000-00805f9b34fb"
-#define PAC_SOURCE_LOC_CHRC_UUID			0x2bcc
-
-#define BCAA_SERVICE				0x1852
-#define BCAA_SERVICE_UUID	"00001852-0000-1000-8000-00805f9b34fb"
-
-#define BAA_SERVICE					0x1851
-#define BAA_SERVICE_UUID	"00001851-0000-1000-8000-00805f9b34fb"
-
-#define PAC_CONTEXT					0x2bcd
-#define PAC_SUPPORTED_CONTEXT				0x2bce
-
-#define ASCS_UUID					0x184e
-#define ASE_SINK_UUID					0x2bc4
-#define ASE_SOURCE_UUID					0x2bc5
-#define ASE_CP_UUID					0x2bc6
-
-#define BASS_UUID					0x184f
-#define BCAST_AUDIO_SCAN_CP_UUID			0x2bc7
-#define BCAST_RECV_STATE_UUID				0x2bc8
-
-#define VCS_UUID					0x1844
-#define VOL_OFFSET_CS_UUID				0x1845
-#define AUDIO_INPUT_CS_UUID				0x1843
-#define VOL_STATE_CHRC_UUID				0x2B7D
-#define VOL_CP_CHRC_UUID				0x2B7E
-#define VOL_FLAG_CHRC_UUID				0x2B7F
-
-#define VOCS_STATE_CHAR_UUID			0x2B80
-#define VOCS_AUDIO_LOC_CHRC_UUID		0x2B81
-#define VOCS_CP_CHRC_UUID			0x2B82
-#define VOCS_AUDIO_OP_DESC_CHAR_UUID		0x2B83
-
-#define	AICS_INPUT_STATE_CHAR_UUID		0x2B77
-#define	AICS_GAIN_SETTING_PROP_CHAR_UUID	0x2B78
-#define	AICS_AUDIO_INPUT_TYPE_CHAR_UUID		0x2B79
-#define	AICS_INPUT_STATUS_CHAR_UUID		0X2B7A
-#define	AICS_AUDIO_INPUT_CP_CHRC_UUID		0X2B7B
-#define	AICS_INPUT_DESCR_CHAR_UUID		0X2B7C
-
-#define GMCS_UUID                               0x1849
-#define MEDIA_PLAYER_NAME_CHRC_UUID             0x2b93
-#define MEDIA_TRACK_CHNGD_CHRC_UUID             0x2b96
-#define MEDIA_TRACK_TITLE_CHRC_UUID             0x2b97
-#define MEDIA_TRACK_DURATION_CHRC_UUID          0x2b98
-#define MEDIA_TRACK_POSTION_CHRC_UUID           0x2b99
-#define MEDIA_PLAYBACK_SPEED_CHRC_UUID          0x2b9a
-#define MEDIA_SEEKING_SPEED_CHRC_UUID           0x2b9b
-#define MEDIA_PLAYING_ORDER_CHRC_UUID           0x2ba1
-#define MEDIA_PLAY_ORDER_SUPPRTD_CHRC_UUID      0x2ba2
-#define MEDIA_STATE_CHRC_UUID                   0x2ba3
-#define MEDIA_CP_CHRC_UUID                      0x2ba4
-#define MEDIA_CP_OP_SUPPORTED_CHRC_UUID         0x2ba5
-#define MEDIA_CONTENT_CONTROL_ID_CHRC_UUID      0x2bba
-
-/* Coordinated Set Identification Profile(CSIP) */
-#define CSIS_UUID					0x1846
-#define CS_SIRK						0x2B84
-#define CS_SIZE						0x2B85
-#define CS_LOCK						0x2B86
-#define CS_RANK						0x2B87
-
-
-/* Microphone Control Service(MICS) */
-#define MICS_UUID					0x184D
-#define MUTE_CHRC_UUID					0x2BC3
-
-/* Call Control Service(TBS/CCS) */
-#define TBS_UUID                                0x184B
-#define GTBS_UUID                               0x184C
-
-#define BEARER_PROVIDER_NAME_CHRC_UUID          0x2bb3
-#define BEARER_UCI_CHRC_UUID                    0x2bb4
-#define BEARER_TECH_CHRC_UUID                   0x2bb5
-#define BEARER_URI_SCHEME_CHRC_UUID             0x2bb6
-#define BEARER_SIGNAL_STR_CHRC_UUID             0x2bb7
-#define BEARER_SIGNAL_INTRVL_CHRC_UUID          0x2bb8
-#define CURR_CALL_LIST_CHRC_UUID                0x2bb9
-#define BEARER_CCID_CHRC_UUID                   0x2bba
-#define CALL_STATUS_FLAG_CHRC_UUID              0x2bbb
-#define INCOM_CALL_TARGET_URI_CHRC_UUID         0x2bbc
-#define CALL_STATE_CHRC_UUID                    0x2bbd
-#define CALL_CTRL_POINT_CHRC_UUID               0x2bbe
-#define CALL_CTRL_POINT_OPT_OPCODE_CHRC_UUID    0x2bbf
-#define TERMINATION_REASON_CHRC_UUID            0x2bc0
-#define INCOMING_CALL_CHRC_UUID                 0x2bc1
-#define CALL_FRIENDLY_NAME_CHRC_UUID            0x2bc2
 
 typedef struct {
 	enum {
@@ -263,7 +160,6 @@ int bt_uuid32_create(bt_uuid_t *btuuid, uint32_t value);
 int bt_uuid128_create(bt_uuid_t *btuuid, uint128_t value);
 
 int bt_uuid_cmp(const bt_uuid_t *uuid1, const bt_uuid_t *uuid2);
-int bt_uuid16_cmp(const bt_uuid_t *uuid1, uint16_t uuid2);
 void bt_uuid_to_uuid128(const bt_uuid_t *src, bt_uuid_t *dst);
 
 #define MAX_LEN_UUID_STR 37

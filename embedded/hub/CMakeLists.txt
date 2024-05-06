@@ -1,29 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
 
-project (MyLibrary LANGUAGES C)
-
 project(
 		embedded LANGUAGES CXX
 	   )
 
-find_package(PkgConfig REQUIRED)
-
-pkg_search_module(GLIB REQUIRED glib-2.0)
-
 include_directories(
 		${CMAKE_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}/includes
-		${BLUEZ_INCLUDE_DIRS}
-		${GLIB_INCLUDE_DIRS}
+		${CMAKE_SOURCE_DIR}/lib-bluez
+		${PROJECT_BINARY_DIR}/lib-bluez
 		)
 
 link_directories(
 		${CMAKE_SOURCE_DIR}/includes
-		${BLUEZ_LIBRARY_DIRS}
-		)
-
-add_library(
-		MyLibrary uuid.c btio.c gattrib.c att.c
+		${CMAKE_SOURCE_DIR}/lib-bluez
+		${PROJECT_BINARY_DIR}/lib-bluez
 		)
 
 add_executable(
@@ -31,15 +22,12 @@ add_executable(
 		main.cpp
 		common.cpp
 		socket.cpp
-		ble.cpp
 		client_test.cpp
 		)
 
 target_link_libraries(
 		program
 		pthread
-		bluetooth
-		MyLibrary
 		)
 
 add_executable(
@@ -50,4 +38,18 @@ add_executable(
 target_link_libraries(
 		server
 		pthread
+		)
+
+add_subdirectory(lib-bluez)
+
+add_executable(
+		ble_test
+		ble.cpp
+		)
+
+target_link_libraries(
+		ble_test
+		bluetooth
+		pthread
+		BluezDbusLib
 		)
