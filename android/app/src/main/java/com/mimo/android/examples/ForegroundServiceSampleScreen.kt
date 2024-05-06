@@ -1,4 +1,4 @@
-package com.mimo.android.screens
+package com.mimo.android.examples
 
 import com.mimo.android.R
 import androidx.compose.foundation.layout.Arrangement

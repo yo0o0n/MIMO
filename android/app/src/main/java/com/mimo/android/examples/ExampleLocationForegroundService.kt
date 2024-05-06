@@ -1,4 +1,4 @@
-package com.mimo.android.services.locationforegroundexample
+package com.mimo.android.examples
 
 import android.app.Service
 import android.content.Intent
@@ -16,7 +16,6 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.mimo.android.notification.NotificationsHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

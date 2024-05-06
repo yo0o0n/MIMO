@@ -80,7 +80,8 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0-alpha06")
 
     // google location
-    implementation(libs.google.play.services.location)
+    implementation(libs.google.play.services.location) // 샘플코드
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     // use-gif
     implementation("io.coil-kt:coil-compose:2.1.0")

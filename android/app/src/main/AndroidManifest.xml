@@ -9,17 +9,20 @@
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.READ_SLEEP"/>
 
-    <!--  Request the general foreground service permission  -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!--  Request the specific foreground service permission for each declared type  -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+<!--    &lt;!&ndash;  Request the general foreground service permission  &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
+<!--    &lt;!&ndash;  Request the specific foreground service permission for each declared type  &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />-->
 
-    <!--  Request notification permission to be able to show the foreground service notification  -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<!--    &lt;!&ndash;  Request notification permission to be able to show the foreground service notification  &ndash;&gt;-->
+<!--    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />-->
 
-    <!--  Request location permission to be able to use the location foreground service type  -->
+    <!-- location -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 필요에 의해 사용
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    -->
 
     <application
         android:allowBackup="true"
@@ -56,11 +59,11 @@
             </intent-filter>
         </activity-alias>
 
-        <!--  Declare the foreground service type  -->
-        <service
-            android:name=".services.locationforegroundexample.ExampleLocationForegroundService"
-            android:exported="false"
-            android:foregroundServiceType="location" />
+<!--        &lt;!&ndash;  Declare the foreground service type  &ndash;&gt;-->
+<!--        <service-->
+<!--            android:name=".services.locationforegroundexample.ExampleLocationForegroundService"-->
+<!--            android:exported="false"-->
+<!--            android:foregroundServiceType="location" />-->
 
         <!-- QR Scanner -->
         <activity

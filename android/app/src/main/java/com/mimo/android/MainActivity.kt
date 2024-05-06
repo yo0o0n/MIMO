@@ -1,7 +1,7 @@
 package com.mimo.android
 
 import com.journeyapps.barcodescanner.ScanContract
-import com.mimo.android.services.locationforegroundexample.ExampleLocationForegroundService
+import com.mimo.android.examples.ExampleLocationForegroundService
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection

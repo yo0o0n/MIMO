@@ -1,4 +1,4 @@
-package com.mimo.android.notification
+package com.mimo.android.examples
 
 import com.mimo.android.R
 import android.app.Notification
