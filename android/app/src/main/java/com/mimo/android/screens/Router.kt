@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mimo.android.examples.ForegroundServiceSampleScreen
 
 @Composable
 fun Router(
@@ -19,21 +18,30 @@ fun Router(
 //    currentLocation: String? = null,
 //    onClickForeground: (() -> Unit)? = null,
 ){
-    NavHost(navController = navController, startDestination = Screen.EmptyScreen.route) {
+    NavHost(navController = navController, startDestination = Screen.MyHomeScreen.route) {
         //val availability by healthConnectManager.availability
 
         // default
-        composable(Screen.EmptyScreen.route) {}
+        composable(Screen.EmptyScreen.route) {
+            return@composable
+        }
         // main
         composable(Screen.MyHomeScreen.route) {
             MyHomeScreen()
+            Navigation(navController = navController)
+            return@composable
         }
         composable(Screen.SleepScreen.route) {
             SleepScreen()
+            Navigation(navController = navController)
+            return@composable
         }
         composable(Screen.MyProfileScreen.route) {
             MyProfileScreen(healthConnectManager)
+            Navigation(navController = navController)
+            return@composable
         }
+
 //        composable(Screen.ForegroundServiceSampleScreen.route) {
 //            ForegroundServiceSampleScreen(
 //                serviceRunning = serviceRunning,

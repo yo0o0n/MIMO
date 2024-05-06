@@ -17,10 +17,6 @@ fun FunnelAutoRegisterLocation(
     onDirectlyEnterLocation: () -> Unit,
     onConfirm: () -> Unit
 ){
-    BackHandler {
-        return@BackHandler
-    }
-
     Column {
         Spacer(modifier = Modifier.padding(30.dp))
 

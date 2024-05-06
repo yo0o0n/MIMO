@@ -39,10 +39,6 @@ fun RedirectMainAfterFindExistingHub(
         goNext()
     }
 
-    BackHandler {
-        return@BackHandler
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {

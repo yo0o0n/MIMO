@@ -29,25 +29,25 @@ fun FirstSettingFunnelsRoot(
     context: Context
 ){
 
-//    FunnelMatcher(
-//            qrCodeViewModel = qrCodeViewModel,
-//            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-//            checkCameraPermission = checkCameraPermission,
-//            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
-//            context = context
-//    )
-
-    TestFunnelWrapper(
-        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
-    ) {
-        FunnelMatcher(
+    FunnelMatcher(
             qrCodeViewModel = qrCodeViewModel,
             firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
             checkCameraPermission = checkCameraPermission,
             launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
             context = context
-        )
-    }
+    )
+
+//    TestFunnelWrapper(
+//        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+//    ) {
+//        FunnelMatcher(
+//            qrCodeViewModel = qrCodeViewModel,
+//            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+//            checkCameraPermission = checkCameraPermission,
+//            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
+//            context = context
+//        )
+//    }
 }
 
 @Composable

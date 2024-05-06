@@ -32,13 +32,13 @@ class AuthViewModel: ViewModel() {
 
     fun login(
         user: User,
-        cb: () -> Unit
+        cb: (() -> Unit)? = null
     ){
         viewModelScope.launch {
             delay(1000)
             try {
                 _uiState.value = AuthUiState(user = user)
-                cb()
+                cb?.invoke()
             } catch(e: Exception) {
                 Log.d("AuthViewModel login function error", "${e.message}")
             }

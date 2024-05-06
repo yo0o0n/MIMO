@@ -21,10 +21,6 @@ fun RedirectLocationRegisterAfterFindNewHub(
         goNext()
     }
 
-    BackHandler {
-        return@BackHandler
-    }
-
     Column {
         Spacer(modifier = Modifier.padding(30.dp))
 

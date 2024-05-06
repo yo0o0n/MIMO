@@ -40,7 +40,7 @@ class FirstSettingFunnelsViewModel: ViewModel() {
 
             // TODO: 여기서 Spring server 통해서 허브(QR)이미 존재하는지 아닌지 확인하고 리다이렉트
             // Case1 이미 집이 등록된 허브라서 메인으로 이동
-            var isExistingHub = false
+            var isExistingHub = true
             if (isExistingHub) {
                 // TODO: 이미 집이 등록되어있기 때문에 이 유저를 집과허브(?)에 등록시켜야함. 아무튼 등록시켜야함
 

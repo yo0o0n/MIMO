@@ -3,7 +3,6 @@ package com.mimo.android
 import androidx.compose.material3.*
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,9 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mimo.android.components.BackgroundImage
 import com.mimo.android.services.health.HealthConnectManager
-import com.mimo.android.screens.Navigation
-import com.mimo.android.screens.Router
-import com.mimo.android.screens.Screen
+import com.mimo.android.screens.*
 import com.mimo.android.screens.firstsettingfunnels.*
 import com.mimo.android.screens.login.LoginScreen
 
@@ -53,19 +50,29 @@ fun MimoApp(
                     accessToken = "123",
                     refreshToken = "456"
                 )
+
+                val hasHomeOrHub = false // FIXME: 있다 치고 메인으로 이동
+
+                // TODO: 로그인이 됐는지 확인하고 로그인이 된 상태이며 집이나 허브가 없다면... MainActivity도..
+                if (!hasHomeOrHub) {
+                    firstSettingFunnelsViewModel.init(
+                        currentStepId = R.string.first_setting_funnel_first_setting_start
+                    )
+//                firstSettingFunnelsViewModel.init(
+//                    currentStepId = R.string.test_funnel
+//                )
+
+                    authViewModel.login(
+                        user = user
+                    )
+                    return
+                }
+
                 authViewModel.login(
                     user = user,
                     cb = { navController.navigate(Screen.MyHomeScreen.route) }
                 )
             }
-
-            Router(
-                navController = navController,
-                healthConnectManager = healthConnectManager,
-//                serviceRunning = serviceRunning,
-//                currentLocation = currentLocation,
-//                onClickForeground = onClickForeground,
-            )
 
             if (authUiState.user == null) {
                 LoginScreen(
@@ -85,8 +92,12 @@ fun MimoApp(
                 return@BackgroundImage
             }
 
-            Navigation(
-                navController = navController
+            Router(
+                navController = navController,
+                healthConnectManager = healthConnectManager,
+//                serviceRunning = serviceRunning,
+//                currentLocation = currentLocation,
+//                onClickForeground = onClickForeground,
             )
         }
     }
