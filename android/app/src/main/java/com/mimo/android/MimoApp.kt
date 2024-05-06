@@ -3,6 +3,7 @@ package com.mimo.android
 import androidx.compose.material3.*
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +26,7 @@ fun MimoApp(
     checkCameraPermission: () -> Unit,
     firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel,
     healthConnectManager: HealthConnectManager,
+    launchGoogleLocationAndAddress: (cb: (userLocation: UserLocation?) -> Unit) -> Unit,
     context: Context,
 //    serviceRunning: Boolean? = null,
 //    currentLocation: String? = null,
@@ -75,6 +77,7 @@ fun MimoApp(
                     qrCodeViewModel = qrCodeViewModel,
                     firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
                     checkCameraPermission = checkCameraPermission,
+                    launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
                     context = context
                 )
                 return@BackgroundImage

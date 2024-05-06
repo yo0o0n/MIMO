@@ -50,7 +50,7 @@ fun FunnelMakeLocationAlias(
         Icon(imageVector = Icons.Filled.ArrowBack, onClick = goPrev)
         Spacer(modifier = Modifier.padding(14.dp))
 
-        HeadingSmall(text = location, color = Teal100)
+        HeadingSmall(text = location, color = Teal100, fontSize = Size.sm)
         Spacer(modifier = Modifier.padding(16.dp))
         HeadingLarge(text = "이 장소의 별칭을 지어주세요", fontSize = Size.lg)
         

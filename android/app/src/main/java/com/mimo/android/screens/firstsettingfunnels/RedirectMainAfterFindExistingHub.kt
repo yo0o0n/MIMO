@@ -50,7 +50,7 @@ fun RedirectMainAfterFindExistingHub(
 
         HeadingLarge(text = homeName, fontSize = Size.lg, color = Teal100)
         Spacer(modifier = Modifier.padding(8.dp))
-        HeadingSmall(text = homeLocation, color = Teal100)
+        HeadingSmall(text = homeLocation, color = Teal100, fontSize = Size.sm)
 
         Spacer(modifier = Modifier.padding(16.dp))
 

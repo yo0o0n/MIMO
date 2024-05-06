@@ -1,6 +1,7 @@
 package com.mimo.android.screens.firstsettingfunnels
 
 import android.content.Context
+import android.location.Location
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,31 +16,38 @@ import androidx.compose.ui.unit.dp
 import com.mimo.android.FirstSettingFunnelsViewModel
 import com.mimo.android.QrCodeViewModel
 import com.mimo.android.R
+import com.mimo.android.UserLocation
 import com.mimo.android.components.Icon
+import com.mimo.android.services.gogglelocation.RequestPermissionsUtil
+
 @Composable
 fun FirstSettingFunnelsRoot(
     qrCodeViewModel: QrCodeViewModel,
     firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel,
     checkCameraPermission: () -> Unit,
+    launchGoogleLocationAndAddress: (cb: (userLocation: UserLocation?) -> Unit) -> Unit,
     context: Context
 ){
 
-//    FunnelMatcher(
-//        qrCodeViewModel = qrCodeViewModel,
-//        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-//        checkCameraPermission = checkCameraPermission
-//    )
-
-    TestFunnelWrapper(
-        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
-    ) {
-        FunnelMatcher(
+    FunnelMatcher(
             qrCodeViewModel = qrCodeViewModel,
             firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
             checkCameraPermission = checkCameraPermission,
+            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
             context = context
-        )
-    }
+    )
+
+//    TestFunnelWrapper(
+//        firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+//    ) {
+//        FunnelMatcher(
+//            qrCodeViewModel = qrCodeViewModel,
+//            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+//            checkCameraPermission = checkCameraPermission,
+//            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
+//            context = context
+//        )
+//    }
 }
 
 @Composable
@@ -47,6 +55,7 @@ fun FunnelMatcher(
     qrCodeViewModel: QrCodeViewModel,
     firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel,
     checkCameraPermission: () -> Unit,
+    launchGoogleLocationAndAddress: (cb: (userLocation: UserLocation?) -> Unit) -> Unit,
     context: Context
 ){
     val firstSettingFunnelsUiState by firstSettingFunnelsViewModel.uiState.collectAsState()
@@ -81,6 +90,7 @@ fun FunnelMatcher(
                     println("QR CODE 없음...")
                     return@FunnelHubFindWaiting
                 }
+
                 firstSettingFunnelsViewModel.setHubAndRedirect(qrCode)
             }
         )
@@ -106,18 +116,34 @@ fun FunnelMatcher(
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_redirect_location_register_after_find_new_hub) {
-        RedirectLocationRegisterAfterFindNewHub(
-            goNext = {
-                firstSettingFunnelsViewModel.redirectAutoRegisterLocationFunnel()
+        RedirectLocationRegisterAfterFindNewHub {
+            launchGoogleLocationAndAddress { userLocation ->
+                firstSettingFunnelsViewModel.redirectAutoRegisterLocationFunnel(userLocation)
             }
-        )
+        }
         return
     }
 
     if (firstSettingFunnelsUiState.currentStepId == R.string.first_setting_funnel_auto_register_location) {
-        // TODO: manage state...
+        val userLocation = firstSettingFunnelsUiState.userLocation
+        val userAddress = userLocation?.address
+
+        // 위치권한이 없거나 모종의 이유로 위치를 받아올 수 없었다면...
+        if (userAddress == null) {
+            Toast.makeText(
+                context,
+                "앱의 위치권한을 켜주세요",
+                Toast.LENGTH_SHORT
+            ).show()
+            // 처음 화면으로 그냥 이동시키고
+            firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.first_setting_funnel_first_setting_start)
+            // 다시 권한 묻기
+            RequestPermissionsUtil(context).requestLocation()
+            return
+        }
+
         FunnelAutoRegisterLocation(
-            location = "서울특별시 강남구 테헤란로 212",
+            location = userAddress,
             onDirectlyEnterLocation = {
                   firstSettingFunnelsViewModel.updateCurrentStep(R.string.first_setting_funnel_enter_location_to_register_hub)
             },

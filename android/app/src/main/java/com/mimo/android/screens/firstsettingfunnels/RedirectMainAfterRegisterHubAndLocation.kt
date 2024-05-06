@@ -33,7 +33,7 @@ fun RedirectMainAfterRegisterHubAndLocation(
 
         HeadingLarge(text = locationAlias, color = Teal100, fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(8.dp))
-        HeadingSmall(text = location, color = Teal100)
+        HeadingSmall(text = location, color = Teal100, fontSize = Size.sm)
         Spacer(modifier = Modifier.padding(16.dp))
         HeadingLarge(text = "허브와 장소를 등록했어요!", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(4.dp))

@@ -26,7 +26,7 @@ fun FunnelAutoRegisterLocation(
 
         HeadingLarge(text = "현재 위치", fontSize = Size.lg)
         Spacer(modifier = Modifier.padding(8.dp))
-        HeadingSmall(text = location, color = Teal100)
+        HeadingSmall(text = location, color = Teal100, fontSize = Size.sm)
         
         Spacer(modifier = Modifier.padding(16.dp))
         HeadingLarge(text = "이 장소에 허브를 등록할까요?", fontSize = Size.lg)

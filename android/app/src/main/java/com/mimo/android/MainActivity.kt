@@ -6,19 +6,15 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
-import com.mimo.android.services.health.HealthConnectManager
-import com.mimo.android.services.health.checkAvailability
-import com.mimo.android.services.health.checkHealthConnectPermission
-import com.mimo.android.services.health.createHealthConnectPermissionRequest
-import com.mimo.android.services.gogglelocation.RequestPermissionsUtil
-import com.mimo.android.services.gogglelocation.getCurrentLocation
-import com.mimo.android.services.gogglelocation.getLastLocation
-import com.mimo.android.services.qrcode.checkCameraPermission
-import com.mimo.android.services.qrcode.createQRRequestPermissionLauncher
-
-private const val TAG = "Mimo"
+import com.mimo.android.services.health.*
+import com.mimo.android.services.gogglelocation.*
+import com.mimo.android.services.qrcode.*
 
 class MainActivity : ComponentActivity() {
+    // health-connect
+    private lateinit var healthConnectManager: HealthConnectManager
+    private lateinit var healthConnectPermissionRequest: ActivityResultLauncher<Set<String>>
+
     private val authViewModel = AuthViewModel()
     private val firstSettingFunnelsViewModel = FirstSettingFunnelsViewModel()
     private val qrCodeViewModel = QrCodeViewModel()
@@ -48,10 +44,6 @@ class MainActivity : ComponentActivity() {
     private val qRRequestPermissionLauncher = createQRRequestPermissionLauncher(
         barCodeLauncher = barCodeLauncher
     )
-
-    // health-connect
-    private lateinit var healthConnectManager: HealthConnectManager
-    private lateinit var healthConnectPermissionRequest: ActivityResultLauncher<Set<String>>
 
 //    // location-foreground sample
 //    private var exampleService: ExampleLocationForegroundService? = null
@@ -155,23 +147,21 @@ class MainActivity : ComponentActivity() {
 //                )
             }
 
-            getCurrentLocation()
-            getLastLocation()
-
             MimoApp(
                 authViewModel = authViewModel,
-                qrCodeViewModel = qrCodeViewModel,
-                firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
                 healthConnectManager = healthConnectManager,
-                context = this,
-//                serviceRunning = serviceBoundState,
-//                currentLocation = displayableLocation,
-//                onClickForeground = ::onStartOrStopForegroundServiceClick,
+                qrCodeViewModel = qrCodeViewModel,
                 checkCameraPermission = { checkCameraPermission(
                     context = this,
                     barCodeLauncher = barCodeLauncher,
                     qRRequestPermissionLauncher = qRRequestPermissionLauncher
-                ) }
+                ) },
+                firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+                launchGoogleLocationAndAddress = { cb: (userLocation: UserLocation?) -> Unit -> launchGoogleLocationAndAddress(cb = cb) },
+//                serviceRunning = serviceBoundState,
+//                currentLocation = displayableLocation,
+//                onClickForeground = ::onStartOrStopForegroundServiceClick,
+                context = this,
             )
         }
     }
