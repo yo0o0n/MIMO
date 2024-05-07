@@ -1,5 +1,9 @@
 #include "common.hpp"
 
+std::mutex mtx_interrupt;
+std::condition_variable cv_interrupt;
+bool is_end = false;
+
 std::mutex mtx_read;
 std::condition_variable cv_read;
 

@@ -23,6 +23,10 @@ struct Request {
 	std::string request_data;
 };
 
+extern std::mutex mtx_interrupt;
+extern std::condition_variable cv_interrupt;
+extern bool is_end;
+
 extern std::mutex mtx_read;
 extern std::condition_variable cv_read;
 
