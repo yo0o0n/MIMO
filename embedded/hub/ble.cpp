@@ -24,7 +24,7 @@ void signalHandler(int signo){
 	is_running = false;
 }
 
-int main(int argc, char *argv[]){
+int set_ble(int argc, char *argv[]){
 	signal(SIGINT, signalHandler);
 
 	if(argc < 4){
@@ -208,17 +208,37 @@ void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *co
 	uint8_t *buffer = NULL;
 
 	int before = -1;
+	int cur_id = 123;
+	RequestType req = REQUEST_LIGHT;
+
 	while(is_running){
 		ret = read_char_by_uuid(connection, &m_argument.uuid, (void**)&buffer, &len);
-		if(ret == BLE_SUCCESS){
-			int num = (buffer[0] - '0')*10 + (buffer[1] - '0');
+		if(ret == BLE_SUCCESS && len){
+			uint8_t json_buf[200] = {0,};
+			memcpy(json_buf, buffer, len);
+			std::cout << "test1\n";
+			json root = json::parse(json_buf);
+			std::cout << "test2\n";
+			int num = root["num"].get<int>();
 			if(num != before){
+				std::string data = root["data"].get<std::string>();
+				struct Request new_req;
+				new_req.request_type = req;
+				new_req.id = cur_id;
+				new_req.request_data = data;
+
+				mtx_write.lock();
+				request_list.push(new_req);
+				cv_write.notify_all();
+				mtx_write.unlock();
+
 				for(uintptr_t i = 0; i < len; i++){
 					printf("%c", buffer[i]);
 				}
 				printf("\n");
+
+				before = num;
 			}
-			before = num;
 		}
 		usleep(500000);
 	}

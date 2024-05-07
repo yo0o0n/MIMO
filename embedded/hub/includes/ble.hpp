@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <glib-2.0/glib.h>
 #include <bluetooth/bluetooth.h>
@@ -6,6 +8,7 @@
 #include <pthread.h>
 #include <cassert>
 #include <signal.h>
+#include <string>
 
 #include "uuid.h"
 #include "org-bluez-adapter1.h"
@@ -13,6 +16,11 @@
 #include "org-bluez-device1.h"
 #include "org-bluez-gattcharacteristic1.h"
 #include "org-bluez-gattservice1.h"
+
+#include "common.hpp"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 #define DEFAULT_ADAPTER "hci0"
 #define BLE_SUCCESS 0
@@ -125,7 +133,7 @@ struct _dbus_characteristic {
 	enum _dbus_characteristic_type type;
 };
 
-int main(int, char**);
+int set_ble(int, char**);
 
 int string_to_uuid(const char*, size_t, uuid_t*);
 void *_execute_task(void*);
