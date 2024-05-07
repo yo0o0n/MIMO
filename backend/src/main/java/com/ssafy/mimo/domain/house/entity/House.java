@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
 @Table(name = "HOUSE")
 public class House extends BaseDeletableEntity {

@@ -6,24 +6,30 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
 public class BaseDeviceEntity extends BaseUnregisterableEntity {
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     @Nullable
     private User user;
+
     @ManyToOne
-    @JoinColumn(name = "HUB_ID")
+    @JoinColumn(name = "hub_id")
     @Nullable
     private Hub hub;
-    @Nullable
-    private String nickname;
+
     private boolean isAccessible;
+
+    @NotNull
+    private String macAddress;
 }
