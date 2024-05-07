@@ -2,6 +2,7 @@ package com.ssafy.mimo.domain.light.service;
 
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
+import com.ssafy.mimo.domain.light.dto.LightControlRequestDto;
 import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.domain.light.repository.LightRepository;
 import com.ssafy.mimo.socket.global.SocketController;
@@ -72,12 +73,12 @@ public class LightService {
         }
         return "Light nickname updated!";
     }
-    private String turnOffLight(Long lightId) {
-        Light light = findLightById(lightId);
+    public String controlLight(LightControlRequestDto lightControlRequestDto) {
+        Light light = findLightById(lightControlRequestDto.lightId());
         Hub hub = light.getHub();
         if (hub != null) {
             try (Socket socket = socketController.getSocket(hub.getId())) {
-                String message = "{type:light, requestName:setStateOff}";
+                String message = "{\"type\":" + lightControlRequestDto.requestType() + ",\"requestName\":\"" + lightControlRequestDto.requestName() + "\"}";
                 socket.getOutputStream().write(message.getBytes());
                 return "Light turned off!";
             } catch (Exception e) {

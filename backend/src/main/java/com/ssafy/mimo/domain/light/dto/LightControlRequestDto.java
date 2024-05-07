@@ -5,5 +5,6 @@ import lombok.Builder;
 @Builder
 public record LightControlRequestDto(
         Long lightId,
+        String requestType,
         String requestName
 ) {}
