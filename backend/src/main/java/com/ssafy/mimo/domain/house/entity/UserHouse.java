@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 public class UserHouse extends BaseDeletableEntity {
 
     @NotNull
+    @Builder.Default
     private boolean isHome = false;
 
     @NotNull

@@ -40,6 +40,7 @@ public class User extends BaseDeletableEntity implements UserDetails {
 	private String keyCode; // 로그인 식별키
 
 	@ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
+	@Builder.Default
 	private List<String> roles = new ArrayList<>();
 
 	@Override   //사용자의 권한 목록 리턴
