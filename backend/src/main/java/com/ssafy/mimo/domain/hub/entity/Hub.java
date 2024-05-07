@@ -4,6 +4,8 @@ import com.ssafy.mimo.common.BaseUnregisterableEntity;
 import com.ssafy.mimo.domain.house.entity.House;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
 @Table(name = "HUB")
 public class Hub extends BaseUnregisterableEntity {
