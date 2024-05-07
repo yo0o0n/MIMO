@@ -23,6 +23,15 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
 
+    location ~ ^/(swagger-ui|webjars|configuration|swagger-resources|v2|csrf) {
+        proxy_pass http://api_server;
+    }
+
+    location ~ ^/dev/(swagger-ui|webjars|configuration|swagger-resources|v2|csrf) {
+        rewrite ^/dev(/.*) $1 break;
+        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+    }
+
     location /api {
         proxy_pass http://api_server/api;
     }
