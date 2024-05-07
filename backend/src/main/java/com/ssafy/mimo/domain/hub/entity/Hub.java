@@ -5,6 +5,7 @@ import com.ssafy.mimo.domain.house.entity.House;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
@@ -21,6 +22,6 @@ public class Hub extends BaseUnregisterableEntity {
     private boolean isRegistered;
     @NotNull
     private String serialNumber;
-    @NotNull
+    @Nullable
     private String nickname;
 }
