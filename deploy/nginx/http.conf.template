@@ -23,6 +23,15 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
 
+    location /dev/swagger-ui {
+        rewrite ^/dev(/.*) $1 break;
+        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+    }
+
+    location /v3 {
+        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+    }
+
     location /api {
         proxy_pass http://api_server/api;
     }
@@ -34,9 +43,5 @@ server {
     location /dev/api {
         rewrite ^/dev(/api/.*) $1 break;
         proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
-    }
-
-    location /dev/gerrit {
-        proxy_pass https://${SERVER_DOMAIN}:${GERRIT_PORT};
     }
 }
