@@ -32,6 +32,12 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/org-bluez-gattcharacterist
                    COMMENT "Generate D-Bus 'org.bluez.GattCharacteristic1.xml'"
                    )
 
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/org-bluez-gattservice1.c
+                   COMMAND gdbus-codegen --interface-prefix org.bluez.GattService1. --generate-c-code ${CMAKE_CURRENT_BINARY_DIR}/org-bluez-gattservice1 ${CMAKE_CURRENT_SOURCE_DIR}/org.bluez.GattService1.xml
+                   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/org.bluez.GattService1.xml
+                   COMMENT "Generate D-Bus 'org.bluez.GattService1.xml'"
+                   )
+
 add_library(
 		BluezDbusLib
 		uuid.c
@@ -39,6 +45,7 @@ add_library(
 		org-bluez-battery1.c
 		org-bluez-device1.c
 		org-bluez-gattcharacteristic1.c
+		org-bluez-gattservice1.c
 		)
 
 target_link_libraries(

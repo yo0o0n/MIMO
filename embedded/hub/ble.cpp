@@ -1,5 +1,7 @@
 #include "ble.hpp"
 
+bool is_running = true;
+
 struct {
 	char *adapter_name;
 	char *mac_address;
@@ -15,7 +17,16 @@ GCond cond_loop;
 pthread_mutex_t m_connection_terminated_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t m_connection_terminated = PTHREAD_COND_INITIALIZER;
 
+const uuid_t m_battery_level_uuid = { SDP_UUID16, 0x2A19 };
+const uuid_t m_ccc_uuid = { SDP_UUID16, 0x2902 };
+
+void signalHandler(int signo){
+	is_running = false;
+}
+
 int main(int argc, char *argv[]){
+	signal(SIGINT, signalHandler);
+
 	if(argc < 4){
 		std::cout << "ble_test mac_address uuid data\n";
 		exit(1);
@@ -190,6 +201,27 @@ void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *n
 
 void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *connection, int, void *user_data){
 	std::cout << "device connected\n";
+
+	int ret;
+	size_t len;
+
+	uint8_t *buffer = NULL;
+
+	int before = -1;
+	while(is_running){
+		ret = read_char_by_uuid(connection, &m_argument.uuid, (void**)&buffer, &len);
+		if(ret == BLE_SUCCESS){
+			int num = (buffer[0] - '0')*10 + (buffer[1] - '0');
+			if(num != before){
+				for(uintptr_t i = 0; i < len; i++){
+					printf("%c", buffer[i]);
+				}
+				printf("\n");
+			}
+			before = num;
+		}
+		usleep(500000);
+	}
 
 	ble_disconnect(connection, false);
 
@@ -929,4 +961,297 @@ int ble_disconnect(ble_connection *connection, bool wait_disconnection){
 	device_set_state(connection->device->adapter, connection->device->device_id, DISCONNECTING);
 
 	return ret;
+}
+
+int uuid_to_uuid128(const uuid_t *uuid, uuid_t *long_uuid){
+	if(uuid->type == SDP_UUID128){
+		memcpy(long_uuid, uuid, sizeof(uuid_t));
+		return 0;
+	}
+
+	long uuid_type = SDP_UUID128;
+	long_uuid->value.uuid128.data[0] = 0xEF;
+	long_uuid->value.uuid128.data[1] = 0x68;
+	long_uuid->value.uuid128.data[2] = 0x00;
+	long_uuid->value.uuid128.data[3] = 0x00;
+	long_uuid->value.uuid128.data[4] = 0x9B;
+	long_uuid->value.uuid128.data[5] = 0x35;
+	long_uuid->value.uuid128.data[6] = 0x49;
+	long_uuid->value.uuid128.data[7] = 0x33;
+	long_uuid->value.uuid128.data[8] = 0x9B;
+	long_uuid->value.uuid128.data[9] = 0x10;
+	long_uuid->value.uuid128.data[10] = 0x52;
+	long_uuid->value.uuid128.data[11] = 0xFF;
+	long_uuid->value.uuid128.data[12] = 0xA9;
+	long_uuid->value.uuid128.data[13] = 0x74;
+	long_uuid->value.uuid128.data[14] = 0x00;
+	long_uuid->value.uuid128.data[15] = 0x42;
+
+	if(uuid->type == SDP_UUID32){
+		long_uuid->value.uuid128.data[0] = (uuid->value.uuid32 >> 24) & 0xFF;
+		long_uuid->value.uuid128.data[1] = (uuid->value.uuid32 >> 16) & 0xFF;
+		long_uuid->value.uuid128.data[2] = (uuid->value.uuid32 >> 8) & 0xFF;
+		long_uuid->value.uuid128.data[3] = uuid->value.uuid32 & 0xFF;
+	}
+	else if(uuid->type == SDP_UUID16){
+		long_uuid->value.uuid128.data[2] = uuid->value.uuid16 >> 8;
+		long_uuid->value.uuid128.data[3] = uuid->value.uuid16 & 0xFF;
+	}
+
+	return 0;
+}
+
+int uuid_cmp(const uuid_t *uuid1, const uuid_t *uuid2){
+	if(uuid1->type != uuid2->type){
+		uuid_t uuid128_1, uuid128_2;
+		uuid_to_uuid128(uuid1, &uuid128_1);
+		uuid_to_uuid128(uuid2, &uuid128_2);
+
+		if(memcmp(&uuid128_1.value.uuid128, &uuid128_2.value.uuid128, sizeof(uuid1->value.uuid128)) == 0){
+			return 0;
+		}
+		else{
+			return 2;
+		}
+	}
+	else if(uuid1->type == SDP_UUID16){
+		if(uuid1->value.uuid16 == uuid2->value.uuid16){
+			return 0;
+		}
+		else{
+			return 2;
+		}
+	}
+	else if(uuid1->type == SDP_UUID32){
+		if(uuid1->value.uuid32 == uuid2->value.uuid32){
+			return 0;
+		}
+		else{
+			return 2;
+		}
+	}
+	else if(uuid1->type == SDP_UUID128){
+		if(memcmp(&uuid1->value.uuid128, &uuid2->value.uuid128, sizeof(uuid1->value.uuid128)) == 0){
+			return 0;
+		}
+		else{
+			return 2;
+		}
+	}
+	else{
+		return 3;
+	}
+}
+
+bool handle_dbus_gattcharacteristic_from_path(ble_connection *connection, const uuid_t *uuid, dbus_characteristic *d_characteristic, const char *object_path, GError **error){
+	OrgBluezGattCharacteristic1 *characteristic = NULL;
+
+	*error = NULL;
+	characteristic = org_bluez_gatt_characteristic1_proxy_new_for_bus_sync(
+			G_BUS_TYPE_SYSTEM,
+			G_DBUS_PROXY_FLAGS_NONE,
+			"org.bluez",
+			object_path,
+			NULL,
+			error);
+	if(characteristic){
+		if(uuid != NULL){
+			uuid_t characteristic_uuid;
+			const gchar *characteristic_uuid_str = org_bluez_gatt_characteristic1_get_uuid(characteristic);
+			
+			if(characteristic_uuid_str == NULL){
+				std::cout << "Error: " << object_path << " path unexpectly returns a NULL UUID\n";
+				g_object_unref(characteristic);
+				return false;
+			}
+
+			string_to_uuid(characteristic_uuid_str, strlen(characteristic_uuid_str) + 1, &characteristic_uuid);
+			
+			if(uuid_cmp(uuid, &characteristic_uuid) != 0){
+				g_object_unref(characteristic);
+				return false;
+			}
+		}
+
+		*error = NULL;
+		OrgBluezGattService1 *service = org_bluez_gatt_service1_proxy_new_for_bus_sync(
+				G_BUS_TYPE_SYSTEM,
+				G_DBUS_PROXY_FLAGS_NONE,
+				"org.bluez",
+				org_bluez_gatt_characteristic1_get_service(characteristic),
+				NULL,
+				error);
+
+		if(service){
+			const bool found = !strcmp(connection->device_object_path, org_bluez_gatt_service1_get_device(service));
+
+			g_object_unref(service);
+
+			if(found){
+				d_characteristic->gatt = characteristic;
+				d_characteristic->type = TYPE_GATT;
+				return true;
+			}
+		}
+
+		g_object_unref(characteristic);
+	}
+
+	return false;
+}
+
+bool handle_dbus_battery_from_uuid(ble_connection *connection, const uuid_t *uuid, dbus_characteristic *d_characteristic, const char *object_path, GError **error){
+	OrgBluezBattery1 *battery = NULL;
+	
+	*error = NULL;
+	battery = org_bluez_battery1_proxy_new_for_bus_sync(
+			G_BUS_TYPE_SYSTEM,
+			G_DBUS_PROXY_FLAGS_NONE,
+			"org.bluez",
+			object_path,
+			NULL,
+			error);
+	if(battery){
+		d_characteristic->battery = battery;
+		d_characteristic->type = TYPE_BATTERY_LEVEL;
+	}
+
+	return false;
+}
+
+dbus_characteristic get_characteristic_from_uuid(ble_connection *connection, const uuid_t *uuid){
+	GError *error = NULL;
+	GDBusObjectManager *device_manager;
+	bool is_battery_level_uuid = false;
+	dbus_characteristic d_characteristic = {
+		.type = TYPE_NONE
+	};
+
+	connection->device->adapter->device_manager = g_dbus_object_manager_client_new_for_bus_sync(
+			G_BUS_TYPE_SYSTEM,
+			G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+			"org.bluez",
+			"/",
+			NULL, NULL, NULL, NULL,
+			&error);
+	device_manager = connection->device->adapter->device_manager;
+	
+	if(device_manager == NULL){
+		if(error != NULL){
+			g_error_free(error);
+		}
+		return d_characteristic;
+	}
+
+	if(uuid_cmp(uuid, &m_battery_level_uuid) == 0){
+		is_battery_level_uuid = true;
+	}
+	else if(uuid_cmp(uuid, &m_ccc_uuid) == 0){
+		std::cout << "Error: Bluez v5.42+ does not expose Client Characteristic Configuration Descriptor through DBUS interface\n";
+		return d_characteristic;
+	}
+
+	GList *l;
+	for(l = connection->dbus_objects; l != NULL; l = l->next){
+		GDBusInterface *interface;
+		bool found = false;
+		GDBusObject *object = (GDBusObject*)l->data;
+		const char *object_path = g_dbus_object_get_object_path(G_DBUS_OBJECT(object));
+
+		interface = g_dbus_object_manager_get_interface(device_manager, object_path, "org.bluez.GattCharacteristic1");
+		if(interface){
+			g_object_unref(interface);
+
+			found = handle_dbus_gattcharacteristic_from_path(connection, uuid, &d_characteristic, object_path, &error);
+			if(found){
+				break;
+			}
+		}
+
+		if(!found && is_battery_level_uuid){
+			interface = g_dbus_object_manager_get_interface(device_manager, object_path, "org.bluez.Battery1");
+			if(interface){
+				g_object_unref(interface);
+
+				found = handle_dbus_battery_from_uuid(connection, uuid, &d_characteristic, object_path, &error);
+				if(found){
+					break;
+				}
+			}
+		}
+	}
+
+	return d_characteristic;
+}
+
+int read_gatt_characteristic(dbus_characteristic *d_characteristic, void **buffer, size_t *buffer_len){
+	GVariant *out_value;
+	GError *error = NULL;
+	int ret = BLE_SUCCESS;
+
+	GVariantBuilder *options = g_variant_builder_new(G_VARIANT_TYPE("a{sv}"));
+	org_bluez_gatt_characteristic1_call_read_value_sync(
+			d_characteristic->gatt,
+			g_variant_builder_end(options),
+			&out_value, NULL, &error);
+	g_variant_builder_unref(options);
+
+	if(error != NULL){
+		std::cout << "Failed to read DBus GATT characteristic: " << error->message << '\n';
+		g_error_free(error);
+		return BLE_ERROR;
+	}
+
+	gsize n_elements = 0;
+	gconstpointer const_buffer = g_variant_get_fixed_array(out_value, &n_elements, sizeof(guchar));
+	if(const_buffer){
+		*buffer = malloc(n_elements);
+		if(*buffer == NULL){
+			ret = BLE_ERROR;
+		}
+		else{
+			*buffer_len = n_elements;
+			memcpy(*buffer, const_buffer, n_elements);
+		}
+	}
+	else{
+		*buffer_len = 0;
+	}
+	
+	g_variant_unref(out_value);
+	return ret;
+}
+
+int read_char_by_uuid(ble_connection *connection, uuid_t *uuid, void **buffer, size_t *buffer_len){
+	dbus_characteristic d_characteristic = get_characteristic_from_uuid(connection, uuid);
+	if(d_characteristic.type == TYPE_NONE){
+		return BLE_ERROR;
+	}
+	else if(d_characteristic.type == TYPE_BATTERY_LEVEL){
+		guchar percentage = org_bluez_battery1_get_percentage(d_characteristic.battery);
+
+		*buffer = malloc(sizeof(uint8_t));
+		if(buffer == NULL){
+			buffer_len = 0;
+			return BLE_ERROR;
+		}
+
+		memcpy(*buffer, &percentage, sizeof(uint8_t));
+		*buffer_len = sizeof(uint8_t);
+
+		g_object_unref(d_characteristic.battery);
+
+		return BLE_SUCCESS;
+	}
+	else{
+		int ret;
+
+		assert(d_characteristic.type == TYPE_GATT);
+
+		ret = read_gatt_characteristic(&d_characteristic, buffer, buffer_len);
+
+		g_object_unref(d_characteristic.gatt);
+
+		return ret;
+	}
 }

@@ -4,10 +4,15 @@
 #include <bluetooth/sdp.h>
 #include <glib.h>
 #include <pthread.h>
+#include <cassert>
+#include <signal.h>
 
 #include "uuid.h"
 #include "org-bluez-adapter1.h"
+#include "org-bluez-battery1.h"
 #include "org-bluez-device1.h"
+#include "org-bluez-gattcharacteristic1.h"
+#include "org-bluez-gattservice1.h"
 
 #define DEFAULT_ADAPTER "hci0"
 #define BLE_SUCCESS 0
@@ -18,6 +23,8 @@ typedef struct _ble_adapter ble_adapter;
 typedef struct _ble_connection ble_connection;
 typedef struct _ble_device ble_device;
 typedef struct _discovered_device_args discovered_device_args;
+typedef struct _dbus_characteristic dbus_characteristic;
+
 typedef void (*discovered_device_t)(ble_adapter*, const char*, const char*, void*);
 typedef void (*connect_cb_t)(ble_adapter*, const char*, ble_connection*, int, void*);
 typedef void (*event_handler_t)(const uuid_t*, const uint8_t*, size_t, void*);
@@ -104,6 +111,20 @@ struct _discovered_device_args {
 	OrgBluezDevice1 *device1;
 };
 
+enum _dbus_characteristic_type {
+	TYPE_NONE = 0,
+	TYPE_GATT,
+	TYPE_BATTERY_LEVEL
+};
+
+struct _dbus_characteristic {
+	union {
+		OrgBluezGattCharacteristic1 *gatt;
+		OrgBluezBattery1 *battery;
+	};
+	enum _dbus_characteristic_type type;
+};
+
 int main(int, char**);
 
 int string_to_uuid(const char*, size_t, uuid_t*);
@@ -142,3 +163,11 @@ gboolean _stop_connect_on_timeout(gpointer);
 int ble_connect(ble_adapter*, const char*, unsigned long, connect_cb_t, void*);
 
 int ble_disconnect(ble_connection*, bool);
+
+int uuid_to_uuid128(const uuid_t*, uuid_t*);
+int uuid_cmp(const uuid_t*, const uuid_t*);
+bool handle_dbus_gattcharacteristic_from_path(ble_connection*, const uuid_t*, dbus_characteristic*, const char*, GError**);
+bool handle_dbus_battery_from_uuid(ble_connection*, const uuid_t*, dbus_characteristic*, const char*, GError**);
+dbus_characteristic get_characteristic_from_uuid(ble_connection*, const uuid_t*);
+int read_gatt_characteristic(dbus_characteristic*, void**, size_t*);
+int read_char_by_uuid(ble_connection*, uuid_t*, void**, size_t*);
