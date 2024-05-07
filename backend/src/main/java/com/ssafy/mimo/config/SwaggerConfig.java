@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @OpenAPIDefinition(
 	info = @Info(title = "MIMO", description = "MIMO API Document", version = "v1"),
-	servers = {@Server(url = "http://localhost:8080", description = "Default Server URL")}
+	servers = {@Server(url = "https://k10a204.p.ssafy.io", description = "Default Server URL")}
 )
 @RequiredArgsConstructor
 @Configuration
