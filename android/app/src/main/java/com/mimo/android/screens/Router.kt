@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mimo.android.screens.main.Layout
+import com.mimo.android.screens.main.myhome.HubHome
 
 @Composable
 fun Router(
@@ -24,36 +24,41 @@ fun Router(
 
         // main
         composable(Screen.MyHomeScreen.route) {
-            Layout(
+            val currentHome = HubHome(
+                items = arrayOf("조명", "무드등"),
+                homeName = "상윤이의 자취방",
+                address = "서울특별시 관악구 봉천동 1234-56"
+            )
+            val anotherHomes: Array<HubHome> = arrayOf(
+                HubHome(
+                    items = arrayOf("조명", "창문", "커튼"),
+                    homeName = "상윤이의 본가",
+                    address = "경기도 고양시 일산서구 산현로12"
+                ),
+                HubHome(
+                    items = arrayOf("조명", "커튼"),
+                    homeName = "싸피",
+                    address = "서울특별시 강남구 테헤란로 212"
+                )
+            )
+
+            MyHomeScreen(
                 navController = navController,
-                children = {
-                    MyHomeScreen(
-                        navController = navController
-                    )
-                }
+                currentHome = currentHome,
+                anotherHomes = anotherHomes
             )
             return@composable
         }
         composable(Screen.SleepScreen.route) {
-            Layout(
-                navController = navController,
-                children = {
-                    SleepScreen(
-                        navController = navController
-                    )
-                }
+            SleepScreen(
+                navController = navController
             )
             return@composable
         }
         composable(Screen.MyProfileScreen.route) {
-            Layout(
+            MyProfileScreen(
                 navController = navController,
-                children = {
-                    MyProfileScreen(
-                        navController = navController,
-                        healthConnectManager = healthConnectManager
-                    )
-                }
+                healthConnectManager = healthConnectManager
             )
             return@composable
         }

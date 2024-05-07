@@ -12,9 +12,5 @@ import com.mimo.android.components.base.Size
 fun SleepScreen(
     navController: NavHostController
 ){
-    Column (
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        HeadingLarge(text = "수면,,,zzZ", fontSize = Size.lg)
-    }
+    HeadingLarge(text = "수면,,,zzZ", fontSize = Size.lg)
 }

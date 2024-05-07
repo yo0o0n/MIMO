@@ -16,11 +16,7 @@ fun MyProfileScreen(
     navController: NavHostController,
     healthConnectManager: HealthConnectManager
 ){
-    Column (
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        HeadingLarge(text = "내 정보", fontSize = Size.lg)
-    }
+    HeadingLarge(text = "내 정보", fontSize = Size.lg)
 
 //    var stepCount by remember {
 //        mutableStateOf<Long>(0)
