@@ -1,8 +1,11 @@
 package com.ssafy.mimo.user.repository;
 
-import com.ssafy.mimo.user.entity.User;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+import com.ssafy.mimo.user.entity.User;
 
+public interface UserRepository extends JpaRepository<User, Long> {
+	Optional<User> findByKeyCode(String keyCode);
 }
