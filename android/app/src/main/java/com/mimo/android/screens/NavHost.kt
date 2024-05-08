@@ -43,12 +43,12 @@ fun Router(
                     homeId = "2",
                     items = arrayOf("조명", "창문", "커튼"),
                     homeName = "상윤이의 본가",
-                    address = "경기도 고양시 일산서구 산현로12"
+                    address = "경기도 고양시 일산서구 산현로12 경기도 고양시 일산서구 산현로12 경기도 고양시 일산서구 산현로12 경기도 고양시 일산서구 산현로12 경기도 고양시 일산서구 산현로12"
                 ),
                 Home(
                     homeId = "3",
                     items = arrayOf("조명", "커튼"),
-                    homeName = "싸피",
+                    homeName = "낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가",
                     address = "서울특별시 강남구 테헤란로 212"
                 ),
                 Home(
@@ -101,7 +101,10 @@ fun Router(
             }
             MyHomeDetailScreen(
                 navController = navController,
-                home = home
+                home = home,
+                isCurrentHome = myHomeViewModel.isCurrentHome(home.homeId),
+                myItems = Any(),
+                anotherPeopleItems = Any()
             )
             return@composable
         }

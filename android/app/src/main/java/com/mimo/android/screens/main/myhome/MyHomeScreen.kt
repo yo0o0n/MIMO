@@ -89,13 +89,11 @@ fun MyHomeScreen(
         }
         Spacer(modifier = Modifier.padding(14.dp))
 
-        HeadingSmall(text = "현재 거주지")
-        Spacer(modifier = Modifier.padding(8.dp))
-
+        HeadingSmall(text = "현재 거주지", fontSize = Size.lg)
+        Spacer(modifier = Modifier.padding(4.dp))
         if (myHomeUiState.currentHome == null) {
             Text(text = "등록된 거주지가 없어요")
         }
-
         if (myHomeUiState.currentHome != null) {
             Card(
                 home = myHomeUiState.currentHome!!,
@@ -108,12 +106,10 @@ fun MyHomeScreen(
         Spacer(modifier = Modifier.padding(16.dp))
 
         HeadingSmall(text = "다른 거주지")
-        Spacer(modifier = Modifier.padding(8.dp))
-
+        Spacer(modifier = Modifier.padding(4.dp))
         if (myHomeUiState.anotherHomeList.isEmpty()) {
             Text(text = "등록된 거주지가 없어요")
         }
-
         if (myHomeUiState.anotherHomeList.isNotEmpty()) {
             myHomeUiState.anotherHomeList.forEachIndexed { index, anotherHome ->
                 Card(
@@ -155,9 +151,10 @@ private fun Card(
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .height(120.dp)) {
+                    .height(96.dp)) {
+
                     Row (
-                        modifier = Modifier.align(Alignment.End)
+                        modifier = Modifier.align(Alignment.Start)
                     ) {
                         if (home.items != null) {
                             Row(
@@ -167,11 +164,18 @@ private fun Card(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    HeadingSmall(text = home.homeName)
-                    Spacer(modifier = Modifier.padding(4.dp))
+
                     Spacer(modifier = Modifier.weight(1f))
-                    HeadingSmall(text = home.address, fontSize = Size.xs, color = Teal100)
+
+                    HorizontalScroll {
+                        HeadingSmall(text = home.homeName, Size.lg)
+                    }
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    HorizontalScroll {
+                        HeadingSmall(text = home.address, fontSize = Size.xs, color = Teal100)
+                    }
                 }
             }
         )

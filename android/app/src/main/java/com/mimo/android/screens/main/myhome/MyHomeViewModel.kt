@@ -19,13 +19,20 @@ class MyHomeViewModel: ViewModel() {
         this.context = context
     }
 
-    // TODO: HomeRepository 생성해서 캐싱하기 (데이터 없으면 패치, 있으면 그냥 가져오기) 근데 캐싱을 해야하나?
+    fun isCurrentHome(homeId: String?): Boolean {
+        if (_uiState.value.currentHome == null) {
+            return false
+        }
+        return _uiState.value.currentHome!!.homeId == homeId
+    }
+
     fun getHome(homeId: String?): Home?{
-        if (homeId == null) {
+        if (homeId == null || _uiState.value.currentHome == null) {
             return null
         }
-        if (_uiState.value.currentHome?.homeId == homeId) {
-            return _uiState.value.currentHome!!
+
+        if (_uiState.value.currentHome!!.homeId == homeId) {
+            return _uiState.value.currentHome
         }
         return _uiState.value.anotherHomeList.find { it.homeId == homeId }
     }
