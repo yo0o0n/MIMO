@@ -50,13 +50,12 @@ public class LampController {
 	}
 
 	@Operation(summary = "무드등 설정 수정하기")
-	@PutMapping("/{lampId}")
+	@PutMapping
 	public ResponseEntity<String> updateLamp(
 		@RequestHeader("X-AUTH-TOKEN") String token,
-		@PathVariable Long lampId,
 		@RequestBody LampUpdateRequestDto lampUpdateRequestDto) {
 		Long userId = userService.getUserId(token);
-		return ResponseEntity.ok(lampService.updateLamp(userId, lampId, lampUpdateRequestDto));
+		return ResponseEntity.ok(lampService.updateLamp(userId, lampUpdateRequestDto));
 	}
 
 	@Operation(summary = "무드등 등록 해제하기")

@@ -86,8 +86,8 @@ public class LampService {
 	}
 
 	// 무드등 설정 업데이트 하는 메서드
-	public String updateLamp(Long userId, Long lampId, LampUpdateRequestDto lampUpdateRequestDto) {
-		Lamp lamp = lampRepository.findById(lampId)
+	public String updateLamp(Long userId, LampUpdateRequestDto lampUpdateRequestDto) {
+		Lamp lamp = lampRepository.findById(lampUpdateRequestDto.lampId())
 			.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 램프가 존재하지 않습니다."));
 
 		if (!lamp.getUser().getId().equals(userId)) {
