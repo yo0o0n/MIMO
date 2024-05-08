@@ -21,6 +21,7 @@ public class SocketController {
     private final ApplicationContext applicationContext;
     private final HubService hubService;
     private static ConcurrentHashMap<Long, Socket> connections;
+    private static final int serialNumberLength = 16;
 
     public void start(int port) {
         try {
@@ -41,10 +42,11 @@ public class SocketController {
     private Long getHubId(Socket socket) {
         try {
             InputStream inputStream = socket.getInputStream();
-            byte[] serialNumberBytes = new byte[36];
+            byte[] serialNumberBytes = new byte[serialNumberLength];
             int totalBytesRead = 0;
             int bytesRead = 0;
-            while (totalBytesRead < 36 && (bytesRead = inputStream.read(serialNumberBytes, totalBytesRead, 36 - totalBytesRead)) != -1) {
+            while (totalBytesRead < serialNumberLength
+                    && (bytesRead = inputStream.read(serialNumberBytes, totalBytesRead, serialNumberLength - totalBytesRead)) != -1) {
                 totalBytesRead += bytesRead;
             }
             String serialNumber = new String(serialNumberBytes);
