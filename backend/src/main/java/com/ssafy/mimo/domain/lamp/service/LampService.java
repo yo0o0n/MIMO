@@ -11,7 +11,6 @@ import com.ssafy.mimo.domain.lamp.dto.LampRegisterResponseDto;
 import com.ssafy.mimo.domain.lamp.dto.LampUpdateRequestDto;
 import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.lamp.repository.LampRepository;
-import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
