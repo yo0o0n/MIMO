@@ -72,40 +72,10 @@ public class HubService {
     }
     public Hub findHubBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
+                .orElse(null);
     }
     public Hub findHubById(Long hubId) {
         return hubRepository.findById(hubId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 허브가 존재하지 않습니다."));
+                .orElse(null);
     }
-//    public Hub findHubByTypeAndDeviceId(String type, Long deviceId) {
-//        switch (type) {
-//            case "light":
-//                Hub hub = lightService.findLightById(deviceId).getHub();
-//                if (hub == null)
-//                    throw new IllegalArgumentException("조명이 허브에 연결되어 있지 않습니다.");
-//                return hub;
-//            case "lamp":
-//                Hub hub = lampService.findLampByMacAddress(macAddress).getHub();
-//                if (hub == null)
-//                    throw new IllegalArgumentException("조명이 허브에 연결되어 있지 않습니다.");
-//                return hub;
-//            case "window":
-//                Hub hub = windowService.findWindowByMacAddress(macAddress).getHub();
-//                if (hub == null)
-//                    throw new IllegalArgumentException("창문이 허브에 연결되어 있지 않습니다.");
-//                return hub;
-//            case "curtain":
-//                Hub hub = curtainService.findCurtainByMacAddress(macAddress).getHub();
-//                if (hub == null)
-//                    throw new IllegalArgumentException("커튼이 허브에 연결되어 있지 않습니다.");
-//                return hub;
-//            case "shower":
-//                Hub hub = showerService.findShowerByMacAddress(macAddress).getHub();
-//                if (hub == null)
-//                    throw new IllegalArgumentException("샤워기가 허브에 연결되어 있지 않습니다.");
-//                return hub;
-//        }
-//        throw new IllegalArgumentException("해당 타입의 디바이스를 찾을 수 없습니다.");
-//    }
 }

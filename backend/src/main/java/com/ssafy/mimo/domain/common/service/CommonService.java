@@ -51,7 +51,8 @@ public class CommonService {
         Hub hub = device.getHub();
         if (hub == null)
             return "기기와 연결된 허브가 없습니다. 허브를 연결해 주세요.";
-        try (Socket hub_connection = socketController.getSocket(hub.getId())) {
+        try {
+            Socket hub_connection = socketController.getSocket(hub.getId());
             // TODO: Update database (light or lamp)
             String color = manualControlRequestDto.getData().getColor();
             if (type.equals("light"))

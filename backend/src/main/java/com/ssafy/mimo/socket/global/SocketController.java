@@ -24,6 +24,7 @@ public class SocketController {
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
+            connections = new ConcurrentHashMap<>();
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
                 Long hubId = getHubId(socket);
