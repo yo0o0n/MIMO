@@ -91,4 +91,11 @@ public class LightService {
         return lightRepository.findByMacAddress(macAddress)
                 .orElseThrow(() -> new IllegalArgumentException("해당 MAC 주소를 가진 조명이 존재하지 않습니다."));
     }
+
+    // 조명의 현재색 정보를 저장하는 메서드
+    public void setLightCurColor(Long lightId, String curColor) {
+        Light light = findLightById(lightId);
+        light.setCurColor(curColor);
+        lightRepository.save(light);
+    }
 }
