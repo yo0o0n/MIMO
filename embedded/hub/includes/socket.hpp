@@ -9,6 +9,8 @@
 #include "common.hpp"
 #include "json.hpp"
 
+#define HUB_SN "10000000e63286b1"
+
 using json = nlohmann::json;
 
 void set_socket();		// connect socket to server

@@ -14,8 +14,10 @@ void set_socket(){
 	struct sockaddr_in serv_addr;
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(atoi("65431"));			// server port
-	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");	// server ip
+//	serv_addr.sin_port = htons(atoi("65432"));			// server port
+	serv_addr.sin_port = htons(atoi("65431"));			// develop server port
+//	serv_addr.sin_addr.s_addr = inet_addr("43.203.239.150");	// server ip
+	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");			// localhost server ip
 
 	// connect server
 	if(connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1){
@@ -50,6 +52,7 @@ void recv_msg(){
 		memset(buf_cur_recv, 0, sizeof(buf_cur_recv));
 		int read_len = read(serv_sock, buf_cur_recv, BUF_SIZE - 1);	// recv cur data
 		if(read_len == 0){		// socket disconnect
+			std::cout << "server disconnected\n";
 			close(serv_sock);
 			break;
 		}
@@ -101,6 +104,7 @@ void send_msg(){
 	std::unique_lock<std::mutex> lk(mtx_write);		// get write mutex
 	std::string buf_send;
 
+	write(serv_sock, HUB_SN, strlen(HUB_SN));
 	while(true){
 		cv_write.wait(lk);		// unlock write mutex && wait write data
 		// get write mutex
