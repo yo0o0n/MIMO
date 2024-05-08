@@ -5,15 +5,17 @@ import com.ssafy.mimo.domain.house.dto.HouseResponseDto;
 import com.ssafy.mimo.domain.house.dto.HouseUpdateRequestDto;
 import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 
+@Tag(name = "집 컨트롤러", description = "집 CRUD 관련 기능이 포함되어 있음")
 @RestController
 @RequestMapping("/api/v1/houses")
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class HouseController {
 	private final HouseService houseService;
 	private final UserService userService;
 
+	@Operation(summary = "해당 사용자에 등록되어 있는 집 리스트 조회")
 	@GetMapping
 	public ResponseEntity<?> getHouses(@RequestHeader("X-AUTH-TOKEN") String token) {
 		Long userId = userService.getUserId(token);
@@ -29,6 +32,7 @@ public class HouseController {
 		return ResponseEntity.ok(houses);
 	}
 
+	@Operation(summary = "집 등록")
 	@PostMapping
 	public ResponseEntity<Void> registerHouse(@RequestHeader("X-AUTH-TOKEN") String token,
 											  @RequestBody HouseRegisterRequestDto requestDto) {
@@ -38,12 +42,23 @@ public class HouseController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@Operation(summary = "집 등록 해제")
+	@DeleteMapping("/{userHouseId}")
+	public ResponseEntity<Void> unregisterHouse(HttpServletRequest request,
+												@PathVariable("userHouseId") Long userHouseId) {
+		Long userId = (Long) request.getAttribute("userId");
+
+		houseService.unregisterHouse(userId, userHouseId);
+		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(summary = "집 별칭 변경")
 	@PutMapping("/{userHouseId}")
-	public ResponseEntity<?> updateInfo(HttpServletRequest request,
+	public ResponseEntity<?> updateHouseNickname(HttpServletRequest request,
 										@RequestBody HouseUpdateRequestDto houseUpdateRequestDto,
 										@PathVariable("userHouseId") Long userHouseId) {
 		Long userId = (Long) request.getAttribute("userId");
-		houseService.updateInfo(userId, userHouseId, houseUpdateRequestDto);
+		houseService.updateHouseNickname(userId, userHouseId, houseUpdateRequestDto);
 		return ResponseEntity.ok(new HashMap<String, Object>() {{
 			put("nickname", houseUpdateRequestDto.getNickname());
 			put("status", 200);
@@ -51,15 +66,7 @@ public class HouseController {
 		}});
 	}
 
-	@DeleteMapping("/{userHouseId}")
-	public ResponseEntity<Void> deleteUserHouse(HttpServletRequest request,
-										   @PathVariable("userHouseId") Long userHouseId) {
-		Long userId = (Long) request.getAttribute("userId");
-
-		houseService.deleteUserHouse(userId, userHouseId);
-		return ResponseEntity.noContent().build();
-	}
-
+	@Operation(summary = "현재 거주지 변경")
 	@PutMapping("/{userHouseId}/home")
 	public ResponseEntity<?> updateHouseStatus(HttpServletRequest request,
 										@PathVariable("userHouseId") Long userHouseId) {
@@ -69,5 +76,4 @@ public class HouseController {
 				ResponseEntity.ok().body("{\"is_home\": \"true\"}") :
 				ResponseEntity.ok().body("{\"is_home\": \"false\"}");
 	}
-
 }
