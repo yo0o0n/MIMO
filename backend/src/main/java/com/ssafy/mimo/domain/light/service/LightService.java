@@ -23,7 +23,7 @@ public class LightService {
     private final UserService userService;
     private final HubService hubService;
     private final SocketController socketController;
-    private Light findLightById(Long lightId) {
+    public Light findLightById(Long lightId) {
         return lightRepository.findById(lightId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 조명이 존재하지 않습니다."));
     }
