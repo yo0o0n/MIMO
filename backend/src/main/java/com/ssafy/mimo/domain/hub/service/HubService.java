@@ -28,6 +28,7 @@ public class HubService {
     public String releaseHub() {
         Hub hub = Hub.builder()
                 .serialNumber(UUID.randomUUID().toString())
+                .nickname("새로운 허브")
                 .build();
         hub = hubRepository.save(hub);
         return hub.getSerialNumber();

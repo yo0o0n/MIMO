@@ -9,6 +9,8 @@ import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,11 +21,8 @@ import org.jetbrains.annotations.Nullable;
 public class Hub extends BaseUnregisterableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HOUSE_ID")
+    @Nullable
     private House house;
     @NotNull
-    private boolean isRegistered;
-    @NotNull
     private String serialNumber;
-    @Nullable
-    private String nickname;
 }
