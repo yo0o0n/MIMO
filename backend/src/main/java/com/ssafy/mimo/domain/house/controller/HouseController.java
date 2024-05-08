@@ -1,10 +1,13 @@
 package com.ssafy.mimo.domain.house.controller;
 
+import com.ssafy.mimo.domain.house.dto.HouseRegisterRequestDto;
 import com.ssafy.mimo.domain.house.dto.HouseResponseDto;
 import com.ssafy.mimo.domain.house.dto.HouseUpdateRequestDto;
 import com.ssafy.mimo.domain.house.service.HouseService;
+import com.ssafy.mimo.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +20,22 @@ import java.util.List;
 public class HouseController {
 
 	private final HouseService houseService;
+	private final UserService userService;
 
 	@GetMapping
-	public ResponseEntity<?> getHouses(HttpServletRequest request) {
-		Long userId = (Long) request.getAttribute("userId");
+	public ResponseEntity<?> getHouses(@RequestHeader("X-AUTH-TOKEN") String token) {
+		Long userId = userService.getUserId(token);
 		List<HouseResponseDto> houses = houseService.getHouses(userId);
 		return ResponseEntity.ok(houses);
+	}
+
+	@PostMapping
+	public ResponseEntity<Void> registerHouse(@RequestHeader("X-AUTH-TOKEN") String token,
+											  @RequestBody HouseRegisterRequestDto requestDto) {
+		Long userId = userService.getUserId(token);
+
+		houseService.registerHouse(userId, requestDto);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/{userHouseId}")
