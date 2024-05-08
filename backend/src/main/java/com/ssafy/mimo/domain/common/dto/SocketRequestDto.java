@@ -8,14 +8,17 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class SocketRequestDto {
-    private String type;
-    private String deviceSN;
-    private SocketRequestDataDto data;
+    @Builder.Default
+    private String type = "type";
+    @Builder.Default
+    private String macAddress = "macAddress";
+    @Builder.Default
+    private SocketRequestDataDto data = new SocketRequestDataDto();
     @Override
     public String toString() {
         return "{\"type\":\"" + type +
-                "\", \"" + type + "Id\":\"" + deviceSN +
-                "\", \"data\":" + data +
+                "\", \"" + type + "Id\":\"" + macAddress +
+                "\", \"data\":" + data.toString() +
                 '}';
     }
 }
