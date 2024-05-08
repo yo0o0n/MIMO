@@ -11,6 +11,8 @@ import com.ssafy.mimo.domain.lamp.dto.LampRegisterResponseDto;
 import com.ssafy.mimo.domain.lamp.dto.LampUpdateRequestDto;
 import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.lamp.repository.LampRepository;
+import com.ssafy.mimo.domain.light.entity.Light;
+import com.ssafy.mimo.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,8 +33,7 @@ public class LampService {
 		}
 
 		// 기존에 db에 있는 경우 해당 무드등 불러오기
-		Lamp lamp = lampRepository.findByMacAddress(macAddress)
-			.orElseThrow(() -> new IllegalArgumentException("해당 MAC 주소를 가진 램프가 존재하지 않습니다."));
+		Lamp lamp = findLampByMacAddress(macAddress);
 
 		// 등록해제 되어 있는 기기인 경우 다시 등록 절차
 		if (!lamp.isRegistered()) {
@@ -47,13 +48,13 @@ public class LampService {
 	public String unregisterLamp(Long userId, Long lampId) {
 		Lamp lamp = findLampById(lampId);
 
+		// 이미 등록 해제된 경우
 		if (!lamp.isRegistered()) {
-			return "이미 등록 해제된 램프입니다.";
+			throw new IllegalArgumentException("이미 등록 해제된 무드등입니다.");
 		}
 
-		if (!lamp.getUser().getId().equals(userId)) {
-			return "권한이 없는 사용자입니다.";
-		}
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(lamp.getUser(), userId);
 
 		// 무드등 객체 수정 및 저장
 		lamp.setUser(null);
@@ -69,9 +70,8 @@ public class LampService {
 	public LampDetailResponseDto getLampDetail(Long userId, Long lampId) {
 		Lamp lamp = findLampById(lampId);
 
-		if (!lamp.getUser().getId().equals(userId)) {
-			throw new IllegalArgumentException("권한이 없는 사용자입니다.");
-		}
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(lamp.getUser(), userId);
 
 		return LampDetailResponseDto.builder()
 			.lampId(lamp.getId())
@@ -87,9 +87,8 @@ public class LampService {
 	public String updateLamp(Long userId, LampUpdateRequestDto lampUpdateRequestDto) {
 		Lamp lamp = findLampById(lampUpdateRequestDto.lampId());
 
-		if (!lamp.getUser().getId().equals(userId)) {
-			return "권한이 없는 사용자입니다.";
-		}
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(lamp.getUser(), userId);
 
 		lamp.setNickname(lampUpdateRequestDto.nickname());
 		lamp.setWakeupColor(lampUpdateRequestDto.wakeupColor());
@@ -100,10 +99,23 @@ public class LampService {
 		return "무드등 설정이 업데이트 되었습니다.";
 	}
 
+	// 조명 mac 주소로 조명을 찾는 메서드
+	public Lamp findLampByMacAddress(String macAddress) {
+		return lampRepository.findByMacAddress(macAddress)
+			.orElseThrow(() -> new IllegalArgumentException("해당 MAC 주소를 가진 무드등이 존재하지 않습니다."));
+	}
+
 	// 무드등 id 로 무드등 찾는 메서드
 	public Lamp findLampById(Long lampId) {
 		return lampRepository.findById(lampId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 램프가 존재하지 않습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 무드등이 존재하지 않습니다."));
+	}
+
+	// 기기 주인인지 확인
+	public void checkUserAuthority(User user, Long userId) {
+		if (!user.getId().equals(userId)) {
+			throw new IllegalArgumentException("권한이 없는 사용자입니다.");
+		}
 	}
 
 	// 무드등  현재 색상 받아서 저장하는 메서드

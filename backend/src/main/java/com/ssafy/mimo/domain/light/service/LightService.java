@@ -51,9 +51,8 @@ public class LightService {
 			throw new IllegalArgumentException("이미 등록 해제된 조명입니다.");
 		}
 
-		if (!light.getUser().getId().equals(userId)) {
-			throw new IllegalArgumentException("권한이 없는 사용자입니다.");
-		}
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(light.getUser(), userId);
 
 		// 조명 객체 수정 및 저장
 		light.setUser(null);
@@ -69,9 +68,8 @@ public class LightService {
 	public LightDetailResponseDto getLightDetail(Long userId, Long lightId) {
 		Light light = findLightById(lightId);
 
-		if (!light.getUser().getId().equals(userId)) {
-			throw new IllegalArgumentException("권한이 없는 사용자입니다.");
-		}
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(light.getUser(), userId);
 
 		return LightDetailResponseDto.builder()
 			.lightId(light.getId())
