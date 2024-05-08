@@ -40,6 +40,7 @@ public class LampController {
 		return ResponseEntity.ok(lampService.registerLamp(userId, lampRegisterRequestDto));
 	}
 
+	@Operation(summary = "해당 무드등 조회하기")
 	@GetMapping("/{lampId}")
 	public ResponseEntity<LampDetailResponseDto> readLamp(
 		@RequestHeader("X-AUTH-TOKEN") String token,
@@ -48,6 +49,7 @@ public class LampController {
 		return ResponseEntity.ok(lampService.getLampDetail(userId, lampId));
 	}
 
+	@Operation(summary = "무드등 설정 수정하기")
 	@PutMapping("/{lampId}")
 	public ResponseEntity<String> updateLamp(
 		@RequestHeader("X-AUTH-TOKEN") String token,
