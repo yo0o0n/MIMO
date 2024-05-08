@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,16 +40,20 @@ public class SocketController {
 
     private Long getHubId(Socket socket) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String serialNumber = reader.readLine();  // 클라이언트로부터 시리얼 넘버 읽기
-            if (serialNumber != null && !serialNumber.isEmpty()) {
-                // 시리얼 넘버로 등록된 허브 ID가 있는지 확인
-                Hub hub = hubService.findHubBySerialNumber(serialNumber);
-                if (hub != null && hubService.isValidHub(hub)) {  // 등록된 허브인지 확인
-                    return hub.getId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
-                } else {
-                    System.out.println("Unregistered or invalid serial number: " + serialNumber);
-                }
+            InputStream inputStream = socket.getInputStream();
+            byte[] serialNumberBytes = new byte[36];
+            int totalBytesRead = 0;
+            int bytesRead = 0;
+            while (totalBytesRead < 36 && (bytesRead = inputStream.read(serialNumberBytes, totalBytesRead, 36 - totalBytesRead)) != -1) {
+                totalBytesRead += bytesRead;
+            }
+            String serialNumber = new String(serialNumberBytes);
+            // 시리얼 넘버로 등록된 허브 ID가 있는지 확인
+            Hub hub = hubService.findHubBySerialNumber(serialNumber);
+            if (hub != null && hubService.isValidHub(hub)) {  // 등록된 허브인지 확인
+                return hub.getId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
+            } else {
+                System.out.println("Unregistered or invalid serial number: " + serialNumber);
             }
         } catch (IOException e) {
             System.out.println("Error processing the serial number: " + e.getMessage());
