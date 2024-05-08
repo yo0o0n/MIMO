@@ -62,6 +62,6 @@ public class CommonService {
         } catch (Exception e) {
             return "허브와 연결할 수 없습니다. 허브 연결을 확인해 주세요.";
         }
-        return manualControlRequestDto.toString();
+        return "명령 전송 완료!";
     }
 }
