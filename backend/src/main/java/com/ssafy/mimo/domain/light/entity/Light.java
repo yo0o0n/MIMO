@@ -1,16 +1,15 @@
 package com.ssafy.mimo.domain.light.entity;
 
-import com.ssafy.mimo.common.BaseDeviceEntity;
-import com.ssafy.mimo.domain.hub.entity.Hub;
-import com.ssafy.mimo.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import com.ssafy.mimo.common.BaseDeviceEntity;
+
+import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -19,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 @SuperBuilder
 @Entity
 public class Light extends BaseDeviceEntity {
-    @NotNull
-    private String wakeupColor;
-    @NotNull
-    private String curColor;
+	@NotNull
+	private String wakeupColor;
+	@NotNull
+	private String curColor;
 }
