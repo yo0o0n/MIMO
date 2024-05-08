@@ -87,4 +87,8 @@ public class LightService {
         }
         throw new IllegalArgumentException("Light is not connected to a hub!");
     }
+    public Light findLightByMacAddress(String macAddress) {
+        return lightRepository.findByMacAddress(macAddress)
+                .orElseThrow(() -> new IllegalArgumentException("해당 MAC 주소를 가진 조명이 존재하지 않습니다."));
+    }
 }
