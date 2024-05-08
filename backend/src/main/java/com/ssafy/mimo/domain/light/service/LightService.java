@@ -23,7 +23,7 @@ public class LightService {
     private final UserService userService;
     private final HubService hubService;
     private final SocketController socketController;
-    private Light findLightById(Long lightId) {
+    public Light findLightById(Long lightId) {
         return lightRepository.findById(lightId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 조명이 존재하지 않습니다."));
     }
@@ -86,5 +86,9 @@ public class LightService {
             }
         }
         throw new IllegalArgumentException("Light is not connected to a hub!");
+    }
+    public Light findLightByMacAddress(String macAddress) {
+        return lightRepository.findByMacAddress(macAddress)
+                .orElseThrow(() -> new IllegalArgumentException("해당 MAC 주소를 가진 조명이 존재하지 않습니다."));
     }
 }

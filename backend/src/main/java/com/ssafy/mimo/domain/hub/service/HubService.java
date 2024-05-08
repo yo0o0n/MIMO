@@ -4,6 +4,8 @@ import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.hub.repository.HubRepository;
+import com.ssafy.mimo.domain.lamp.service.LampService;
+import com.ssafy.mimo.domain.light.service.LightService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,11 @@ import java.util.UUID;
 public class HubService {
     private final HubRepository hubRepository;
     private final HouseService houseService;
+//    private final LightService lightService;
+//    private final LampService lampService;
+//    private final CurtainService curtainService;
+//    private final WindowService windowService;
+//    private final ShowerService showerService;
     public String releaseHub() {
         Hub hub = Hub.builder()
                 .serialNumber(UUID.randomUUID().toString())
@@ -65,11 +72,40 @@ public class HubService {
     }
     public Hub findHubBySerialNumber(String serialNumber) {
         return hubRepository.findBySerialNumber(serialNumber)
-                .orElse(null);
-//                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 시리얼 넘버를 가진 허브가 존재하지 않습니다."));
     }
     public Hub findHubById(Long hubId) {
         return hubRepository.findById(hubId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 허브가 존재하지 않습니다."));
     }
+//    public Hub findHubByTypeAndDeviceId(String type, Long deviceId) {
+//        switch (type) {
+//            case "light":
+//                Hub hub = lightService.findLightById(deviceId).getHub();
+//                if (hub == null)
+//                    throw new IllegalArgumentException("조명이 허브에 연결되어 있지 않습니다.");
+//                return hub;
+//            case "lamp":
+//                Hub hub = lampService.findLampByMacAddress(macAddress).getHub();
+//                if (hub == null)
+//                    throw new IllegalArgumentException("조명이 허브에 연결되어 있지 않습니다.");
+//                return hub;
+//            case "window":
+//                Hub hub = windowService.findWindowByMacAddress(macAddress).getHub();
+//                if (hub == null)
+//                    throw new IllegalArgumentException("창문이 허브에 연결되어 있지 않습니다.");
+//                return hub;
+//            case "curtain":
+//                Hub hub = curtainService.findCurtainByMacAddress(macAddress).getHub();
+//                if (hub == null)
+//                    throw new IllegalArgumentException("커튼이 허브에 연결되어 있지 않습니다.");
+//                return hub;
+//            case "shower":
+//                Hub hub = showerService.findShowerByMacAddress(macAddress).getHub();
+//                if (hub == null)
+//                    throw new IllegalArgumentException("샤워기가 허브에 연결되어 있지 않습니다.");
+//                return hub;
+//        }
+//        throw new IllegalArgumentException("해당 타입의 디바이스를 찾을 수 없습니다.");
+//    }
 }

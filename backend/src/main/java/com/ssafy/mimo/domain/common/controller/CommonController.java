@@ -1,5 +1,6 @@
 package com.ssafy.mimo.domain.common.controller;
 
+import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
 import com.ssafy.mimo.domain.common.dto.SocketRequestDto;
 import com.ssafy.mimo.domain.common.service.CommonService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommonController {
     private final CommonService commonService;
     @PostMapping
-    public ResponseEntity<String> controlDevice(@RequestBody SocketRequestDto SocketRequestDto) {
-        return ResponseEntity.ok(commonService.controlDevice(SocketRequestDto));
+    public ResponseEntity<String> controlDevice(@RequestBody ManualControlRequestDto manualControlRequestDto) {
+        return ResponseEntity.ok(commonService.controlDevice(manualControlRequestDto));
     }
 }

@@ -2,16 +2,13 @@ package com.ssafy.mimo.common;
 
 import java.time.LocalDateTime;
 
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -21,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @MappedSuperclass
 public class BaseDeletableEntity extends BaseEntity {
-
+	@Builder.Default
 	private boolean isActive = true;
 
 	@CreatedDate

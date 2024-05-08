@@ -24,6 +24,7 @@ public class BaseUnregisterableEntity extends BaseEntity {
     private LocalDateTime registeredDttm;
     @Nullable
     private LocalDateTime unregisteredDttm;
+    @Builder.Default
     private boolean isRegistered = false;
     @NotNull
     private String nickname;
