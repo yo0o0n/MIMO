@@ -2,15 +2,19 @@ package com.ssafy.mimo.domain.lamp.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ssafy.mimo.domain.lamp.dto.LampDetailResponseDto;
 import com.ssafy.mimo.domain.lamp.dto.LampRegisterRequestDto;
 import com.ssafy.mimo.domain.lamp.dto.LampRegisterResponseDto;
+import com.ssafy.mimo.domain.lamp.dto.LampUpdateRequestDto;
 import com.ssafy.mimo.domain.lamp.service.LampService;
 import com.ssafy.mimo.user.service.UserService;
 
@@ -29,11 +33,28 @@ public class LampController {
 
 	@Operation(summary = "무드등 등록하기")
 	@PostMapping
-	public ResponseEntity<LampRegisterResponseDto> addLamp(
+	public ResponseEntity<LampRegisterResponseDto> createLamp(
 		@RequestHeader("X-AUTH-TOKEN") String token,
 		@RequestBody LampRegisterRequestDto lampRegisterRequestDto) {
 		Long userId = userService.getUserId(token);
 		return ResponseEntity.ok(lampService.registerLamp(userId, lampRegisterRequestDto));
+	}
+
+	@GetMapping("/{lampId}")
+	public ResponseEntity<LampDetailResponseDto> readLamp(
+		@RequestHeader("X-AUTH-TOKEN") String token,
+		@PathVariable Long lampId) {
+		Long userId = userService.getUserId(token);
+		return ResponseEntity.ok(lampService.getLampDetail(userId, lampId));
+	}
+
+	@PutMapping("/{lampId}")
+	public ResponseEntity<String> updateLamp(
+		@RequestHeader("X-AUTH-TOKEN") String token,
+		@PathVariable Long lampId,
+		@RequestBody LampUpdateRequestDto lampUpdateRequestDto) {
+		Long userId = userService.getUserId(token);
+		return ResponseEntity.ok(lampService.updateLamp(userId, lampId, lampUpdateRequestDto));
 	}
 
 	@Operation(summary = "무드등 등록 해제하기")
