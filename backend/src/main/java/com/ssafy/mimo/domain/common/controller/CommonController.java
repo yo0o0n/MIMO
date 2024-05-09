@@ -1,7 +1,6 @@
 package com.ssafy.mimo.domain.common.controller;
 
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
-import com.ssafy.mimo.domain.common.dto.SocketRequestDto;
 import com.ssafy.mimo.domain.common.service.CommonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
