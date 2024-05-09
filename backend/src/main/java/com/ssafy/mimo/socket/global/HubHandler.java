@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class HubHandler implements Runnable {
     private Long hubId;
     private Socket socket;
+    private final SocketService socketService;
     @Override
     public void run() {
         try (InputStream inputStream = socket.getInputStream()) {
@@ -25,7 +26,8 @@ public class HubHandler implements Runnable {
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 String request = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
                 System.out.println("Received request from hub " + hubId + ": " + request);
-
+                String response = socketService.handleRequest(request);
+                socket.getOutputStream().write(response.getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException e) {
             System.out.println("Error processing the request: " + e.getMessage());

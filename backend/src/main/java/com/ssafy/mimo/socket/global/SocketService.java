@@ -42,4 +42,7 @@ public class SocketService {
         }
         return null;  // 등록되지 않은 경우나 오류 발생 시 null 반환
     }
+    public String handleRequest(String request) {
+        return "Received request: " + request;
+    }
 }
