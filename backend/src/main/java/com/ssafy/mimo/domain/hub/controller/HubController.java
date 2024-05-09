@@ -22,32 +22,41 @@ public class HubController {
 
     @Operation(summary = "새 허브 출고")
     @GetMapping("/new")
-    public ResponseEntity<String> releaseNewHub() {
+    public ResponseEntity<String> releaseNewHub(
+        @RequestHeader("X-AUTH-TOKEN") String token) {
         return ResponseEntity.ok(hubService.releaseHub());
     }
 
     @Operation(summary = "해당 집에 등록되어 있는 허브 리스트 조회")
     @GetMapping("/list?houseId={houseId}")
-    public ResponseEntity<List<Hub>> getHubs(@RequestParam Long houseId) {
+    public ResponseEntity<List<Hub>> getHubs(
+        @RequestHeader("X-AUTH-TOKEN") String token,
+        @RequestParam Long houseId) {
         return ResponseEntity.ok(hubService.getHubs(houseId));
     }
 
     @Operation(summary = "집에 허브 등록")
     @PostMapping
-    public ResponseEntity<String> registerHub(@RequestBody HubRegisterRequestDto registerNewHubDto) {
+    public ResponseEntity<String> registerHub(
+        @RequestHeader("X-AUTH-TOKEN") String token,
+        @RequestBody HubRegisterRequestDto registerNewHubDto) {
         return ResponseEntity.ok(hubService.registerHub(registerNewHubDto.serialNumber(), registerNewHubDto.houseId()));
     }
 
     @Operation(summary = "집에서 허브 등록 해제")
     @DeleteMapping("/unregister?hubId={hubId}&houseId={houseId}")
-    public ResponseEntity<String> unregisterHub(@RequestParam Long hubId,
-                                                @RequestParam Long houseId) {
+    public ResponseEntity<String> unregisterHub(
+        @RequestHeader("X-AUTH-TOKEN") String token,
+        @RequestParam Long hubId,
+        @RequestParam Long houseId) {
         return ResponseEntity.ok(hubService.unregisterHub(hubId, houseId));
     }
 
     @Operation(summary = "허브 닉네임 변경")
     @PutMapping("/nickname")
-    public ResponseEntity<String> updateHubNickname(@RequestBody HubNicknameRequestDto hubNicknameDto) {
+    public ResponseEntity<String> updateHubNickname(
+        @RequestHeader("X-AUTH-TOKEN") String token,
+        @RequestBody HubNicknameRequestDto hubNicknameDto) {
         return ResponseEntity.ok(hubService.updateHubNickname(hubNicknameDto.hubId(), hubNicknameDto.nickname()));
     }
 }
