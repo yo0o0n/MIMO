@@ -1,5 +1,6 @@
 package com.ssafy.mimo.domain.house.controller;
 
+import com.ssafy.mimo.domain.house.dto.HouseDeviceResponseDto;
 import com.ssafy.mimo.domain.house.dto.HouseRegisterRequestDto;
 import com.ssafy.mimo.domain.house.dto.HouseResponseDto;
 import com.ssafy.mimo.domain.house.dto.HouseNicknameRequestDto;
@@ -67,5 +68,14 @@ public class HouseController {
 		return isHome ?
 				ResponseEntity.ok().body("{\"is_home\": \"true\"}") :
 				ResponseEntity.ok().body("{\"is_home\": \"false\"}");
+	}
+
+	@GetMapping("/{userHouseId}/devices")
+	public ResponseEntity<List<HouseDeviceResponseDto>> getDevices(@RequestHeader("X-AUTH-TOKEN") String token,
+																   @PathVariable("userHouseId") Long userHouseId,
+																   @RequestParam Long hubId) {
+		Long userId = userService.getUserId(token);
+		List<HouseDeviceResponseDto> devices = houseService.getDevices(userId, userHouseId, hubId);
+		return ResponseEntity.ok().body(devices);
 	}
 }
