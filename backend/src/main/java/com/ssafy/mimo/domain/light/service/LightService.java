@@ -122,4 +122,10 @@ public class LightService {
 		light.setCurColor(curColor);
 		lightRepository.save(light);
 	}
+
+	// 조명의 현재색 정보를 가져오는 메서드
+	public String getLightCurColor(Long lightId) {
+		Light light = findLightById(lightId);
+		return light.getCurColor();
+	}
 }

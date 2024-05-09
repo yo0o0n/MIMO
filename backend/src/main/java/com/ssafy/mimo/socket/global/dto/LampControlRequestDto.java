@@ -7,15 +7,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DeviceControlDto {
+public class LampControlRequestDto {
     private String type;
-    private Integer deviceId;
+    private Long lampId;
     @Builder.Default
-    private DeviceControlDataDto data = new DeviceControlDataDto();
+    private LampControlRequestDataDto data = new LampControlRequestDataDto();
     @Override
     public String toString() {
         return "{\"type\":\"" + type +
-                "\", \"" + type + "Id\":" + deviceId +
+                "\", \"lampId\":" + lampId +
                 ", \"data\":" + data.toString() +
                 '}';
     }
