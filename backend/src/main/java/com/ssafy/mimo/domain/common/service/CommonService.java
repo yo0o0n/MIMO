@@ -8,6 +8,7 @@ import com.ssafy.mimo.domain.light.service.LightService;
 //import com.ssafy.mimo.domain.curtain.service.CurtainService;
 //import com.ssafy.mimo.domain.window.service.WindowService;
 //import com.ssafy.mimo.domain.shower.service.ShowerService;
+import com.ssafy.mimo.domain.window.service.WindowService;
 import com.ssafy.mimo.socket.global.SocketController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class CommonService {
     private final LightService lightService;
     private final LampService lampService;
 //    private final CurtainService curtainService;
-//    private final WindowService windowService;
+    private final WindowService windowService;
 //    private final ShowerService showerService;
     private final SocketController socketController;
     @Transactional
@@ -36,11 +37,11 @@ public class CommonService {
             case "lamp":
                 device = lampService.findLampById(deviceId);
                 break;
+            case "window":
+                device = windowService.findWindowById(deviceId);
+                break;
 //            case "curtain":
 //                device = curtainService.findCurtainById(deviceId);
-//                break;
-//            case "window":
-//                device = windowService.findWindowById(deviceId);
 //                break;
 //            case "shower":
 //                device = showerService.findShowerById(deviceId);
