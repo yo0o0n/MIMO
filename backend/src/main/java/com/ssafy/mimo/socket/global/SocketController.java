@@ -2,6 +2,7 @@ package com.ssafy.mimo.socket.global;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.mimo.socket.global.dto.HubConnectionRequestDto;
+import com.ssafy.mimo.socket.global.dto.HubConnectionResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -36,10 +37,16 @@ public class SocketController {
                     socket.close();
                     continue;
                 }
-                if (request.getType().equals("hub") && request.getRequestName().equals("setConnection")) {
+                if (request.getType().equals("hub") && request.getRequestName().equals("setConnect")) {
                     Long hubId = socketService.getHubId(request);
                     System.out.println("Connected hub ID: " + hubId);
                     connections.put(hubId, socket);
+                    HubConnectionResponseDto response = HubConnectionResponseDto.builder()
+                            .type("hub")
+                            .requestName("setConnect")
+                            .hubId(hubId)
+                            .build();
+                    socket.getOutputStream().write(objectMapper.writeValueAsString(response).getBytes());
                     applicationContext.getBean(HubHandler.class).start(socket, hubId);
                 } else {
                     System.out.println("Invalid connection request");
