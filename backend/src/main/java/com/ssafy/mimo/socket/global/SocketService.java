@@ -53,22 +53,27 @@ public class SocketService {
                     switch (deviceIdRequestDto.requestName()) {
                         case "getLightId":
                             deviceId = lightService.findLightByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                            break;
                         case "getLampId":
                             deviceId = lampService.findLampByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                            break;
                         case "getWindowId":
                             deviceId = windowService.findWindowByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                            break;
                         case "getCurtainId":
                             deviceId = null; // curtainService.findCurtainByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                            break;
                         case "getShowerId":
                             deviceId = null; // showerService.findShowerByMacAddress(deviceIdRequestDto.macAddress()).getId();
-                        DeviceIdResponseDto response = DeviceIdResponseDto.builder()
-                                .type(deviceIdRequestDto.type())
-                                .requestName(deviceIdRequestDto.requestName())
-                                .macAddress(deviceIdRequestDto.macAddress())
-                                .id(deviceId)
-                                .build();
-                        return objectMapper.writeValueAsString(response);
+                            break;
                     }
+                    DeviceIdResponseDto response = DeviceIdResponseDto.builder()
+                            .type(deviceIdRequestDto.type())
+                            .requestName(deviceIdRequestDto.requestName())
+                            .macAddress(deviceIdRequestDto.macAddress())
+                            .id(deviceId)
+                            .build();
+                    return objectMapper.writeValueAsString(response);
                 case "light": // 조명 요청
                     LightControlRequestDto lightRequest = objectMapper.readValue(request, LightControlRequestDto.class);
                     switch (lightRequest.getData().getRequestName()) {
