@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
+import com.ssafy.mimo.domain.lamp.service.LampService;
+import com.ssafy.mimo.domain.light.entity.Light;
+import com.ssafy.mimo.domain.light.service.LightService;
+import com.ssafy.mimo.domain.window.service.WindowService;
 import com.ssafy.mimo.socket.global.dto.*;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,6 +19,11 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class SocketService {
     private final HubService hubService;
+    private final LightService lightService;
+    private final LampService lampService;
+    private final WindowService windowService;
+//    private final CurtainService curtainService;
+//    private final ShowerService showerService;
     public Long getHubId(HubConnectionRequestDto hubConnectionRequestDto) {
         try {
             String serialNumber = hubConnectionRequestDto.getHubSerialNumber();
@@ -31,31 +39,41 @@ public class SocketService {
         }
         return null;  // 등록되지 않은 경우나 오류 발생 시 null 반환
     }
+
     public String handleRequest(String request) {
+        String type = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(request);
-            String type = jsonNode.get("type").asText();
+            type = jsonNode.get("type").asText();
             switch (type) {
                 case "hub": // 허브 요청
                     DeviceIdRequestDto deviceIdRequestDto = objectMapper.readValue(request, DeviceIdRequestDto.class);
-                    Long deviceId = 123123L;
-                    // TODO: Find device id by mac address
-
-                    DeviceIdResponseDto response = DeviceIdResponseDto.builder()
-                            .type(deviceIdRequestDto.type())
-                            .requestName(deviceIdRequestDto.requestName())
-                            .macAddress(deviceIdRequestDto.macAddress())
-                            .id(deviceId)
-                            .build();
-                    return objectMapper.writeValueAsString(response);
+                    Long deviceId = null;
+                    switch (deviceIdRequestDto.requestName()) {
+                        case "getLightId":
+                            deviceId = lightService.findLightByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                        case "getLampId":
+                            deviceId = lampService.findLampByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                        case "getWindowId":
+                            deviceId = windowService.findWindowByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                        case "getCurtainId":
+                            deviceId = null; // curtainService.findCurtainByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                        case "getShowerId":
+                            deviceId = null; // showerService.findShowerByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                        DeviceIdResponseDto response = DeviceIdResponseDto.builder()
+                                .type(deviceIdRequestDto.type())
+                                .requestName(deviceIdRequestDto.requestName())
+                                .macAddress(deviceIdRequestDto.macAddress())
+                                .id(deviceId)
+                                .build();
+                        return objectMapper.writeValueAsString(response);
+                    }
                 case "light": // 조명 요청
                     LightControlRequestDto lightRequest = objectMapper.readValue(request, LightControlRequestDto.class);
                     switch (lightRequest.getData().getRequestName()) {
                         case "getCurrentColor":
-                            // TODO: Get current color
-
-                            String curColor = "default";
+                            String curColor = lightService.getLightCurColor(lightRequest.getLightId());
                             LightControlResponseDto lightResponse = LightControlResponseDto.builder()
                                     .type(lightRequest.getType())
                                     .lightId(lightRequest.getLightId())
@@ -72,9 +90,7 @@ public class SocketService {
                     LampControlRequestDto lampRequest = objectMapper.readValue(request, LampControlRequestDto.class);
                     switch (lampRequest.getData().getRequestName()) {
                         case "getCurrentColor":
-                            // TODO: Get current color
-
-                            String curColor = "default";
+                            String curColor = lampService.getLampCurColor(lampRequest.getLampId());
                             LampControlResponseDto lampResponse = LampControlResponseDto.builder()
                                     .type(lampRequest.getType())
                                     .lampId(lampRequest.getLampId())
@@ -90,12 +106,13 @@ public class SocketService {
                 default:
                     return "Invalid request type: " + type;
             }
-        } catch (IOException e) {
-            System.out.println("Error while parsing the request: " + e.getMessage());
-            return "Error while parsing the request";
+        } catch (Exception e) {
+            System.out.println("Error while processing the request: " + e.getMessage());
+            return "Error while processing the request";
         }
     }
-    public String readMessage(@NotNull InputStream inputStream) throws IOException {
+
+    public String readMessage(InputStream inputStream) throws IOException {
         byte[] buffer = new byte[1024];
         int bytesRead = inputStream.read(buffer);
         return new String(buffer, 0, bytesRead);

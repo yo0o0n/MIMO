@@ -123,4 +123,10 @@ public class LampService {
 		lamp.setCurColor(curColor);
 		lampRepository.save(lamp);
 	}
+
+	// 무드등 현재 색상 가져오는 메서드
+	public String getLampCurColor(Long lampId) {
+		Lamp lamp = findLampById(lampId);
+		return lamp.getCurColor();
+	}
 }
