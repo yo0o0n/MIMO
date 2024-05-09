@@ -70,6 +70,7 @@ public class HouseController {
 				ResponseEntity.ok().body("{\"is_home\": \"false\"}");
 	}
 
+	@Operation(summary = "해당 집에 등록되어 있는 기기 리스트 조회")
 	@GetMapping("/{userHouseId}/devices")
 	public ResponseEntity<List<HouseDeviceResponseDto>> getDevices(@RequestHeader("X-AUTH-TOKEN") String token,
 																   @PathVariable("userHouseId") Long userHouseId,
