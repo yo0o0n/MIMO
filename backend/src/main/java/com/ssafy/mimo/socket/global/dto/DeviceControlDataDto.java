@@ -1,4 +1,4 @@
-package com.ssafy.mimo.domain.common.dto;
+package com.ssafy.mimo.socket.global.dto;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SocketRequestDataDto {
+public class DeviceControlDataDto {
     @Builder.Default
     private String requestName = "request";
     @Builder.Default
@@ -18,8 +18,8 @@ public class SocketRequestDataDto {
     private Integer state = 0;
     @Override
     public String toString() {
-        return "{\"requestName:\"" + requestName +
-                "\", \"color\":'" + color +
+        return "{\"requestName\":\"" + requestName +
+                "\", \"color\":\"" + color +
                 "\", \"time\":" + time +
                 ", \"state\":" + state +
                 '}';
