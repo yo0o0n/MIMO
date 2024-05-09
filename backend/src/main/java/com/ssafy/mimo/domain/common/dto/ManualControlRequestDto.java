@@ -12,14 +12,12 @@ public class ManualControlRequestDto {
     private String type = "type";
     private Long deviceId;
     @Builder.Default
-    private SocketRequestDataDto data = new SocketRequestDataDto();
+    private ManualControlRequestDataDto data = new ManualControlRequestDataDto();
     @Override
     public String toString() {
-        String message = "{\"type\":\"" + type +
-                "\", \"" + type + "Id\":\"" + deviceId +
-                "\", \"data\":" + data.toString() +
+        return "{\"type\":\"" + type +
+                "\", \"" + type + "Id\":" + deviceId +
+                ", \"data\":" + data.toString() +
                 '}';
-//        String length = String.valueOf(message.length());
-        return message;
     }
 }
