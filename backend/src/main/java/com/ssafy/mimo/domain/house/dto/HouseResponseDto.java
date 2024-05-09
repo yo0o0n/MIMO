@@ -4,15 +4,12 @@ import lombok.*;
 
 import java.util.List;
 
-@Getter
-@AllArgsConstructor
 @Builder
-public class HouseResponseDto {
-
-    private final Long id;
-    private final String nickname;
-    private final String address;
-    private final boolean isHome;
-    private final List<String> devices;
+public record HouseResponseDto(
+        Long id,
+        String nickname,
+        String address,
+        boolean isHome,
+        List<String> devices) {
 
 }

@@ -6,7 +6,6 @@ import lombok.Builder;
 public record HouseRegisterRequestDto(
         String serialNumber,
         String address,
-        String nickname
-) {
+        String nickname) {
 
 }

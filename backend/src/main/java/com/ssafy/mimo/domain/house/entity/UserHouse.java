@@ -21,8 +21,7 @@ import javax.validation.constraints.NotNull;
 public class UserHouse extends BaseDeletableEntity {
 
     @NotNull
-    @Builder.Default
-    private boolean isHome = false;
+    private boolean isHome;
 
     @NotNull
     private String nickname;
@@ -46,5 +45,4 @@ public class UserHouse extends BaseDeletableEntity {
     public void deactivateHome() {
         this.isHome = false;
     }
-
 }
