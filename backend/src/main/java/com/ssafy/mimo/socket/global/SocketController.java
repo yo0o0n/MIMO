@@ -1,7 +1,7 @@
 package com.ssafy.mimo.socket.global;
 
-import com.ssafy.mimo.domain.hub.entity.Hub;
-import com.ssafy.mimo.domain.hub.service.HubService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.mimo.socket.global.dto.HubConnectionRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -18,24 +18,32 @@ public class SocketController {
     private ServerSocket serverSocket;
     private final SocketService socketService;
     private final ApplicationContext applicationContext;
-    private final HubService hubService;
     private static ConcurrentHashMap<Long, Socket> connections;
 
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
             connections = new ConcurrentHashMap<>();
+            ObjectMapper objectMapper = new ObjectMapper();
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
-                Long hubId = socketService.getHubId(socket);
-                if (hubId != null) {
-                    System.out.println("Hub connected: " + hubId);
-                    connections.put(hubId, socket); // 유효한 허브 ID에 대해서만 소켓 저장
-                    // start hub request handler thread
-                    HubHandler hubHandler = applicationContext.getBean(HubHandler.class);
-                    hubHandler.setHubId(hubId);
-                    hubHandler.setSocket(socket);
-                    new Thread(hubHandler).start();
+                HubConnectionRequestDto request = null;
+                String req = socketService.readMessage(socket.getInputStream());
+                try {
+                    request = objectMapper.readValue(req, HubConnectionRequestDto.class);
+                } catch (IOException e) {
+                    System.out.println("Error parsing the connection request: " + e.getMessage());
+                    socket.close();
+                    continue;
+                }
+                if (request.getType().equals("hub") && request.getRequestName().equals("setConnection")) {
+                    Long hubId = socketService.getHubId(request);
+                    System.out.println("Connected hub ID: " + hubId);
+                    connections.put(hubId, socket);
+                    applicationContext.getBean(HubHandler.class).start(socket, hubId);
+                } else {
+                    System.out.println("Invalid connection request");
+                    socket.close();
                 }
             }
         } catch (IOException e) {

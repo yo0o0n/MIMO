@@ -28,9 +28,15 @@ public class HubHandler implements Runnable {
                 System.out.println("Received request from hub " + hubId + ": " + request);
                 String response = socketService.handleRequest(request);
                 socket.getOutputStream().write(response.getBytes(StandardCharsets.UTF_8));
+                System.out.println("Response to hub " + hubId + ": " + response);
             }
         } catch (IOException e) {
-            System.out.println("Error processing the request: " + e.getMessage());
+            System.out.println("Error while processing the request: " + e.getMessage());
         }
+    }
+    public void start(Socket socket, Long hubId) {
+        this.socket = socket;
+        this.hubId = hubId;
+        new Thread(this).start();
     }
 }
