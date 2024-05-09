@@ -15,9 +15,11 @@ public class ManualControlRequestDto {
     private SocketRequestDataDto data = new SocketRequestDataDto();
     @Override
     public String toString() {
-        return "{\"type\":\"" + type +
+        String message = "{\"type\":\"" + type +
                 "\", \"" + type + "Id\":\"" + deviceId +
                 "\", \"data\":" + data.toString() +
                 '}';
+//        String length = String.valueOf(message.length());
+        return message;
     }
 }

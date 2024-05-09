@@ -5,10 +5,8 @@ import com.ssafy.mimo.domain.hub.service.HubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,10 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketController {
 
     private ServerSocket serverSocket;
+    private final SocketService socketService;
     private final ApplicationContext applicationContext;
     private final HubService hubService;
     private static ConcurrentHashMap<Long, Socket> connections;
-    private static final int serialNumberLength = 16;
 
     public void start(int port) {
         try {
@@ -29,40 +27,21 @@ public class SocketController {
             connections = new ConcurrentHashMap<>();
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
-                Long hubId = getHubId(socket);
+                Long hubId = socketService.getHubId(socket);
                 if (hubId != null) {
+                    System.out.println("Hub connected: " + hubId);
                     connections.put(hubId, socket); // 유효한 허브 ID에 대해서만 소켓 저장
+                    // start hub request handler thread
+                    HubHandler hubHandler = applicationContext.getBean(HubHandler.class);
+                    hubHandler.setHubId(hubId);
+                    hubHandler.setSocket(socket);
+                    new Thread(hubHandler).start();
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error starting the server socket: " + e.getMessage());
         }
     }
-
-    private Long getHubId(Socket socket) {
-        try {
-            InputStream inputStream = socket.getInputStream();
-            byte[] serialNumberBytes = new byte[serialNumberLength];
-            int totalBytesRead = 0;
-            int bytesRead = 0;
-            while (totalBytesRead < serialNumberLength
-                    && (bytesRead = inputStream.read(serialNumberBytes, totalBytesRead, serialNumberLength - totalBytesRead)) != -1) {
-                totalBytesRead += bytesRead;
-            }
-            String serialNumber = new String(serialNumberBytes);
-            // 시리얼 넘버로 등록된 허브 ID가 있는지 확인
-            Hub hub = hubService.findHubBySerialNumber(serialNumber);
-            if (hub != null && hubService.isValidHub(hub)) {  // 등록된 허브인지 확인
-                return hub.getId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
-            } else {
-                System.out.println("Unregistered or invalid serial number: " + serialNumber);
-            }
-        } catch (IOException e) {
-            System.out.println("Error processing the serial number: " + e.getMessage());
-        }
-        return null;  // 등록되지 않은 경우나 오류 발생 시 null 반환
-    }
-
     public void stop() {
         try {
             if (serverSocket != null) {
@@ -72,14 +51,13 @@ public class SocketController {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("Error closing the socket: " + e.getMessage());
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error closing the server socket: " + e.getMessage());
         }
     }
-
     // 허브 ID에 따라 소켓 반환
     public Socket getSocket(Long hubId) {
         return connections.get(hubId);
