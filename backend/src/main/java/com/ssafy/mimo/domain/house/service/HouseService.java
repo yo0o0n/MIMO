@@ -1,14 +1,15 @@
 package com.ssafy.mimo.domain.house.service;
 
-import com.ssafy.mimo.domain.house.dto.HouseRegisterRequestDto;
-import com.ssafy.mimo.domain.house.dto.HouseResponseDto;
-import com.ssafy.mimo.domain.house.dto.HouseNicknameRequestDto;
+import com.ssafy.mimo.domain.house.dto.*;
 import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
 import com.ssafy.mimo.domain.house.repository.HouseRepository;
 import com.ssafy.mimo.domain.house.repository.UserHouseRepository;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.repository.HubRepository;
+import com.ssafy.mimo.domain.lamp.repository.LampRepository;
+import com.ssafy.mimo.domain.light.repository.LightRepository;
+import com.ssafy.mimo.domain.window.repository.WindowRepository;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,10 @@ public class HouseService {
 	private final UserHouseRepository userHouseRepository;
 	private final HubRepository hubRepository;
 	private final UserRepository userRepository;
+	private final LampRepository lampRepository;
+	private final LightRepository lightRepository;
+	private final WindowRepository windowRepository;
+//	private final CurtainRepository curtainRepository;
 
 	public List<HouseResponseDto> getHouses(Long userId) {
 		if (userId == null) {
@@ -135,6 +140,82 @@ public class HouseService {
 
         return true;
     }
+
+	public List<HouseDeviceResponseDto> getDevices(Long userId, Long userHouseId, Long hubId) {
+		// 입력된 hubId로 Hub 객체 찾기
+		Hub hub = hubRepository.findById(hubId)
+				.orElseThrow(() -> new RuntimeException("해당 ID를 가진 Hub를 찾을 수 없습니다: " + hubId));
+
+		// Hub가 연결된 House 찾기
+		House house = hub.getHouse();
+		if (house == null) {
+			throw new RuntimeException("Hub (" + hubId + ")에 연결된 House가 없습니다.");
+		} else if (!house.getId().equals(userHouseId)) {
+			throw new RuntimeException("Hub (" + hubId + ")는 요청된 userHouseId (" + userHouseId + ")와 일치하지 않습니다.");
+		}
+
+		UserHouse userHouse = house.getUserHouse().stream()
+				.filter(uh -> uh.getUser().getId().equals(userId))
+				.findFirst()
+				.orElseThrow(() -> new RuntimeException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userId));
+
+		// 각 디바이스 타입 별로 조회 및 DTO 변환
+		List<DeviceDetailDto> allDevices = new ArrayList<>();
+		allDevices.addAll(lampRepository.findByHubId(hubId).stream()
+				.map(device -> {
+					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+							.deviceId(device.getId())
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build();
+					deviceDetail.determineType("lampId");
+					return deviceDetail;
+				})
+				.toList());
+
+		allDevices.addAll(lightRepository.findByHubId(hubId).stream()
+				.map(device -> {
+					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+							.deviceId(device.getId())
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build();
+					deviceDetail.determineType("lightId");
+					return deviceDetail;
+				})
+				.toList());
+
+		allDevices.addAll(windowRepository.findByHubId(hubId).stream()
+				.map(device -> {
+					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+							.deviceId(device.getId())
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build();
+					deviceDetail.determineType("windowId");
+					return deviceDetail;
+				})
+				.toList());
+
+//		allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
+//				.map(device -> DeviceDetailDto.builder()
+//						.deviceId(device.getId())
+//						.nickname(device.getNickname())
+//						.isAccessible(device.isAccessible())
+//						.build())
+//				.collect(Collectors.toList()));
+
+		HouseDeviceResponseDto response = HouseDeviceResponseDto.builder()
+				.houseId(house.getId())
+				.nickname(userHouse.getNickname())
+				.isHome(userHouse.isHome())
+				.address(house.getAddress())
+				.hubId(hubId)
+				.devices(allDevices)
+				.build();
+
+		return List.of(response);
+	}
 
 	public House findHouseById(Long houseId) {
 		return houseRepository.findById(houseId)
