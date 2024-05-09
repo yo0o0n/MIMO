@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class LampControlResponseDto {
     private String type;
-    private Integer lampId;
+    private Long lampId;
     @Builder.Default
     private LampControlResponseDataDto data = new LampControlResponseDataDto();
     @Override
