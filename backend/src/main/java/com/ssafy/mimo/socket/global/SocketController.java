@@ -39,6 +39,11 @@ public class SocketController {
                 }
                 if (request.getType().equals("hub") && request.getRequestName().equals("setConnect")) {
                     Long hubId = socketService.getHubId(request);
+                    if (hubId == null) {
+                        System.out.println("Invalid hub ID");
+                        socket.close();
+                        continue;
+                    }
                     System.out.println("Connected hub ID: " + hubId);
                     connections.put(hubId, socket);
                     HubConnectionResponseDto response = HubConnectionResponseDto.builder()
