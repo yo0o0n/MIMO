@@ -6,5 +6,5 @@ import lombok.Builder;
 public record HubConnectionResponseDto(
         String type,
         String requestName,
-        Integer hubId
+        Long hubId
 ) {}
