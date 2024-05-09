@@ -12,7 +12,6 @@ import com.ssafy.mimo.domain.hub.repository.HubRepository;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,18 +75,7 @@ public class HouseService {
 		userHouseRepository.save(userHouse);
 	}
 
-	public void updateInfo(Long userId, Long userHouseId, HouseUpdateRequestDto houseUpdateRequestDto) {
-		UserHouse userHouse = userHouseRepository.findById(userHouseId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userHouseId));
-
-		if (!userHouse.getUser().getId().equals(userId)) {
-			throw new IllegalArgumentException("집을 수정할 권한이 없습니다.");
-		}
-
-		userHouse.updateNickname(houseUpdateRequestDto.getNickname());
-	}
-
-	public void deleteUserHouse(Long userId, Long userHouseId) {
+	public void unregisterHouse(Long userId, Long userHouseId) {
 		UserHouse userHouse = userHouseRepository.findById(userHouseId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userHouseId));
 
@@ -105,6 +93,17 @@ public class HouseService {
 		if (userHouseRepository.findByHouse(house).isEmpty()) {
 			houseRepository.delete(house);
 		}
+	}
+
+	public void updateHouseNickname(Long userId, Long userHouseId, HouseUpdateRequestDto houseUpdateRequestDto) {
+		UserHouse userHouse = userHouseRepository.findById(userHouseId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userHouseId));
+
+		if (!userHouse.getUser().getId().equals(userId)) {
+			throw new IllegalArgumentException("집을 수정할 권한이 없습니다.");
+		}
+
+		userHouse.updateNickname(houseUpdateRequestDto.getNickname());
 	}
 
 	public boolean updateHouseStatus(Long userId, Long userHouseId) {
