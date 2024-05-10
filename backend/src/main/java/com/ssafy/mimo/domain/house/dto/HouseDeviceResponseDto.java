@@ -10,7 +10,6 @@ public record HouseDeviceResponseDto(
         String nickname,
         String address,
         boolean isHome,
-        Long hubId,
         List<DeviceDetailDto> devices) {
 
 }

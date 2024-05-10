@@ -72,11 +72,10 @@ public class HouseController {
 
 	@Operation(summary = "해당 집에 등록되어 있는 기기 리스트 조회")
 	@GetMapping("/{userHouseId}/devices")
-	public ResponseEntity<List<HouseDeviceResponseDto>> getDevices(@RequestHeader("X-AUTH-TOKEN") String token,
-																   @PathVariable("userHouseId") Long userHouseId,
-																   @RequestParam Long hubId) {
+	public ResponseEntity<HouseDeviceResponseDto> getDevices(@RequestHeader("X-AUTH-TOKEN") String token,
+															 @PathVariable("userHouseId") Long userHouseId) {
 		Long userId = userService.getUserId(token);
-		List<HouseDeviceResponseDto> devices = houseService.getDevices(userId, userHouseId, hubId);
-		return ResponseEntity.ok().body(devices);
+		HouseDeviceResponseDto devices = houseService.getDevices(userId, userHouseId);
+		return ResponseEntity.ok(devices);
 	}
 }
