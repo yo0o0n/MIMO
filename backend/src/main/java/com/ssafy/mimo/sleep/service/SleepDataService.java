@@ -30,17 +30,6 @@ public class SleepDataService {
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
 	// 수면 데이터를 저장하는 메서드
 	private void saveSleepData(Long userId, SleepDataDto sleepDataDto) {
 		User user = userService.findUserById(userId);

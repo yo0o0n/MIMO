@@ -19,13 +19,13 @@ public class DeviceHandlerService {
 	private final CommonService commonService;
 
 	public void handleOnSleep(DeviceDetailDto device) {
-		String type = device.getType();
+		String type = device.type();
 		switch (type) {
 			case "light":
 				// 조명 끄기
 				ManualControlRequestDto lightManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("light")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setStateOff")
 						.build())
@@ -37,7 +37,7 @@ public class DeviceHandlerService {
 				// 무드등 끄기
 				ManualControlRequestDto lampManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("lamp")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setStateOff")
 						.build())
@@ -49,7 +49,7 @@ public class DeviceHandlerService {
 				// 창문 닫기
 				ManualControlRequestDto windowManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("window")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setState")
 						.state(0)
@@ -62,7 +62,7 @@ public class DeviceHandlerService {
 				// 커튼 닫기
 				ManualControlRequestDto curtainManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("curtain")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setState")
 						.state(0)
@@ -78,13 +78,13 @@ public class DeviceHandlerService {
 
 	public void handleOnWakeUp(DeviceDetailDto device) {
 		// IoT 기기 제어 로직
-		String type = device.getType();
+		String type = device.type();
 		switch (type) {
 			case "light":
 				// 조명 켜기
 				ManualControlRequestDto lightManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("light")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setCurrentColor")
 						.color(LIGHT_WAKEUP_COLOR.getValue())
@@ -97,7 +97,7 @@ public class DeviceHandlerService {
 				// 무드등 켜기
 				ManualControlRequestDto lampManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("lamp")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setCurrentColor")
 						.color(LAMP_WAKEUP_COLOR.getValue())
@@ -110,7 +110,7 @@ public class DeviceHandlerService {
 				// 창문 열기
 				ManualControlRequestDto windowManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("window")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setState")
 						.state(100)
@@ -123,7 +123,7 @@ public class DeviceHandlerService {
 				// 커튼 닫기
 				ManualControlRequestDto curtainManualControlRequestDto = ManualControlRequestDto.builder()
 					.type("curtain")
-					.deviceId(device.getDeviceId())
+					.deviceId(device.deviceId())
 					.data(ManualControlRequestDataDto.builder()
 						.requestName("setState")
 						.state(100)
