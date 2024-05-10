@@ -23,10 +23,8 @@ public class SleepDataService {
 		// 들어온 수면 데이터를 먼저 저장
 		saveSleepData(userId, sleepDataDto);
 
-		// 수면 데이터 단계에 따라 IoT 기기를 제어한다.
-
-
-
+		// 수면 데이터에 따라 IoT 기기를 제어
+		sleepHandleDeviceService.handleDeviceBySleepLevel(userId, sleepDataDto);
 
 		return "수면 데이터가 성공적으로 전송되었습니다.";
 	}

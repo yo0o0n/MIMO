@@ -31,4 +31,6 @@ public class SleepDataController {
 		Long userId = userService.getUserId(token);
 		return ResponseEntity.ok(sleepDataService.handleSleepData(userId, sleepDataDto));
 	}
+
+
 }
