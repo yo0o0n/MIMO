@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface HubRepository extends JpaRepository<Hub, Long> {
     Optional<Hub> findBySerialNumber(String serialNumber);
+
     List<Hub> findByHouseId(Long houseId);
 }
