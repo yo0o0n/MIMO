@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record CurtainDetailResponseDto(
-	Long CurtainId,
+	Long curtainId,
 	String nickname,
 	String macAddress,
 	Integer openDegree,

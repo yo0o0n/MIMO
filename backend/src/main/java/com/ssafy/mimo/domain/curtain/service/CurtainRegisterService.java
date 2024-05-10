@@ -42,6 +42,7 @@ public class CurtainRegisterService {
 			.macAddress(curtainRegisterRequestDto.macAddress())
 			.openDegree(Integer.valueOf(CURTAIN_OPEN_DEGREE.getValue()))
 			.build();
+		curtainRepository.save(curtain);
 
 		return CurtainRegisterResponseDto.builder()
 			.curtainId(curtain.getId())

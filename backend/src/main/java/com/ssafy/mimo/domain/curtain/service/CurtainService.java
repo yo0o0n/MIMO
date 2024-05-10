@@ -1,12 +1,17 @@
 package com.ssafy.mimo.domain.curtain.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.mimo.domain.curtain.dto.CurtainDetailResponseDto;
 import com.ssafy.mimo.domain.curtain.dto.CurtainRegisterRequestDto;
 import com.ssafy.mimo.domain.curtain.dto.CurtainRegisterResponseDto;
+import com.ssafy.mimo.domain.curtain.dto.CurtainUpdateRequestDto;
 import com.ssafy.mimo.domain.curtain.entity.Curtain;
 import com.ssafy.mimo.domain.curtain.repository.CurtainRepository;
+import com.ssafy.mimo.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +43,59 @@ public class CurtainService {
 		throw new IllegalArgumentException("이미 등록된 커튼입니다.");
 	}
 
+	// 무드등 등록해제 하는 메서드
+	public String unregisterCurtain(Long userId, Long curtainId) {
+		Curtain curtain = findCurtainById(curtainId);
+
+		// 이미 등록 해제된 경우
+		if (!curtain.isRegistered()) {
+			throw new IllegalArgumentException("이미 등록 해제된 커튼입니다.");
+		}
+
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(curtain.getUser(), userId);
+
+		// 커튼 객체 수정 및 저장
+		curtain.setUser(null);
+		curtain.setHub(null);
+		curtain.setUnregisteredDttm(LocalDateTime.now());
+		curtain.setRegistered(false);
+		curtainRepository.save(curtain);
+
+		return "커튼이 등록 해제되었습니다.";
+	}
+
+	// 해당 무드등 상세 불러오는 메서드
+	public CurtainDetailResponseDto getCurtainDetail(Long userId, Long curtainId) {
+		Curtain curtain = findCurtainById(curtainId);
+
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(curtain.getUser(), userId);
+
+		return CurtainDetailResponseDto.builder()
+			.curtainId(curtain.getId())
+			.nickname(curtain.getNickname())
+			.openDegree(curtain.getOpenDegree())
+			.macAddress(curtain.getMacAddress())
+			.isAccessible(curtain.isAccessible())
+			.build();
+	}
+
+	// 커튼 설정 업데이트 하는 메서드
+	public String updateCurtain(Long userId, CurtainUpdateRequestDto curtainUpdateRequestDto) {
+		Curtain curtain = findCurtainById(curtainUpdateRequestDto.curtainId());
+
+		// 해당 유저가 기기 주인인지 확인
+		checkUserAuthority(curtain.getUser(), userId);
+
+		// 커튼 객체 수정 및 저장
+		curtain.setNickname(curtainUpdateRequestDto.nickname());
+		curtain.setOpenDegree(curtainUpdateRequestDto.openDegree());
+		curtain.setAccessible(curtainUpdateRequestDto.isAccessible());
+		curtainRepository.save(curtain);
+
+		return "커튼 설정이 업데이트 되었습니다.";
+	}
 
 	// 커튼 mac 주소로 커튼 찾기
 	private Curtain findCurtainByMacAddress(String macAddress) {
@@ -52,4 +110,9 @@ public class CurtainService {
 	}
 
 	// 기기 주인인지 확인
+	private void checkUserAuthority(User user, Long userId) {
+		if (!user.getId().equals(userId)) {
+			throw new IllegalArgumentException("권한이 없는 사용자입니다.");
+		}
+	}
 }
