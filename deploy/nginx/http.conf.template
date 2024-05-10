@@ -27,6 +27,18 @@ server {
         rewrite ^/dev(/.*) $1 break;
         proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
     }
+    
+    location /api/check/blue {
+        proxy_pass http://${SERVER_DOMAIN}:${BLUE_API_PORT}/api/check;
+    }
+
+    location /api/check/green {
+        proxy_pass http://${SERVER_DOMAIN}:${GREEN_API_PORT}/api/check;
+    }
+
+    location /api/check/dev {
+        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT}/api/check;
+    }
 
     location /v3 {
         proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
