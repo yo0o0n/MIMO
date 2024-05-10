@@ -1,5 +1,6 @@
 package com.ssafy.mimo.domain.house.service;
 
+import com.ssafy.mimo.domain.curtain.repository.CurtainRepository;
 import com.ssafy.mimo.domain.house.dto.*;
 import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
@@ -33,7 +34,7 @@ public class HouseService {
 	private final LampRepository lampRepository;
 	private final LightRepository lightRepository;
 	private final WindowRepository windowRepository;
-//	private final CurtainRepository curtainRepository;
+	private final CurtainRepository curtainRepository;
 
 	public List<HouseResponseDto> getHouses(Long userId) {
 		if (userId == null) {
@@ -197,13 +198,17 @@ public class HouseService {
 				})
 				.toList());
 
-//		allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
-//				.map(device -> DeviceDetailDto.builder()
-//						.deviceId(device.getId())
-//						.nickname(device.getNickname())
-//						.isAccessible(device.isAccessible())
-//						.build())
-//				.collect(Collectors.toList()));
+		allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
+				.map(device -> {
+					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+							.deviceId(device.getId())
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build();
+					deviceDetail.determineType("curtainId");
+					return deviceDetail;
+				})
+				.toList());
 
 		HouseDeviceResponseDto response = HouseDeviceResponseDto.builder()
 				.houseId(house.getId())
