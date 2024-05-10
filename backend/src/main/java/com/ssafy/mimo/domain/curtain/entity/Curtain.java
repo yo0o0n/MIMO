@@ -1,5 +1,7 @@
 package com.ssafy.mimo.domain.curtain.entity;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.ssafy.mimo.common.BaseDeviceEntity;
 
 import jakarta.persistence.Entity;
@@ -16,4 +18,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 public class Curtain extends BaseDeviceEntity {
+	@NotNull
+	private Integer openDegree;
 }
