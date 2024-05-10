@@ -142,84 +142,80 @@ public class HouseService {
         return true;
     }
 
-	public List<HouseDeviceResponseDto> getDevices(Long userId, Long userHouseId, Long hubId) {
-		// 입력된 hubId로 Hub 객체 찾기
-		Hub hub = hubRepository.findById(hubId)
-				.orElseThrow(() -> new RuntimeException("해당 ID를 가진 Hub를 찾을 수 없습니다: " + hubId));
+	public HouseDeviceResponseDto getDevices(Long userId, Long userHouseId) {
+		// 입력된 userHouseId로 UserHouse 객체 찾기
+		UserHouse userHouse = userHouseRepository.findById(userHouseId)
+				.orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자 집을 찾을 수 없습니다: " + userHouseId));
 
-		// Hub가 연결된 House 찾기
-		House house = hub.getHouse();
-		if (house == null) {
-			throw new RuntimeException("Hub (" + hubId + ")에 연결된 House가 없습니다.");
-		} else if (!house.getId().equals(userHouseId)) {
-			throw new RuntimeException("Hub (" + hubId + ")는 요청된 userHouseId (" + userHouseId + ")와 일치하지 않습니다.");
+		if (!userHouse.isHome()) {
+			throw new RuntimeException("UserHouse (" + userHouseId + ")는 현재 거주지가 아닙니다.");
 		}
 
-		UserHouse userHouse = house.getUserHouse().stream()
-				.filter(uh -> uh.getUser().getId().equals(userId))
-				.findFirst()
-				.orElseThrow(() -> new RuntimeException("해당 ID를 가진 UserHouse를 찾을 수 없습니다: " + userId));
+		// UserHouse가 연결된 House 찾기
+		House house = userHouse.getHouse();
+		if (house == null) {
+			throw new RuntimeException("UserHouse (" + userHouseId + ")에 연결된 House가 없습니다.");
+		}
 
-		// 각 디바이스 타입 별로 조회 및 DTO 변환
+		// House에 등록된 모든 Hub 찾기
+		List<Hub> hubs = hubRepository.findByHouseId(house.getId());
+
+		// 모든 디바이스 타입 별로 조회 및 DTO 변환
 		List<DeviceDetailDto> allDevices = new ArrayList<>();
-		allDevices.addAll(lampRepository.findByHubId(hubId).stream()
-				.map(device -> {
-					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+		for (Hub hub : hubs) {
+			Long hubId = hub.getId();
+			allDevices.addAll(lampRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceDetailDto.builder()
+							.userId(device.getUser().getId())
+							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
 							.isAccessible(device.isAccessible())
-							.build();
-					deviceDetail.determineType("lampId");
-					return deviceDetail;
-				})
-				.toList());
+							.type("lamp")
+							.build())
+					.toList());
 
-		allDevices.addAll(lightRepository.findByHubId(hubId).stream()
-				.map(device -> {
-					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+			allDevices.addAll(lightRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceDetailDto.builder()
+							.userId(device.getUser().getId())
+							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
 							.isAccessible(device.isAccessible())
-							.build();
-					deviceDetail.determineType("lightId");
-					return deviceDetail;
-				})
-				.toList());
+							.type("light")
+							.build())
+					.toList());
 
-		allDevices.addAll(windowRepository.findByHubId(hubId).stream()
-				.map(device -> {
-					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+			allDevices.addAll(windowRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceDetailDto.builder()
+							.userId(device.getUser().getId())
+							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
 							.isAccessible(device.isAccessible())
-							.build();
-					deviceDetail.determineType("windowId");
-					return deviceDetail;
-				})
-				.toList());
+							.type("window")
+							.build())
+					.toList());
 
-		allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
-				.map(device -> {
-					DeviceDetailDto deviceDetail = DeviceDetailDto.builder()
+			allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceDetailDto.builder()
+							.userId(device.getUser().getId())
+							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
 							.isAccessible(device.isAccessible())
-							.build();
-					deviceDetail.determineType("curtainId");
-					return deviceDetail;
-				})
-				.toList());
+							.type("curtain")
+							.build())
+					.toList());
+		}
 
-		HouseDeviceResponseDto response = HouseDeviceResponseDto.builder()
+		return HouseDeviceResponseDto.builder()
 				.houseId(house.getId())
 				.nickname(userHouse.getNickname())
-				.isHome(userHouse.isHome())
 				.address(house.getAddress())
-				.hubId(hubId)
+				.isHome(userHouse.isHome())
 				.devices(allDevices)
 				.build();
-
-		return List.of(response);
 	}
 
 	public House findHouseById(Long houseId) {
