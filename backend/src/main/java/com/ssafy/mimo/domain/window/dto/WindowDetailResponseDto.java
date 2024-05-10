@@ -7,6 +7,7 @@ public record WindowDetailResponseDto(
 	Long windowId,
 	String nickname,
 	String macAddress,
+	Integer openDegree,
 	boolean isAccessible
 ) {
 }

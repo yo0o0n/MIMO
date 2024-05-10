@@ -90,6 +90,7 @@ public class WindowService {
 
 		// 창문 객체 수정 및 저장
 		slidingWindow.setNickname(windowUpdateRequestDto.nickname());
+		slidingWindow.setOpenDegree(windowUpdateRequestDto.openDegree());
 		slidingWindow.setAccessible(windowUpdateRequestDto.isAccessible());
 		windowRepository.save(slidingWindow);
 

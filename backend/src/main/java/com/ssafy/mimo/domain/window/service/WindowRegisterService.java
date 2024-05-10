@@ -1,5 +1,7 @@
 package com.ssafy.mimo.domain.window.service;
 
+import static com.ssafy.mimo.common.DeviceDefaults.*;
+
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class WindowRegisterService {
 			.isAccessible(true)
 			.nickname(windowRegisterRequestDto.nickname())
 			.macAddress(windowRegisterRequestDto.macAddress())
+			.openDegree(Integer.valueOf(WINDOW_OPEN_DEGREE.getValue()))
 			.build();
 		windowRepository.save(slidingWindow);
 
@@ -60,6 +63,7 @@ public class WindowRegisterService {
 		slidingWindow.setRegistered(true);
 		slidingWindow.setRegisteredDttm(LocalDateTime.now());
 		slidingWindow.setUnregisteredDttm(null);
+		slidingWindow.setOpenDegree(Integer.valueOf(WINDOW_OPEN_DEGREE.getValue()));
 		slidingWindow.setAccessible(true);
 		slidingWindow.setNickname(windowRegisterRequestDto.nickname());
 		windowRepository.save(slidingWindow);
