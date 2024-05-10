@@ -3,10 +3,10 @@ package com.mimo.android
 import androidx.compose.material3.*
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,11 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.mimo.android.apis.mimo.user.postAccessToken
 import com.mimo.android.components.BackgroundImage
 import com.mimo.android.services.health.HealthConnectManager
 import com.mimo.android.screens.*
 import com.mimo.android.screens.firstsettingfunnels.*
 import com.mimo.android.screens.login.LoginScreen
+import com.mimo.android.services.kakao.loginWithKakao
+import com.mimo.android.utils.preferences.ACCESS_TOKEN
+import com.mimo.android.utils.preferences.getData
+
+const val TAG = "MimoApp"
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -36,66 +42,75 @@ fun MimoApp(
 //    currentLocation: String? = null,
 //    onClickForeground: (() -> Unit)? = null,
     ){
+
+
+
     MaterialTheme {
         val scaffoldState = rememberScaffoldState()
         val navController = rememberNavController()
         val scope = rememberCoroutineScope()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
-
         val availability by healthConnectManager.availability
-
         val authUiState by authViewModel.uiState.collectAsState()
         val firstSettingFunnelsUiState by firstSettingFunnelsViewModel.uiState.collectAsState()
-        val canShowMain = authUiState.user != null && firstSettingFunnelsUiState.currentStepId == null
+
+        authViewModel.init(
+            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+        )
 
         // TODO: 실제 kakao-login 구현
-        fun handleKakaoLoginMock(){
-            val user = User(
-                username = "용상윤",
-                accessToken = "123",
-                refreshToken = "456"
-            )
-
-            val hasHomeOrHub = true // FIXME: 있다 치고 메인으로 이동
-
-            // TODO: 로그인이 됐는지 확인하고 로그인이 된 상태이며 집과 허브가 모두 있다면... MainActivity도..
-            if (hasHomeOrHub) {
-                authViewModel.login(
-                    user = user,
-                    cb = { navController.navigate(MyHomeDestination.route) }
-                )
-                return
-            }
-
-            firstSettingFunnelsViewModel.init(
-                currentStepId = R.string.first_setting_funnel_first_setting_start
-            )
-//                firstSettingFunnelsViewModel.init(
-//                    currentStepId = R.string.test_funnel
-//                )
-
-            authViewModel.login(
-                user = user
+        fun handleLoginWithKakao(){
+            loginWithKakao(
+                context = context,
+                onSuccessCallback = { oauthToken ->
+                    Log.i(TAG, "kakao accessToken=${oauthToken.accessToken}")
+                    postAccessToken(
+                        accessToken = oauthToken.accessToken,
+                        onSuccessCallback = { data ->
+                            if (data == null) {
+                                Log.e(TAG, "데이터가 없음...")
+                                return@postAccessToken
+                            }
+                            Log.i(TAG, "우리 토큰 받아오기 성공!!!! ${data.accessToken}")
+                            authViewModel.login(
+                                accessToken = data.accessToken,
+                                firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+                            )
+                            Toast.makeText(
+                                context,
+                                "로그인 되었습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        onFailureCallback = {
+                            Toast.makeText(
+                                context,
+                                "다시 로그인 해주세요.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                },
+                onFailureCallback = {
+                    Toast.makeText(
+                        context,
+                        "카카오 로그인 실패",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             )
         }
 
         Scaffold(
             bottomBar = {
-                if (canShowMain) {
+                if (authUiState.user != null && firstSettingFunnelsUiState.currentStepId == null) {
                     Navigation(navController = navController)
                 }
             }
         ) {
             BackgroundImage {
                 Box(modifier = Modifier.padding(16.dp)) {
-                    if (authUiState.user == null) {
-                        LoginScreen(
-                            onLoginWithKakao = ::handleKakaoLoginMock
-                        )
-                        return@BackgroundImage
-                    }
-
                     if (firstSettingFunnelsUiState.currentStepId != null) {
                         FirstSettingFunnelsRoot(
                             qrCodeViewModel = qrCodeViewModel,
@@ -107,61 +122,24 @@ fun MimoApp(
                         return@BackgroundImage
                     }
 
-                    Router(
-                        navController = navController,
-                        healthConnectManager = healthConnectManager,
+                    if (authUiState.accessToken == null) {
+                        LoginScreen(
+                            onLoginWithKakao = ::handleLoginWithKakao
+                        )
+                        return@BackgroundImage
+                    }
+
+                    if (authUiState.user != null) {
+                        Router(
+                            navController = navController,
+                            healthConnectManager = healthConnectManager,
 //                serviceRunning = serviceRunning,
 //                currentLocation = currentLocation,
 //                onClickForeground = onClickForeground,
-                    )
+                        )
+                    }
                 }
             }
         }
     }
-
-//    MaterialTheme {
-//        Scaffold(
-//
-//            content = {
-//                BackgroundImage {
-//                    if (authUiState.user == null) {
-//                        Box(modifier = Modifier.padding(16.dp)) {
-//                            LoginScreen(
-//                                onLoginWithKakao = ::handleKakaoLoginMock
-//                            )
-//                        }
-//                        return@BackgroundImage
-//                    }
-//
-//                    if (firstSettingFunnelsUiState.currentStepId != null) {
-//                        Box(modifier = Modifier.padding(16.dp)) {
-//                            FirstSettingFunnelsRoot(
-//                                qrCodeViewModel = qrCodeViewModel,
-//                                firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-//                                checkCameraPermission = checkCameraPermission,
-//                                launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
-//                                context = context
-//                            )
-//                        }
-//                        return@BackgroundImage
-//                    }
-//
-//                    Scaffold (
-//                        bottomBar = {
-//
-//                        },
-//                        content = {
-//                            Router(
-//                                navController = navController,
-//                                healthConnectManager = healthConnectManager,
-////                serviceRunning = serviceRunning,
-////                currentLocation = currentLocation,
-////                onClickForeground = onClickForeground,
-//                            )
-//                        }
-//                    )
-//                }
-//            }
-//        )
-//    }
 }

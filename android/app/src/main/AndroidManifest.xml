@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- kakao OAuth -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- health connect permissions -->
@@ -34,7 +33,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Android"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -83,7 +83,7 @@
 
                 <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
                 <data android:host="oauth"
-                    android:scheme="kakao2fa7b989f12635ed266010d85b0a513e" />
+                    android:scheme="kakao303842984e2eb78954da62cc3e5b7a65" />
             </intent-filter>
         </activity>
     </application>

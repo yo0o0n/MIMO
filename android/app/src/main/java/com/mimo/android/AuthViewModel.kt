@@ -1,9 +1,13 @@
 package com.mimo.android
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.mimo.android.apis.mimo.user.GetMyInfoResponse
+import com.mimo.android.apis.mimo.user.getMyInfo
+import com.mimo.android.utils.preferences.ACCESS_TOKEN
+import com.mimo.android.utils.preferences.getData
+import com.mimo.android.utils.preferences.removeData
+import com.mimo.android.utils.preferences.saveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,48 +18,83 @@ class AuthViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    fun init(user: User?){
-        // TODO: jwt-token이 있는지 확인하고 없으면 not-login 처리 / 있으면 그걸 가지고 백엔드에 요청해서 확인
+    fun init(
+        firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel
+    ){
+        val prevAccessToken = getData(ACCESS_TOKEN) ?: return
 
-        // TODO: 1. jwt-token이 있는가?
-
-        // TODO: 2. jwt-token이 있으면 백엔드에 요청
         viewModelScope.launch {
-            delay(1000)
-            if (user != null) {
-                _uiState.update { prevState ->
-                    prevState.copy(user = user)
+            getMyInfo(
+                accessToken = prevAccessToken,
+                onSuccessCallback = { data: GetMyInfoResponse? ->
+                    if (data == null) {
+                        return@getMyInfo
+                    }
+
+                    if (!data.hasHome && !data.hasHub) {
+                        firstSettingFunnelsViewModel.updateCurrentStep(R.string.first_setting_funnel_first_setting_start)
+                    }
+
+                    _uiState.update { prevState ->
+                        prevState.copy(
+                            accessToken = prevAccessToken,
+                            user = User(
+                                id = data.userId.toString(),
+                                hasHome = data.hasHome,
+                                hasHub = data.hasHub)
+                        )
+                    }
                 }
-            }
+            )
         }
     }
 
     fun login(
-        user: User,
-        cb: (() -> Unit)? = null
+        accessToken: String,
+        firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel
     ){
         viewModelScope.launch {
-            delay(1000)
-            try {
-                _uiState.value = AuthUiState(user = user)
-                cb?.invoke()
-            } catch(e: Exception) {
-                Log.d("AuthViewModel login function error", "${e.message}")
-            }
+            saveData(ACCESS_TOKEN, accessToken)
+            getMyInfo(
+                accessToken = accessToken,
+                onSuccessCallback = { data: GetMyInfoResponse? ->
+                    if (data == null) {
+                        return@getMyInfo
+                    }
+
+                    if (!data.hasHome && !data.hasHub) {
+                        firstSettingFunnelsViewModel.updateCurrentStep(R.string.first_setting_funnel_first_setting_start)
+                    }
+
+                    _uiState.update { prevState ->
+                        prevState.copy(
+                            accessToken = accessToken,
+                            user = User(
+                                id = data.userId.toString(),
+                                hasHome = data.hasHome,
+                                hasHub = data.hasHub)
+                            )
+                    }
+                }
+            )
         }
     }
 
     fun logout(){
-        _uiState.value = AuthUiState(user = null)
+        //removeData(ACCESS_TOKEN)
+        _uiState.update { prevState ->
+            prevState.copy(user = null)
+        }
     }
 }
 
 data class AuthUiState(
-    val user: User? = null
+    val user: User? = null,
+    val accessToken: String? = null
 )
 
 data class User(
-    val username: String,
-    val accessToken: String,
-    val refreshToken: String
+    val id: String,
+    val hasHome: Boolean,
+    val hasHub: Boolean
 )
