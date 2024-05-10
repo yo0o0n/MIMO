@@ -1,15 +1,10 @@
 package com.ssafy.mimo.user.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
+import com.ssafy.mimo.user.dto.MyInfoResponseDto;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.repository.UserRepository;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -24,5 +19,23 @@ public class UserService {
 	// 토큰을 통해 유저 아이디를 찾는 메소드
 	public Long getUserId(String token) {
 		return Long.parseLong(jwtTokenProvider.getUserPk(token));
+	}
+
+	public MyInfoResponseDto getHomeAndHubInfo(Long userId) {
+		User user = userRepository.findById(userId).orElse(null);
+		boolean hasHome = false;
+		boolean hasHub = false;
+
+		if (user != null && !user.getUserHouse().isEmpty()) {
+			hasHome = true;
+			hasHub = user.getUserHouse().stream()
+					.anyMatch(userHouse -> !userHouse.getHouse().getHub().isEmpty());
+		}
+
+		return MyInfoResponseDto.builder()
+				.userId(userId)
+				.hasHome(hasHome)
+				.hasHub(hasHub)
+				.build();
 	}
 }
