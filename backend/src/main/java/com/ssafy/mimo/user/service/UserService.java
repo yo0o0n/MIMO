@@ -1,6 +1,11 @@
 package com.ssafy.mimo.user.service;
 
+import static com.ssafy.mimo.common.DeviceDefaults.*;
+
+import java.time.LocalTime;
+
 import com.ssafy.mimo.user.dto.MyInfoResponseDto;
+import com.ssafy.mimo.user.dto.WakeupTimeDto;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +26,7 @@ public class UserService {
 		return Long.parseLong(jwtTokenProvider.getUserPk(token));
 	}
 
+	// 유저의 집/허브 유무를 확인하는 메소드
 	public MyInfoResponseDto getHomeAndHubInfo(Long userId) {
 		User user = userRepository.findById(userId).orElse(null);
 		boolean hasHome = false;
@@ -29,13 +35,35 @@ public class UserService {
 		if (user != null && !user.getUserHouse().isEmpty()) {
 			hasHome = true;
 			hasHub = user.getUserHouse().stream()
-					.anyMatch(userHouse -> !userHouse.getHouse().getHub().isEmpty());
+				.anyMatch(userHouse -> !userHouse.getHouse().getHub().isEmpty());
 		}
 
 		return MyInfoResponseDto.builder()
-				.userId(userId)
-				.hasHome(hasHome)
-				.hasHub(hasHub)
-				.build();
+			.userId(userId)
+			.hasHome(hasHome)
+			.hasHub(hasHub)
+			.build();
+	}
+
+	// 유저의 기상시간을 가져오는 메소드
+	public WakeupTimeDto getWakeupTime(Long userId) {
+		User user = findUserById(userId);
+		LocalTime wakeupTime = user.getWakeupTime();
+		if (wakeupTime == null) {
+			wakeupTime = LocalTime.parse(WAKEUP_TIME.getValue());
+		}
+		return WakeupTimeDto.builder()
+			.wakeupTime(wakeupTime)
+			.build();
+	}
+
+	// 유저의 기상시간 설정하는 메서드
+	public WakeupTimeDto setWakeupTime(Long userId, WakeupTimeDto wakeupTimeDto) {
+		User user = findUserById(userId);
+		user.setWakeupTime(wakeupTimeDto.wakeupTime());
+		userRepository.save(user);
+		return WakeupTimeDto.builder()
+			.wakeupTime(user.getWakeupTime())
+			.build();
 	}
 }
