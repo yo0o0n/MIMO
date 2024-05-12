@@ -139,9 +139,13 @@ public class SocketController {
         System.out.println(receivedMessages);
     }
     // Get message
-    public static String getMessage(String requestId) {
-        // TODO: Implement this method
-        return receivedMessages.get(requestId);
+    public static synchronized String getMessage(Long hubId, String requestId) throws InterruptedException {
+        while (!requestIds.get(hubId).contains(requestId)) {
+            // Wait until the message is available
+            SocketController.class.wait();
+        }
+        requestIds.get(hubId).remove(requestId);
+        return receivedMessages.remove(requestId);
     }
     // Send message
     public static String sendMessage(Long hubId, ObjectNode message) {
