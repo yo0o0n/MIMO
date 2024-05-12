@@ -2,6 +2,7 @@ package com.ssafy.mimo.socket.global;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
 import com.ssafy.mimo.domain.lamp.service.LampService;
@@ -39,13 +40,11 @@ public class SocketService {
         }
         return null;  // 등록되지 않은 경우나 오류 발생 시 null 반환
     }
-
-    public String handleRequest(String request) {
-        String type = null;
+    public ObjectNode handleRequest(String request) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(request);
-            type = jsonNode.get("type").asText();
+            String type = jsonNode.get("type").asText();
             switch (type) {
                 case "hub": // 허브 요청
                     DeviceIdRequestDto deviceIdRequestDto = objectMapper.readValue(request, DeviceIdRequestDto.class);
@@ -60,12 +59,12 @@ public class SocketService {
                         case "getWindowId":
                             deviceId = windowService.findWindowByMacAddress(deviceIdRequestDto.macAddress()).getId();
                             break;
-                        case "getCurtainId":
-                            deviceId = null; // curtainService.findCurtainByMacAddress(deviceIdRequestDto.macAddress()).getId();
-                            break;
-                        case "getShowerId":
-                            deviceId = null; // showerService.findShowerByMacAddress(deviceIdRequestDto.macAddress()).getId();
-                            break;
+//                        case "getCurtainId":
+//                            deviceId = null; // curtainService.findCurtainByMacAddress(deviceIdRequestDto.macAddress()).getId();
+//                            break;
+//                        case "getShowerId":
+//                            deviceId = null; // showerService.findShowerByMacAddress(deviceIdRequestDto.macAddress()).getId();
+//                            break;
                     }
                     DeviceIdResponseDto response = DeviceIdResponseDto.builder()
                             .type(deviceIdRequestDto.type())
@@ -73,7 +72,7 @@ public class SocketService {
                             .macAddress(deviceIdRequestDto.macAddress())
                             .id(deviceId)
                             .build();
-                    return objectMapper.writeValueAsString(response);
+                    return objectMapper.valueToTree(response);
                 case "light": // 조명 요청
                     LightControlRequestDto lightRequest = objectMapper.readValue(request, LightControlRequestDto.class);
                     switch (lightRequest.getData().getRequestName()) {
@@ -87,9 +86,9 @@ public class SocketService {
                                             .curColor(curColor)
                                             .build())
                                     .build();
-                            return objectMapper.writeValueAsString(lightResponse);
+                            return objectMapper.valueToTree(lightResponse);
                         default:
-                            return "Invalid request name: " + lightRequest.getData().getRequestName();
+                            return objectMapper.valueToTree("Invalid request name: " + lightRequest.getData().getRequestName());
                     }
                 case "lamp": // 램프 요청
                     LampControlRequestDto lampRequest = objectMapper.readValue(request, LampControlRequestDto.class);
@@ -104,20 +103,20 @@ public class SocketService {
                                             .curColor(curColor)
                                             .build())
                                     .build();
-                            return objectMapper.writeValueAsString(lampResponse);
+                            return objectMapper.valueToTree(lampResponse);
                         default:
-                            return "Invalid request name: " + lampRequest.getData().getRequestName();
+                            return objectMapper.valueToTree("Invalid request name: " + lampRequest.getData().getRequestName());
                     }
                 default:
-                    return "Invalid request type: " + type;
+                    return objectMapper.valueToTree("Invalid request type: " + type);
             }
         } catch (Exception e) {
             System.out.println("Error while processing the request: " + e.getMessage());
-            return "Error while processing the request";
+            return null;
         }
     }
 
-    public String readMessage(InputStream inputStream) throws IOException {
+    public static String readMessage(InputStream inputStream) throws IOException {
         byte[] buffer = new byte[1024];
         int bytesRead = inputStream.read(buffer);
         return new String(buffer, 0, bytesRead);
