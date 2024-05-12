@@ -56,7 +56,7 @@ public class SleepHandleDeviceService {
 		if (sleepLevel == REM.getValue()) {
 			devices.stream()
 				.filter(device -> device.userId().equals(userId))
-				.forEach(deviceHandlerService::handleOnRem);
+				.forEach(device -> deviceHandlerService.handleOnRem(userId, device));
 		}
 	}
 
