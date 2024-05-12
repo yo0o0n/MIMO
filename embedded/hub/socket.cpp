@@ -81,7 +81,10 @@ void parse_json(std::string &str_recv){
 	json root = json::parse(str_recv);			// parse string to json
 	std::string type = root["type"].get<std::string>();	// get device type
 
-	if(type.compare("light") == 0){				// light
+	if(type.compare("hub") == 0){
+		machine_id_response.insert({root["macAddress"].get<std::string>(), root["id"].get<int>()});
+	}
+	else if(type.compare("light") == 0){				// light
 		int light_id = root["lightId"].get<int>();
 		light_response.find(light_id)->second.push_back(root["data"].get<json>().dump());
 	}
@@ -121,29 +124,36 @@ void make_json(std::string &str_send){
 	Request cur_request = request_list.front();
 	request_list.pop();
 	
-	json root = json::object();
-	switch(cur_request.request_type){
-		case REQUEST_LIGHT:			// light
-			root["type"] = "light";
-			root["lightId"] = cur_request.id;
-			root["data"] = json::parse(cur_request.request_data);
-			break;
-		case REQUEST_LAMP:			// lamp
-			root["type"] = "lamp";
-			root["lampId"] = cur_request.id;
-			root["data"] = json::parse(cur_request.request_data);
-			break;
-		case REQUEST_WINDOW:		// window
-			root["type"] = "window";
-			root["windowId"] = cur_request.id;
-			root["data"] = json::parse(cur_request.request_data);
-			break;
-		case REQUEST_CURTAIN:		// curtain
-			root["type"] = "curtain";
-			root["curtainId"] = cur_request.id;
-			root["data"] = json::parse(cur_request.request_data);
-			break;
+	if(cur_request.request_type == REQUEST_ID){
+		json root = cur_request.request_data;
+		root["type"] = "hub";
+		str_send = root.dump();
+	}
+	else{
+		json root = json::object();
+		switch(cur_request.request_type){
+			case REQUEST_LIGHT:			// light
+				root["type"] = "light";
+				root["lightId"] = cur_request.id;
+				root["data"] = cur_request.request_data;
+				break;
+			case REQUEST_LAMP:			// lamp
+				root["type"] = "lamp";
+				root["lampId"] = cur_request.id;
+				root["data"] = cur_request.request_data;
+				break;
+			case REQUEST_WINDOW:		// window
+				root["type"] = "window";
+				root["windowId"] = cur_request.id;
+				root["data"] = cur_request.request_data;
+				break;
+			case REQUEST_CURTAIN:		// curtain
+				root["type"] = "curtain";
+				root["curtainId"] = cur_request.id;
+				root["data"] = cur_request.request_data;
+				break;
+		}
+		str_send = root.dump();		// make json to string
 	}
 
-	str_send = root.dump();		// make json to string
 }

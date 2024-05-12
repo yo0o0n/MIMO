@@ -28,6 +28,8 @@ using json = nlohmann::json;
 #define READ_UUID "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 #define WRITE_UUID "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
+#define MACHINE_NUM 2
+
 typedef struct _ble_handler ble_handler;
 typedef struct _ble_adapter ble_adapter;
 typedef struct _ble_connection ble_connection;
@@ -146,6 +148,7 @@ int adapter_open(const char*, ble_adapter**);
 
 int stricmp(char const*, char const*);
 void ble_discovered_device(ble_adapter*, const char*, const char*, void*);
+std::unordered_map<int, std::vector<std::string>> &get_response_reference(RequestType);
 void on_device_connect(ble_adapter*, const char*, ble_connection*, int, void*);
 
 void wait_for_scan(ble_adapter*);

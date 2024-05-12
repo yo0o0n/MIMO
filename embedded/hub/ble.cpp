@@ -1,12 +1,15 @@
 #include "ble.hpp"
 
 int connect_device_cnt = 0;
-int remain_device_cnt = 2;
+int remain_device_cnt = MACHINE_NUM;
 bool is_running = true;
 
 struct {
 	char *adapter_name;
-	char *mac_address[2];
+	char *mac_address[MACHINE_NUM];
+	int machine_id[MACHINE_NUM];
+	RequestType machine_request_type[MACHINE_NUM];
+
 	uuid_t read_uuid;
 	uuid_t write_uuid;
 	char value_data[100];
@@ -17,7 +20,6 @@ GSList *m_adapter_list = NULL;
 GMutex mtx_loop;
 GCond cond_loop;
 
-GMutex mtx_test;
 GMutex mtx_connect;
 
 pthread_mutex_t m_connection_terminated_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -40,14 +42,16 @@ void stop_ble(){
 }
 
 int set_ble(int argc, char *argv[]){
-	if(argc < 2){
-		std::cout << "ble_test mac_address\n";
+	if(argc < MACHINE_NUM + 1){
+		std::cout << "ble_test mac_address * " << MACHINE_NUM << '\n';
 		exit(1);
 	}
 
 	m_argument.adapter_name = NULL;
-	m_argument.mac_address[0] = argv[1];
-	m_argument.mac_address[1] = argv[2];
+	for(int i = 0; i < MACHINE_NUM; i++){
+		m_argument.mac_address[i] = argv[i + 1];
+		m_argument.machine_id[i] = -1;
+	}
 
 	string_to_uuid(READ_UUID, strlen(READ_UUID) + 1, &m_argument.read_uuid);
 	string_to_uuid(WRITE_UUID, strlen(WRITE_UUID) + 1, &m_argument.write_uuid);
@@ -199,13 +203,13 @@ int stricmp(char const *a, char const *b){
 void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *name, void *user_data){
 	int ret;
 
-	bool check = false;
-	for(int i = 0; i < 2; i++){
+	int matched_num = -1;
+	for(int i = 0; i < MACHINE_NUM; i++){
 		if(stricmp(addr, m_argument.mac_address[i]) == 0){
-			check = true;
+			matched_num = i;
 		}
 	}
-	if(!check){
+	if(matched_num < 0){
 		return;
 	}
 
@@ -222,15 +226,23 @@ void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *n
 
 	std::cout << "Found bluetooth device " << addr << '\n';
 
-	std::cout << "mtx wait\n";
-//	g_mutex_lock(&mtx_test);
-	std::cout << "mtx lock connect\n";
 	g_mutex_lock(&mtx_connect);
 	ret = ble_connect(adapter, addr, 0, on_device_connect, NULL);
-//	g_mutex_unlock(&mtx_test);
-	std::cout << "mtx unlock\n";
 	if(ret != BLE_SUCCESS){
 		std::cout << "Failed to connect to the bluetooth device '" << addr << "'\n";
+	}
+}
+
+std::unordered_map<int, std::vector<std::string>> &get_response_reference(RequestType type){
+	switch(type){
+		case REQUEST_LIGHT:
+			return light_response;
+		case REQUEST_LAMP:
+			return lamp_response;
+		case REQUEST_WINDOW:
+			return window_response;
+		case REQUEST_CURTAIN:
+			return curtain_response;
 	}
 }
 
@@ -240,40 +252,43 @@ void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *co
 
 	connect_device_cnt++;
 
-	int ret;
-	size_t len;
-
-	uint8_t *buffer = NULL;
-
-	int before = -1;
-	int cur_id = 123;
-	RequestType req = REQUEST_LIGHT;
-
 	// read data
 	read_notify(connection, &m_argument.read_uuid, (void*)on_handle_characteristic_property_change);
 
-	std::unique_lock<std::mutex> lk(mtx_write);
 	// write data
-	while(is_running){
+	int ret;
+	int cur_machine_num = *(int*)user_data;
+	std::unique_lock<std::mutex> lk(mtx_write);
+	while(machine_id_response.find(dst) == machine_id_response.end()){
 		cv_read.wait(lk);
+		machine_id_response.find(cur_machine_num);
+	}
+	std::unordered_map<std::string, int>::iterator it_id = machine_id_response.find(dst);
+	m_argument.machine_id[cur_machine_num] = it_id->second;
+	machine_id_response.erase(it_id);
+	cv_read.notify_all();
+
+	int cur_id = m_argument.machine_id[cur_machine_num];
+	RequestType cur_type = m_argument.machine_request_type[cur_machine_num];
+	std::unordered_map<int, std::vector<std::string>> &cur_response = get_response_reference(cur_type);
+	cur_response.insert({cur_id, std::vector<std::string>()});
+	std::vector<std::string> &cur_data_list;
+	while(is_running){
+		while(cur_data_list.empty()){
+			cv_read.wait(lk);
+		}
 		if(!is_running){
 			break;
 		}
 
-		std::vector<std::string> &data = light_response.find(cur_id)->second;
-		std::string cur_data = data.back();
-		data.pop_back();
+		std::string cur_data = cur_data_list.back();
+		cur_data_list.pop_back();
 
 		ret = write_char_by_uuid(connection, &m_argument.write_uuid, cur_data.c_str(), cur_data.length());
 	}
 	lk.unlock();
 	
-	std::cout << "mtx wait\n";
-	g_mutex_lock(&mtx_test);
-	std::cout << "mtx lock disconnect\n";
 	ble_disconnect(connection, false);
-	g_mutex_unlock(&mtx_test);
-	std::cout << "mtx unlock\n";
 
 	/*
 	pthread_mutex_lock(&m_connection_terminated_lock);
@@ -349,9 +364,9 @@ int device_set_state(ble_adapter *adapter, const char *device_id, enum device_st
 		if(device->state == DISCONNECTED){
 			adapter->devices = g_slist_remove(adapter->devices, device);
 			device->reference_counter--;
-	//		if(device->reference_counter <= 0){
+			if(device->reference_counter <= 0){
 				free(device);
-	//		}
+			}
 		}
 	}
 	else{
@@ -848,32 +863,25 @@ gboolean on_handle_device_property_change(GDBusProxy *proxy, GVariant *arg_chang
 		while(g_variant_iter_loop(iter, "{&sv}", &key, &value)){
 			if(strcmp(key, "Connected") == 0){
 				if(!g_variant_get_boolean(value)){
-					std::cout << "DBUS: device_property_change(" << device_object_path << "): Disconnection\n";
+//					std::cout << "DBUS: device_property_change(" << device_object_path << "): Disconnection\n";
 					on_disconnected_device(connection);
 
-	mtx_interrupt.lock();
-	std::cout << connect_device_cnt << '\n';
-	connect_device_cnt--;
-	if(connect_device_cnt <= 0){
-		cv_interrupt.notify_all();
-	}
-	mtx_interrupt.unlock();
-
+					mtx_interrupt.lock();
+					std::cout << connect_device_cnt << '\n';
+					connect_device_cnt--;
+					if(connect_device_cnt <= 0){
+						cv_interrupt.notify_all();
+					}
+					mtx_interrupt.unlock();
 				}
 				else{
-					std::cout << "DBUS: device_property_change(" << device_object_path << "): Connection\n";
+//					std::cout << "DBUS: device_property_change(" << device_object_path << "): Connection\n";
 				}
 			}
 			else if(strcmp(key, "ServicesResolved") == 0){
 				if(g_variant_get_boolean(value)){
-					std::cout << "DBUS: device_property_change(" << device_object_path << "): Service Resolved\n";
-
-					std::cout << "mtx wait\n";
-//					g_mutex_lock(&mtx_test);
-					std::cout << "mtx lock _connection\n";
+//					std::cout << "DBUS: device_property_change(" << device_object_path << "): Service Resolved\n";
 					_on_device_connect(connection);
-//					g_mutex_unlock(&mtx_test);
-					std::cout << "mtx unlock\n";
 				}
 			}
 		}
@@ -927,7 +935,6 @@ int ble_connect(ble_adapter *adapter, const char *dst, unsigned long options, co
 	device_address_str[20] = '\0';
 
 	snprintf(object_path, sizeof(object_path), "/org/bluez/%s/dev_%s", adapter_name, device_address_str);
-	std::cout << object_path << '\n';
 
 	ble_device *device;
 	GSList *item = g_slist_find_custom(adapter->devices, object_path, _compare_device_with_device_id);
@@ -976,9 +983,7 @@ int ble_connect(ble_adapter *adapter, const char *dst, unsigned long options, co
 			"g-properties-changed",
 			G_CALLBACK(on_handle_device_property_change),
 			&device->connection);
-	std::cout << "id : " << device->connection.on_handle_device_property_change_id << '\n';
 
-	std::cout << "test\n";
 	error = NULL;
 	org_bluez_device1_call_connect_sync(bluez_device, NULL, &error);
 	if(error){
@@ -992,7 +997,6 @@ int ble_connect(ble_adapter *adapter, const char *dst, unsigned long options, co
 		}
 		else{
 			std::cout << "Device connected error (device:" << device->connection.device_object_path << "): " << error->message << '\n';
-			std::cout << error->domain << ' ' << error->code << '\n';
 		}
 		
 		g_error_free(error);
@@ -1385,19 +1389,39 @@ gboolean on_handle_characteristic_property_change(OrgBluezGattCharacteristic1 *o
 	if(value != NULL){
 		size_t len;
 		const uint8_t *buffer = (const uint8_t*)g_variant_get_fixed_array(value, &len, sizeof(guchar));
-		uint8_t json_buf[200] = {0,};
+		uint8_t json_buf[1024] = {0,};
 		memcpy(json_buf, buffer, len);
 		json root = json::parse(json_buf);
-		int num = root["num"].get<int>();
-			
-		std::string data = root["data"].get<std::string>();
-		struct Request new_req;
-		new_req.request_type = REQUEST_LIGHT;
-		new_req.id = 12345;
-		new_req.request_data = data;
+
+		int cur_machine_num = *(int*)connection.on_connection.user_data;
+		std::string cur_request = root["requestName"].get<std::string>();
+		struct Request new_request;
+		if(cur_request.compare("getId") == 0){
+			std::string type = root["machineType"].get<std::string>();
+			if(type.compare("light") == 0){
+				m_argument.machine_request_type[cur_machine_num] = REQUEST_LIGHT;
+			}
+			else if(type.compare("lamp") == 0){
+				m_argument.machine_request_type[cur_machine_num] = REQUEST_LAMP;
+			}
+			else if(type.compare("window") == 0){
+				m_argument.machine_request_type[cur_machine_num] = REQUEST_WINDOW;
+			}
+			else if(type.compare("curtain") == 0){
+				m_argument.machine_request_type[cur_machine_num] = REQUEST_CURTAIN;
+			}
+			root["macAddress"] = m_argument.mac_address[cur_machine_num];
+
+			new_request.request_type = REQUEST_ID;
+		}
+		else{
+			new_request.request_type = m_argument.machine_request_type[cur_machine_num];
+			new_request.id = m_argument.machine_id[cur_machine_num];
+		}
+		new_request.request_data = root;
 
 		mtx_write.lock();
-		request_list.push(new_req);
+		request_list.push(new_request);
 		cv_write.notify_all();
 		mtx_write.unlock();
 
