@@ -151,7 +151,7 @@ public class SocketController {
     public static String sendMessage(Long hubId, String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode jsonMessage = objectMapper.readValue(message, ObjectNode.class);
+            ObjectNode jsonMessage = (ObjectNode) objectMapper.readTree(message);
             String requestId = UUID.randomUUID().toString();
             jsonMessage.put("requestId", requestId);
             // Create a message node
