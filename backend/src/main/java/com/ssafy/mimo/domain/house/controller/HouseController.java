@@ -1,9 +1,6 @@
 package com.ssafy.mimo.domain.house.controller;
 
-import com.ssafy.mimo.domain.house.dto.HouseDeviceResponseDto;
-import com.ssafy.mimo.domain.house.dto.HouseRegisterRequestDto;
-import com.ssafy.mimo.domain.house.dto.HouseResponseDto;
-import com.ssafy.mimo.domain.house.dto.HouseNicknameRequestDto;
+import com.ssafy.mimo.domain.house.dto.*;
 import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,11 +30,11 @@ public class HouseController {
 
 	@Operation(summary = "집 등록")
 	@PostMapping
-	public ResponseEntity<Void> registerHouse(@RequestHeader("X-AUTH-TOKEN") String token,
+	public ResponseEntity<?> registerHouse(@RequestHeader("X-AUTH-TOKEN") String token,
 											  @RequestBody HouseRegisterRequestDto houseRegisterRequestDto) {
 		Long userId = userService.getUserId(token);
-		houseService.registerHouse(userId, houseRegisterRequestDto);
-		return ResponseEntity.noContent().build();
+		HouseRegisterResponseDto registration = houseService.registerHouse(userId, houseRegisterRequestDto);
+		return ResponseEntity.ok(registration);
 	}
 
 	@Operation(summary = "집 등록 해제")
