@@ -6,6 +6,7 @@ import lombok.Builder;
 public record DeviceIdRequestDto(
         String type,
         String requestName,
+        String machineType,
         String macAddress
 ) {
 }

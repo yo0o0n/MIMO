@@ -18,4 +18,8 @@ public class LampControlResponseDataDto {
                 "\", \"curColor\":\"" + curColor +
                 "\"}";
     }
+    public LampControlResponseDataDto(LampControlRequestDataDto lampControlRequestDataDto, String curColor) {
+        this.requestName = lampControlRequestDataDto.getRequestName();
+        this.curColor = curColor;
+    }
 }

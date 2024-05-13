@@ -19,4 +19,9 @@ public class LightControlResponseDto {
                 ", \"data\":" + data.toString() +
                 '}';
     }
+    public LightControlResponseDto(LightControlRequestDto lightControlRequestDto, LightControlRequestDataDto lightControlRequestDataDto, String curColor) {
+        this.type = lightControlRequestDto.getType();
+        this.lightId = lightControlRequestDto.getLightId();
+        this.data = new LightControlResponseDataDto(lightControlRequestDataDto, curColor);
+    }
 }
