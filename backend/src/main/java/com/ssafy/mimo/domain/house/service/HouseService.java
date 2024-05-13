@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -61,13 +58,13 @@ public class HouseService {
 		return new ArrayList<>(houseMap.values());
 	}
 
-	public HouseRegisterResponseDto registerHouse(Long userId, HouseRegisterRequestDto houseRegisterRequestDto) {
+	public NewHouseResponseDto registerNewHouse(Long userId, NewHouseRequestDto newHouseRequestDto) {
 		House house = new House();
-		house.setAddress(houseRegisterRequestDto.address());
+		house.setAddress(newHouseRequestDto.address());
 		house = houseRepository.save(house);
 
 		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+				.orElseThrow(() -> new IllegalArgumentException("사용자 ID " + userId + "를 찾을 수 없습니다."));
 
 		// 기존에 등록된 집 중 isHome이 true인 경우 false로 업데이트
 		List<UserHouse> myHomes = userHouseRepository.findByUserAndIsHome(user, true);
@@ -80,12 +77,21 @@ public class HouseService {
 		UserHouse userHouse = UserHouse.builder()
 				.user(user)
 				.house(house)
-				.nickname(houseRegisterRequestDto.nickname())
+				.nickname(newHouseRequestDto.nickname())
 				.isHome(true)
 				.build();
 		userHouseRepository.save(userHouse);
 
-		return new HouseRegisterResponseDto(house.getId());
+		return new NewHouseResponseDto(userHouse.getHouse().getId());
+	}
+
+	public OldHouseResponseDto registerOldHouse(Long userId, OldHouseRequestDto oldHouseRequestDto) {
+		Hub hub = hubRepository.findBySerialNumber(oldHouseRequestDto.serialNumber())
+				.orElseThrow(() -> new IllegalArgumentException("등록된 허브가 없습니다. 해당 허브의 serialNumber를 확인하세요."));
+
+		return Optional.ofNullable(houseRepository.findByHub(hub))
+				.map(house -> new OldHouseResponseDto(house.getId(), house.getAddress()))
+				.orElseGet(() -> new OldHouseResponseDto(null, null));
 	}
 
 	public void unregisterHouse(Long userId, Long userHouseId) {

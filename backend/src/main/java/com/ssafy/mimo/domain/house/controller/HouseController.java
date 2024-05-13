@@ -28,13 +28,22 @@ public class HouseController {
 		return ResponseEntity.ok(houses);
 	}
 
-	@Operation(summary = "집 등록")
-	@PostMapping
-	public ResponseEntity<?> registerHouse(@RequestHeader("X-AUTH-TOKEN") String token,
-											  @RequestBody HouseRegisterRequestDto houseRegisterRequestDto) {
+	@Operation(summary = "허브가 없는 집 등록")
+	@PostMapping("/new")
+	public ResponseEntity<NewHouseResponseDto> registerNewHouse(@RequestHeader("X-AUTH-TOKEN") String token,
+																@RequestBody NewHouseRequestDto newHouseRequestDto) {
 		Long userId = userService.getUserId(token);
-		HouseRegisterResponseDto registration = houseService.registerHouse(userId, houseRegisterRequestDto);
-		return ResponseEntity.ok(registration);
+		NewHouseResponseDto newResponse = houseService.registerNewHouse(userId, newHouseRequestDto);
+		return ResponseEntity.ok(newResponse);
+	}
+
+	@Operation(summary = "허브가 이미 등록된 집 등록")
+	@PostMapping
+	public ResponseEntity<OldHouseResponseDto> registerOldHouse(@RequestHeader("X-AUTH-TOKEN") String token,
+																@RequestBody OldHouseRequestDto oldHouseRequestDto) {
+		Long userId = userService.getUserId(token);
+		OldHouseResponseDto oldResponse = houseService.registerOldHouse(userId, oldHouseRequestDto);
+		return ResponseEntity.ok(oldResponse);
 	}
 
 	@Operation(summary = "집 등록 해제")
