@@ -104,7 +104,7 @@ public class CurtainService {
 	}
 
 	// 커튼 id로 커튼 찾기
-	private Curtain findCurtainById(Long curtainId) {
+	public Curtain findCurtainById(Long curtainId) {
 		return curtainRepository.findById(curtainId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 커튼이 존재하지 않습니다."));
 	}
