@@ -1,6 +1,6 @@
 package com.ssafy.mimo.domain.house.dto;
 
-import lombok.*;
+import lombok.Builder;
 
 @Builder
 public record DeviceDetailDto(
@@ -10,5 +10,4 @@ public record DeviceDetailDto(
         String type,
         String nickname,
         boolean isAccessible) {
-
 }

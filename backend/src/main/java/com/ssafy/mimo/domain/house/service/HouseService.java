@@ -61,16 +61,10 @@ public class HouseService {
 		return new ArrayList<>(houseMap.values());
 	}
 
-	public void registerHouse(Long userId, HouseRegisterRequestDto houseRegisterRequestDto) {
-		// SerialNumber를 통해 이미 생성된 허브를 조회
-		Hub hub = hubRepository.findBySerialNumber(houseRegisterRequestDto.serialNumber())
-				.orElseThrow(() -> new IllegalArgumentException("등록된 허브가 없습니다. 허브 등록이 필요합니다."));
+	public HouseRegisterResponseDto registerHouse(Long userId, HouseRegisterRequestDto houseRegisterRequestDto) {
 		House house = new House();
 		house.setAddress(houseRegisterRequestDto.address());
-		houseRepository.save(house);
-
-		// 허브와 집을 연결
-		hub.setHouse(house);
+		house = houseRepository.save(house);
 
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -90,6 +84,8 @@ public class HouseService {
 				.isHome(true)
 				.build();
 		userHouseRepository.save(userHouse);
+
+		return new HouseRegisterResponseDto(house.getId());
 	}
 
 	public void unregisterHouse(Long userId, Long userHouseId) {

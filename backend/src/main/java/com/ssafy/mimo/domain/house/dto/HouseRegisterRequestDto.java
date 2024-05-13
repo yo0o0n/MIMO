@@ -4,8 +4,6 @@ import lombok.Builder;
 
 @Builder
 public record HouseRegisterRequestDto(
-        String serialNumber,
         String address,
         String nickname) {
-
 }
