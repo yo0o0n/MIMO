@@ -51,17 +51,12 @@ public class CommonService {
         if (hub == null)
             return "기기와 연결된 허브가 없습니다. 허브를 연결해 주세요.";
         try {
-            Socket hub_connection = SocketController.getSocket(hub.getId());
-            // TODO: Update database (light or lamp)
             String color = manualControlRequestDto.getData().getColor();
             if (type.equals("light"))
                 lightService.setLightCurColor(deviceId, color);
             else if (type.equals("lamp"))
                 lampService.setLampCurColor(deviceId, color);
-//            hub_connection.getOutputStream().write(manualControlRequestDto.toString().getBytes());
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode objectNode = objectMapper.valueToTree(manualControlRequestDto);
-            String requestId = SocketController.sendMessage(hub.getId(), objectNode);
+            SocketController.sendMessage(hub.getId(), manualControlRequestDto.toString());
         } catch (Exception e) {
             return "허브와 연결할 수 없습니다. 허브 연결을 확인해 주세요.";
         }

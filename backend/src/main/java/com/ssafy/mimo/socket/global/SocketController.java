@@ -148,22 +148,30 @@ public class SocketController {
         return receivedMessages.remove(requestId);
     }
     // Send message
-    public static String sendMessage(Long hubId, ObjectNode message) {
-        MessageWriter messageWriter = messageWritters.get(hubId);
-        String requestId = UUID.randomUUID().toString();
-        // Create a message node
-        if (messageWriter != null && messageWriter.enqueueMessage(requestId, message)) {
-            // Add the request ID to the list
-            if (requestIds.get(hubId) == null) {
-                List<String> idList = new ArrayList<>();
-                idList.add(requestId);
-                requestIds.put(hubId, idList);
-            } else {
-                requestIds.get(hubId).add(requestId);
+    public static String sendMessage(Long hubId, String message) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode jsonMessage = objectMapper.readValue(message, ObjectNode.class);
+            String requestId = UUID.randomUUID().toString();
+            jsonMessage.put("requestId", requestId);
+            // Create a message node
+            MessageWriter messageWriter = messageWritters.get(hubId);
+            if (messageWriter != null && messageWriter.enqueueMessage(message)) {
+                // Add the request ID to the list
+                if (requestIds.get(hubId) == null) {
+                    List<String> idList = new ArrayList<>();
+                    idList.add(requestId);
+                    requestIds.put(hubId, idList);
+                } else {
+                    requestIds.get(hubId).add(requestId);
+                }
+                System.out.println(receivedMessages);
+                return requestId;
             }
-            System.out.println(receivedMessages);
-            return requestId;
+            return null;
+        } catch (IOException e) {
+            System.out.println("Error parsing the message: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 }

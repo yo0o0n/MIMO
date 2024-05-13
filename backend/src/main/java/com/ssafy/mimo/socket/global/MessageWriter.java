@@ -34,8 +34,7 @@ public class MessageWriter implements Runnable {
         System.out.printf("MessageWritter %d stopped\n", hubId);
     }
     // Send a message to the hub through the message queue
-    public boolean enqueueMessage(String requestId, ObjectNode message) {
-        message.put("requestId", requestId);
-        return messageQueue.offer(message.toString());
+    public boolean enqueueMessage(String message) {
+        return messageQueue.offer(message);
     }
 }
