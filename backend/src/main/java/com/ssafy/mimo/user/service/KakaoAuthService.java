@@ -30,18 +30,19 @@ public class KakaoAuthService {
 			User user = optionalUser.get();
 			return user.getId();
 		} else {
-			User user = signUp(keyCode);
+			User user = signUp(userInfo);
 			return user.getId();
 		}
 	}
 
-	public User signUp(String keyCode) {
+	public User signUp(KakaoUserInfoResponseDto kakaoUserInfoResponseDto) {
 		User user = User.builder()
-				.keyCode(keyCode)
-				.build();
+			.keyCode(kakaoUserInfoResponseDto.getId().toString())
+			.email(kakaoUserInfoResponseDto.getKakao_account().getEmail())
+			.nickname(kakaoUserInfoResponseDto.getProperties().getNickname())
+			.build();
 
 		return userRepository.save(user);
 	}
-
 
 }
