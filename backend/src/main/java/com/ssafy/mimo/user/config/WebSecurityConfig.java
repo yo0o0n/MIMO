@@ -34,6 +34,7 @@ public class WebSecurityConfig {
 				.requestMatchers("/api/check").permitAll()
 				.requestMatchers("/swagger-ui/**").permitAll()
 				.requestMatchers("/v3/api-docs/**").permitAll()
+				.requestMatchers("/").permitAll()
 				.anyRequest().authenticated())
 			// Http 요청에 대한 Jwt 유효성 선 검사
 			.addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
