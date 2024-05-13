@@ -3,10 +3,10 @@ package com.ssafy.mimo.socket.global;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.ssafy.mimo.domain.curtain.service.CurtainService;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
 import com.ssafy.mimo.domain.lamp.service.LampService;
-import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.domain.light.service.LightService;
 import com.ssafy.mimo.domain.window.service.WindowService;
 import com.ssafy.mimo.socket.global.dto.*;
@@ -23,8 +23,7 @@ public class SocketService {
     private final LightService lightService;
     private final LampService lampService;
     private final WindowService windowService;
-//    private final CurtainService curtainService;
-//    private final ShowerService showerService;
+    private final CurtainService curtainService;
     public Long getHubId(HubConnectionRequestDto hubConnectionRequestDto) {
         try {
             String serialNumber = hubConnectionRequestDto.getHubSerialNumber();
@@ -47,66 +46,51 @@ public class SocketService {
             String type = jsonNode.get("type").asText();
             switch (type) {
                 case "hub": // 허브 요청
-                    DeviceIdRequestDto deviceIdRequestDto = objectMapper.readValue(request, DeviceIdRequestDto.class);
-                    Long deviceId = null;
-                    switch (deviceIdRequestDto.requestName()) {
-                        case "getLightId":
+                    // 기기 ID 요청
+                    if (jsonNode.get("requestName").asText().equals("getId")) {
+                        DeviceIdRequestDto deviceIdRequestDto = objectMapper.readValue(request, DeviceIdRequestDto.class);
+                        Long deviceId;
+                        String machineType = deviceIdRequestDto.machineType();
+                        if (machineType == null) {
+                            return objectMapper.valueToTree("Machine type null");
+                        } else if (machineType.equals("light")) {
                             deviceId = lightService.findLightByMacAddress(deviceIdRequestDto.macAddress()).getId();
-                            break;
-                        case "getLampId":
+                        } else if (machineType.equals("lamp")) {
                             deviceId = lampService.findLampByMacAddress(deviceIdRequestDto.macAddress()).getId();
-                            break;
-                        case "getWindowId":
+                        } else if (machineType.equals("window")) {
                             deviceId = windowService.findWindowByMacAddress(deviceIdRequestDto.macAddress()).getId();
-                            break;
-//                        case "getCurtainId":
-//                            deviceId = null; // curtainService.findCurtainByMacAddress(deviceIdRequestDto.macAddress()).getId();
-//                            break;
-//                        case "getShowerId":
-//                            deviceId = null; // showerService.findShowerByMacAddress(deviceIdRequestDto.macAddress()).getId();
-//                            break;
+                        } else {
+                            return objectMapper.valueToTree("Invalid machine type: " + machineType);
+                        }
+                        DeviceIdResponseDto response = new DeviceIdResponseDto(deviceIdRequestDto, deviceId);
+                        return objectMapper.valueToTree(response);
                     }
-                    DeviceIdResponseDto response = DeviceIdResponseDto.builder()
-                            .type(deviceIdRequestDto.type())
-                            .requestName(deviceIdRequestDto.requestName())
-                            .macAddress(deviceIdRequestDto.macAddress())
-                            .id(deviceId)
-                            .build();
-                    return objectMapper.valueToTree(response);
                 case "light": // 조명 요청
                     LightControlRequestDto lightRequest = objectMapper.readValue(request, LightControlRequestDto.class);
-                    switch (lightRequest.getData().getRequestName()) {
-                        case "getCurrentColor":
-                            String curColor = lightService.getLightCurColor(lightRequest.getLightId());
-                            LightControlResponseDto lightResponse = LightControlResponseDto.builder()
-                                    .type(lightRequest.getType())
-                                    .lightId(lightRequest.getLightId())
-                                    .data(LightControlResponseDataDto.builder()
-                                            .requestName(lightRequest.getData().getRequestName())
-                                            .curColor(curColor)
-                                            .build())
-                                    .build();
-                            return objectMapper.valueToTree(lightResponse);
-                        default:
-                            return objectMapper.valueToTree("Invalid request name: " + lightRequest.getData().getRequestName());
+                    if (lightRequest.getData().getRequestName().equals("getCurrentColor")) {
+                        String curColor = lightService.getLightCurColor(lightRequest.getLightId());
+                        LightControlResponseDto lightResponse = new LightControlResponseDto(lightRequest, lightRequest.getData(), curColor);
+                        return objectMapper.valueToTree(lightResponse);
                     }
+                {
+                    return objectMapper.valueToTree("Invalid request name: " + lightRequest.getData().getRequestName());
+                }
                 case "lamp": // 램프 요청
                     LampControlRequestDto lampRequest = objectMapper.readValue(request, LampControlRequestDto.class);
-                    switch (lampRequest.getData().getRequestName()) {
-                        case "getCurrentColor":
-                            String curColor = lampService.getLampCurColor(lampRequest.getLampId());
-                            LampControlResponseDto lampResponse = LampControlResponseDto.builder()
-                                    .type(lampRequest.getType())
-                                    .lampId(lampRequest.getLampId())
-                                    .data(LampControlResponseDataDto.builder()
-                                            .requestName(lampRequest.getData().getRequestName())
-                                            .curColor(curColor)
-                                            .build())
-                                    .build();
-                            return objectMapper.valueToTree(lampResponse);
-                        default:
-                            return objectMapper.valueToTree("Invalid request name: " + lampRequest.getData().getRequestName());
+                    if (lampRequest.getData().getRequestName().equals("getCurrentColor")) {
+                        String curColor = lampService.getLampCurColor(lampRequest.getLampId());
+                        LampControlResponseDto lampResponse = new LampControlResponseDto(lampRequest, lampRequest.getData(), curColor);
+                        return objectMapper.valueToTree(lampResponse);
                     }
+                    return objectMapper.valueToTree("Invalid request name: " + lampRequest.getData().getRequestName());
+//                case "curtain":
+//                    CurtainControlRequestDto curtainRequest = objectMapper.readValue(request, CurtainControlRequestDto.class);
+//                    if (curtainRequest.getData().getRequestName().equals("getCurrentStatus")) {
+//                        String curStatus = curtainService.getCurtainCurStatus(curtainRequest.getCurtainId());
+//                        CurtainControlResponseDto curtainResponse = new CurtainControlResponseDto(curtainRequest, curtainRequest.getData(), curStatus);
+//                        return objectMapper.valueToTree(curtainResponse);
+//                    }
+//                    return objectMapper.valueToTree("Invalid request name: " + curtainRequest.getData().getRequestName());
                 default:
                     return objectMapper.valueToTree("Invalid request type: " + type);
             }

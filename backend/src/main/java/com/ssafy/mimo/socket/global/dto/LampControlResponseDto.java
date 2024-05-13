@@ -19,4 +19,9 @@ public class LampControlResponseDto {
                 ", \"data\":" + data.toString() +
                 '}';
     }
+    public LampControlResponseDto(LampControlRequestDto lampControlRequestDto, LampControlRequestDataDto lampControlRequestDataDto, String curColor) {
+        this.type = lampControlRequestDto.getType();
+        this.lampId = lampControlRequestDto.getLampId();
+        this.data = new LampControlResponseDataDto(lampControlRequestDataDto, curColor);
+    }
 }
