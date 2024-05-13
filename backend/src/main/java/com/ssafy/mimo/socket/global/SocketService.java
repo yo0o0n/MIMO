@@ -52,7 +52,7 @@ public class SocketService {
                         Long deviceId;
                         String machineType = deviceIdRequestDto.machineType();
                         if (machineType == null) {
-                            return objectMapper.valueToTree("Machine type null");
+                            return null;
                         } else if (machineType.equals("light")) {
                             deviceId = lightService.findLightByMacAddress(deviceIdRequestDto.macAddress()).getId();
                         } else if (machineType.equals("lamp")) {
@@ -60,7 +60,8 @@ public class SocketService {
                         } else if (machineType.equals("window")) {
                             deviceId = windowService.findWindowByMacAddress(deviceIdRequestDto.macAddress()).getId();
                         } else {
-                            return objectMapper.valueToTree("Invalid machine type: " + machineType);
+//                            return objectMapper.valueToTree("Invalid machine type: " + machineType);
+                            return null;
                         }
                         DeviceIdResponseDto response = new DeviceIdResponseDto(deviceIdRequestDto, deviceId);
                         return objectMapper.valueToTree(response);
@@ -73,7 +74,8 @@ public class SocketService {
                         return objectMapper.valueToTree(lightResponse);
                     }
                 {
-                    return objectMapper.valueToTree("Invalid request name: " + lightRequest.getData().getRequestName());
+//                    return objectMapper.valueToTree("Invalid request name: " + lightRequest.getData().getRequestName());
+                    return null;
                 }
                 case "lamp": // 램프 요청
                     LampControlRequestDto lampRequest = objectMapper.readValue(request, LampControlRequestDto.class);
@@ -82,7 +84,8 @@ public class SocketService {
                         LampControlResponseDto lampResponse = new LampControlResponseDto(lampRequest, lampRequest.getData(), curColor);
                         return objectMapper.valueToTree(lampResponse);
                     }
-                    return objectMapper.valueToTree("Invalid request name: " + lampRequest.getData().getRequestName());
+//                    return objectMapper.valueToTree("Invalid request name: " + lampRequest.getData().getRequestName());
+                    return null;
 //                case "curtain":
 //                    CurtainControlRequestDto curtainRequest = objectMapper.readValue(request, CurtainControlRequestDto.class);
 //                    if (curtainRequest.getData().getRequestName().equals("getCurrentStatus")) {
@@ -92,7 +95,8 @@ public class SocketService {
 //                    }
 //                    return objectMapper.valueToTree("Invalid request name: " + curtainRequest.getData().getRequestName());
                 default:
-                    return objectMapper.valueToTree("Invalid request type: " + type);
+//                    return objectMapper.valueToTree("Invalid request type: " + type);
+                    return null;
             }
         } catch (Exception e) {
             System.out.println("Error while processing the request: " + e.getMessage());

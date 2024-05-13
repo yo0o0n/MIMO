@@ -151,12 +151,12 @@ public class SocketController {
     public static String sendMessage(Long hubId, String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode jsonMessage = (ObjectNode) objectMapper.readTree(message);
+            ObjectNode messageNode = objectMapper.readValue(message, ObjectNode.class);
             String requestId = UUID.randomUUID().toString();
-            jsonMessage.put("requestId", requestId);
-            // Create a message node
+            messageNode.put("requestId", requestId);
+            System.out.printf("SocketController: Sending message to hub %d\n%s\n", hubId, messageNode);
             MessageWriter messageWriter = messageWritters.get(hubId);
-            if (messageWriter != null && messageWriter.enqueueMessage(jsonMessage.asText())) {
+            if (messageWriter != null && messageWriter.enqueueMessage(messageNode.toString())) {
                 // Add the request ID to the list
                 if (requestIds.get(hubId) == null) {
                     List<String> idList = new ArrayList<>();
