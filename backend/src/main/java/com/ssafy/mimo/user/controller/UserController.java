@@ -39,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getWakeupTime(userId));
     }
 
-    @Operation(summary = "해당 유저의 기상시간 설정하기")
+    @Operation(summary = "해당 유저의 기상시간 설정하기 -> \"07:00:00\" 의 형태로 보내면 됩니다! 아래 example 은 무시하세요!")
     @PutMapping("/wakeup-time")
     public ResponseEntity<WakeupTimeDto> setWakeupTime(
         @RequestHeader("X-AUTH-TOKEN") String token,
