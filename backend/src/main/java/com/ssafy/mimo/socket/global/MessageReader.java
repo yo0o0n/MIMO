@@ -35,6 +35,7 @@ public class MessageReader implements Runnable {
             System.out.printf("MessageReader %d: Received message\n%s\n", hubId, message);
             if (isRequest(json_message)) { // Hub의 요청인 경우 응답 반환
                 ObjectNode response = socketService.handleRequest(message);
+                if (response == null) continue;
                 try { // Send the response
                     socket.getOutputStream().write(response.toString().getBytes());
                     System.out.printf("MessageReader %d: Sent response\n%s\n", hubId, response);
