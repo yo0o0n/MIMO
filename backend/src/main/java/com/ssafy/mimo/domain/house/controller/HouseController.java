@@ -22,7 +22,7 @@ public class HouseController {
 
 	@Operation(summary = "해당 사용자에 등록되어 있는 집 리스트 조회")
 	@GetMapping
-	public ResponseEntity<?> getHouses(@RequestHeader("X-AUTH-TOKEN") String token) {
+	public ResponseEntity<List<HouseResponseDto>> getHouses(@RequestHeader("X-AUTH-TOKEN") String token) {
 		Long userId = userService.getUserId(token);
 		List<HouseResponseDto> houses = houseService.getHouses(userId);
 		return ResponseEntity.ok(houses);
@@ -67,7 +67,7 @@ public class HouseController {
 
 	@Operation(summary = "현재 거주지 변경")
 	@PutMapping("/{userHouseId}/home")
-	public ResponseEntity<?> updateHouseStatus(@RequestHeader("X-AUTH-TOKEN") String token,
+	public ResponseEntity<String> updateHouseStatus(@RequestHeader("X-AUTH-TOKEN") String token,
 											   @PathVariable("userHouseId") Long userHouseId) {
 		Long userId = userService.getUserId(token);
 		boolean isHome = houseService.updateHouseStatus(userId, userHouseId);
