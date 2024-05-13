@@ -156,7 +156,7 @@ public class SocketController {
             jsonMessage.put("requestId", requestId);
             // Create a message node
             MessageWriter messageWriter = messageWritters.get(hubId);
-            if (messageWriter != null && messageWriter.enqueueMessage(message)) {
+            if (messageWriter != null && messageWriter.enqueueMessage(jsonMessage.asText())) {
                 // Add the request ID to the list
                 if (requestIds.get(hubId) == null) {
                     List<String> idList = new ArrayList<>();
