@@ -85,6 +85,12 @@ public class User extends BaseDeletableEntity implements UserDetails {
 	@NotNull
 	private Boolean isSuperUser = false;
 
+	@NotNull
+	private String email;
+
+	@NotNull
+	private String nickname;
+
 	@Nullable
 	private LocalTime wakeupTime;
 
