@@ -1,14 +1,6 @@
 package com.ssafy.mimo.sleep.service;
 
-import static com.ssafy.mimo.common.SleepLevel.*;
-
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.ssafy.mimo.domain.house.dto.DeviceDetailDto;
-import com.ssafy.mimo.domain.house.dto.HouseDeviceResponseDto;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
 import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.sleep.dto.SleepDataDto;
@@ -16,8 +8,13 @@ import com.ssafy.mimo.sleep.entity.SleepData;
 import com.ssafy.mimo.sleep.repository.SleepDataRepository;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.service.UserService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.ssafy.mimo.common.SleepLevel.*;
 
 @Service
 @RequiredArgsConstructor
