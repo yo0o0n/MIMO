@@ -24,7 +24,6 @@ add_executable(
 		main.cpp
 		common.cpp
 		socket.cpp
-		client_test.cpp
 		ble.cpp
 		)
 
@@ -32,16 +31,5 @@ target_link_libraries(
 		program
 		pthread
 		bluetooth
-		pthread
 		BluezDbusLib
-		)
-
-add_executable(
-		server
-		server_test.cpp
-		)
-
-target_link_libraries(
-		server
-		pthread
 		)

@@ -7,7 +7,6 @@
 #include <glib.h>
 #include <pthread.h>
 #include <cassert>
-#include <signal.h>
 #include <string>
 
 #include "uuid.h"
@@ -25,6 +24,11 @@ using json = nlohmann::json;
 #define DEFAULT_ADAPTER "hci0"
 #define BLE_SUCCESS 0
 #define BLE_ERROR 1
+
+#define READ_UUID "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
+#define WRITE_UUID "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
+
+#define MACHINE_NUM 2
 
 typedef struct _ble_handler ble_handler;
 typedef struct _ble_adapter ble_adapter;
@@ -133,6 +137,7 @@ struct _dbus_characteristic {
 	enum _dbus_characteristic_type type;
 };
 
+void stop_ble();
 int set_ble(int, char**);
 
 int string_to_uuid(const char*, size_t, uuid_t*);
@@ -143,6 +148,7 @@ int adapter_open(const char*, ble_adapter**);
 
 int stricmp(char const*, char const*);
 void ble_discovered_device(ble_adapter*, const char*, const char*, void*);
+std::unordered_map<int, std::vector<std::string>> &get_response_reference(RequestType);
 void on_device_connect(ble_adapter*, const char*, ble_connection*, int, void*);
 
 void wait_for_scan(ble_adapter*);
@@ -179,3 +185,9 @@ bool handle_dbus_battery_from_uuid(ble_connection*, const uuid_t*, dbus_characte
 dbus_characteristic get_characteristic_from_uuid(ble_connection*, const uuid_t*);
 int read_gatt_characteristic(dbus_characteristic*, void**, size_t*);
 int read_char_by_uuid(ble_connection*, uuid_t*, void**, size_t*);
+
+int write_char(dbus_characteristic*, const void*, size_t, uint32_t);
+int write_char_by_uuid(ble_connection*, uuid_t*, const void*, size_t);
+
+gboolean on_handle_characteristic_property_change(OrgBluezGattCharacteristic1*, GVariant*, const gchar *const*, gpointer);
+void read_notify(ble_connection*, const uuid_t*, void*);

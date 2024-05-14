@@ -9,11 +9,14 @@
 #include "common.hpp"
 #include "json.hpp"
 
+#define HUB_SN "10000000e63286b1"
+
 using json = nlohmann::json;
 
 void set_socket();		// connect socket to server
 void error_handling(const char *);	// error message handling
 void recv_msg();		// recieve data from server
+void send_request_server(std::string);
 void parse_json(std::string &);		// parsing recv json string
 void send_msg();		// send data to server
 void make_json(std::string &);		// making send json string
