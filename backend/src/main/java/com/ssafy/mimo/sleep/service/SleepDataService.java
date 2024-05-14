@@ -72,6 +72,6 @@ public class SleepDataService {
 	private  boolean isNightTime() {
 		LocalTime currentTime = LocalTime.now();
 		// 18시 이후 부터 03시 이전까지인 경우
-		return currentTime.isAfter(LocalTime.of(18, 0)) || currentTime.isBefore(LocalTime.of(3, 0));
+		return currentTime.isAfter(LocalTime.of(17, 0)) || currentTime.isBefore(LocalTime.of(3, 0));
 	}
 }
