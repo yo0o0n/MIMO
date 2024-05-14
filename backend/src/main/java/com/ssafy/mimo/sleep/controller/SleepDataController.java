@@ -27,7 +27,7 @@ public class SleepDataController {
 	@PostMapping
 	public ResponseEntity<String> handleSleepData(
 		@RequestHeader("X-AUTH-TOKEN") String token,
-		@RequestBody SleepDataDto sleepDataDto) {
+		@RequestBody SleepDataDto sleepDataDto) throws InterruptedException {
 		Long userId = userService.getUserId(token);
 		return ResponseEntity.ok(sleepDataService.handleSleepData(userId, sleepDataDto));
 	}

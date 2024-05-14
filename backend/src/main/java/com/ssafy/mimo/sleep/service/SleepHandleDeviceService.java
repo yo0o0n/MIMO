@@ -25,7 +25,7 @@ public class SleepHandleDeviceService {
 	private final DeviceHandlerService deviceHandlerService;
 	private final SleepDataRepository sleepDataRepository;
 
-	public void handleDeviceBySleepLevel(Long userId, SleepDataDto sleepDataDto) {
+	public void handleDeviceBySleepLevel(Long userId, SleepDataDto sleepDataDto) throws InterruptedException {
 		Integer sleepLevel = sleepDataDto.sleepLevel();
 		User user = userService.findUserById(userId);
 
@@ -82,7 +82,7 @@ public class SleepHandleDeviceService {
 
 
 	// 현재 집에 연결된 모든 기기 불러오는 메서드
-	private List<DeviceDetailDto> findDevicesAtHome(Long userId, User user) {
+	private List<DeviceDetailDto> findDevicesAtHome(Long userId, User user) throws InterruptedException {
 		// 유저에 연결된 house 중 현재 집 id 찾기
 		Long userHouseId = user.getUserHouse().stream()
 			.filter(UserHouse::isHome)
