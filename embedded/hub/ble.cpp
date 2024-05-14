@@ -28,6 +28,8 @@ pthread_cond_t m_connection_terminated = PTHREAD_COND_INITIALIZER;
 const uuid_t m_battery_level_uuid = { SDP_UUID16, 0x2A19 };
 const uuid_t m_ccc_uuid = { SDP_UUID16, 0x2902 };
 
+int ble_id[MACHINE_NUM];
+
 void stop_ble(){
 	if(connect_device_cnt <= 0){
 		mtx_interrupt.lock();
@@ -207,6 +209,7 @@ void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *n
 	for(int i = 0; i < MACHINE_NUM; i++){
 		if(stricmp(addr, m_argument.mac_address[i]) == 0){
 			matched_num = i;
+			ble_id[matched_num] = i;
 		}
 	}
 	if(matched_num < 0){
@@ -227,7 +230,7 @@ void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *n
 	std::cout << "Found bluetooth device " << addr << '\n';
 
 	g_mutex_lock(&mtx_connect);
-	ret = ble_connect(adapter, addr, 0, on_device_connect, &matched_num);
+	ret = ble_connect(adapter, addr, 0, on_device_connect, &ble_id[matched_num]);
 	if(ret != BLE_SUCCESS){
 		std::cout << "Failed to connect to the bluetooth device '" << addr << "'\n";
 	}
