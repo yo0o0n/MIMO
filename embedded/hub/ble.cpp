@@ -227,7 +227,7 @@ void ble_discovered_device(ble_adapter *adapter, const char *addr, const char *n
 	std::cout << "Found bluetooth device " << addr << '\n';
 
 	g_mutex_lock(&mtx_connect);
-	ret = ble_connect(adapter, addr, 0, on_device_connect, NULL);
+	ret = ble_connect(adapter, addr, 0, on_device_connect, &matched_num);
 	if(ret != BLE_SUCCESS){
 		std::cout << "Failed to connect to the bluetooth device '" << addr << "'\n";
 	}
@@ -244,6 +244,7 @@ std::unordered_map<int, std::vector<std::string>> &get_response_reference(Reques
 		case REQUEST_CURTAIN:
 			return curtain_response;
 	}
+	return light_response;
 }
 
 void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *connection, int, void *user_data){
@@ -255,14 +256,23 @@ void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *co
 	// read data
 	read_notify(connection, &m_argument.read_uuid, (void*)on_handle_characteristic_property_change);
 
-	// write data
 	int ret;
+	json root = json::object();
+	root["requestName"] = "getId";
+	std::string ble_setting = root.dump();
+	ret = write_char_by_uuid(connection, &m_argument.write_uuid, ble_setting.c_str(), ble_setting.length());
+	
+	// write data
 	int cur_machine_num = *(int*)user_data;
-	std::unique_lock<std::mutex> lk(mtx_write);
-	while(machine_id_response.find(dst) == machine_id_response.end()){
+	std::unique_lock<std::mutex> lk(mtx_read);
+	while(is_running && machine_id_response.find(dst) == machine_id_response.end()){
 		cv_read.wait(lk);
-		machine_id_response.find(cur_machine_num);
 	}
+	if(!is_running){
+		ble_disconnect(connection, false);
+		return;
+	}
+
 	std::unordered_map<std::string, int>::iterator it_id = machine_id_response.find(dst);
 	m_argument.machine_id[cur_machine_num] = it_id->second;
 	machine_id_response.erase(it_id);
@@ -271,10 +281,9 @@ void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *co
 	int cur_id = m_argument.machine_id[cur_machine_num];
 	RequestType cur_type = m_argument.machine_request_type[cur_machine_num];
 	std::unordered_map<int, std::vector<std::string>> &cur_response = get_response_reference(cur_type);
-	cur_response.insert({cur_id, std::vector<std::string>()});
-	std::vector<std::string> &cur_data_list;
+	std::vector<std::string> &cur_data_list = cur_response.insert({cur_id, std::vector<std::string>()}).first->second;
 	while(is_running){
-		while(cur_data_list.empty()){
+		while(is_running && cur_data_list.empty()){
 			cv_read.wait(lk);
 		}
 		if(!is_running){
@@ -287,8 +296,9 @@ void on_device_connect(ble_adapter *adapter, const char *dst, ble_connection *co
 		ret = write_char_by_uuid(connection, &m_argument.write_uuid, cur_data.c_str(), cur_data.length());
 	}
 	lk.unlock();
-	
+
 	ble_disconnect(connection, false);
+	std::cout << "device disconnected\n";
 
 	/*
 	pthread_mutex_lock(&m_connection_terminated_lock);
@@ -867,7 +877,6 @@ gboolean on_handle_device_property_change(GDBusProxy *proxy, GVariant *arg_chang
 					on_disconnected_device(connection);
 
 					mtx_interrupt.lock();
-					std::cout << connect_device_cnt << '\n';
 					connect_device_cnt--;
 					if(connect_device_cnt <= 0){
 						cv_interrupt.notify_all();
@@ -1393,7 +1402,7 @@ gboolean on_handle_characteristic_property_change(OrgBluezGattCharacteristic1 *o
 		memcpy(json_buf, buffer, len);
 		json root = json::parse(json_buf);
 
-		int cur_machine_num = *(int*)connection.on_connection.user_data;
+		int cur_machine_num = *(int*)connection->on_connection.user_data;
 		std::string cur_request = root["requestName"].get<std::string>();
 		struct Request new_request;
 		if(cur_request.compare("getId") == 0){

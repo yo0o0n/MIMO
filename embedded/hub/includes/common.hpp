@@ -15,6 +15,7 @@ using json = nlohmann::json;
 
 // send request enum from device
 enum RequestType {
+	REQUEST_SERVER,
 	REQUEST_ID,
 	REQUEST_LIGHT,
 	REQUEST_LAMP,
@@ -26,6 +27,7 @@ struct Request {
 	RequestType request_type;
 	int id;
 	json request_data;
+	std::string request_id;
 };
 
 extern std::mutex mtx_interrupt;
