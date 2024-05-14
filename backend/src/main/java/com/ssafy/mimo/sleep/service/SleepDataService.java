@@ -45,7 +45,7 @@ public class SleepDataService {
 	}
 
 	// 핸드폰 동작 시 동작하는 메서드
-	public String handlePhoneOn(Long userId) {
+	public String handlePhoneOn(Long userId) throws InterruptedException {
 		User user = userService.findUserById(userId);
 		Integer sleepLevel = sleepDataRepository.findTopByUserIdOrderByCreatedDttmDesc(userId).getSleepLevel();
 		 // 해당 유저의 가장 최근 수면데이터가 자고 있던 상태였고, 기상설정 시간 1시간 전후라면, handleOnWakeup 메서드 호출

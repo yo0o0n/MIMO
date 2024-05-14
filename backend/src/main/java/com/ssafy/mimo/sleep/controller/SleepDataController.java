@@ -35,7 +35,7 @@ public class SleepDataController {
 	@Operation(summary = "유저가 핸드폰 동작 시 알려주는 api")
 	@PostMapping("/phone-on")
 	public ResponseEntity<String> handlePhoneOn(
-		@RequestHeader("X-AUTH-TOKEN") String token) {
+		@RequestHeader("X-AUTH-TOKEN") String token) throws InterruptedException {
 		Long userId = userService.getUserId(token);
 		return ResponseEntity.ok(sleepDataService.handlePhoneOn(userId));
 	}

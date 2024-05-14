@@ -58,7 +58,7 @@ public class SleepHandleDeviceService {
 	}
 
 	// 아침 기상 시 핸드폰 동작하면 기상 로직 실행
-	public void handleDeviceWakeup(Long userId) {
+	public void handleDeviceWakeup(Long userId) throws InterruptedException {
 		User user = userService.findUserById(userId);
 
 		// 유저의 현재 집에 연결된 모든 기기 불러오기
@@ -70,7 +70,7 @@ public class SleepHandleDeviceService {
 	}
 
 	// 밤에 핸드폰 동작 시 실행되는 메서드 (무드등 켜주기)
-	public void handleDeviceNightPhone(Long userId) {
+	public void handleDeviceNightPhone(Long userId) throws InterruptedException {
 		User user = userService.findUserById(userId);
 
 		// 유저의 현재 집에 연결된 모든 기기 불러오기
