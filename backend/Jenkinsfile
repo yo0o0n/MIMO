@@ -22,23 +22,6 @@ pipeline {
                 }
             }
         }
-        stage ('Build Jar') {
-            steps {
-                dir('backend') {
-                    script {
-                        try {
-                            echo "Building jar"
-                            sh "chmod +x gradlew"
-                            sh "./gradlew clean bootjar"
-                        } catch (Exception e) {
-                            echo "Build failed. Check the error message."
-                            currentBuild.result = 'FAILURE'
-                            error("Build failed while building jar file.")
-                        }
-                    }
-                }
-            }
-        }
         stage ('Sign in Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -46,70 +29,70 @@ pipeline {
                 }
             }
         }
-        stage ('Build Image and Run') {
+        stage ('Build') {
             steps {
                 dir('backend') {
                     script {
-                        echo "Deploying $TARGET"
-                        sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
-                        sh "docker tag mimo_$TARGET:latest $DOCKER_HUB_REPOSITORY:$TARGET-latest"
-                        sh "docker push $DOCKER_HUB_REPOSITORY:$TARGET-latest"
+                        NEED_TO_TEST = false
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            echo "Building jar"
+                            sh "chmod +x gradlew"
+                            sh "./gradlew clean bootjar"
+                            echo "Deploying $TARGET"
+                            sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
+                            sh "docker tag mimo_$TARGET:latest $DOCKER_HUB_REPOSITORY:$TARGET-latest"
+                            sh "docker push $DOCKER_HUB_REPOSITORY:$TARGET-latest"
+                            NEED_TO_TEST = true
+                        }
                     }
                 }
             }
         }
         stage ('Health Check') {
             steps {
-                echo "Wait until container get ready..."
-                sleep 10
+                // echo "Wait until container get ready..."
+                // sleep 5
                 script {
-                    TEST_URL = 'https://k10a204.p.ssafy.io/api/check/' + TARGET
-                    try {
-                        HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL", returnStdout: true).trim()
-                        echo "Container status: $HTTP_RESPONSE"
-                        if (HTTP_RESPONSE < '400') {
-                            STABLE = true
-                            echo "Build stable"
-                            echo "Push latest stable image"
-                        } else {
-                            STABLE = false
-                            echo "Build unstable"
-                            echo "Rollback to previous stable image"
+                    STABLE = false
+                    if (NEED_TO_TEST) {
+                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                            TEST_URL = 'https://k10a204.p.ssafy.io/api/check/' + TARGET
+                            HTTP_RESPONSE = sh(script: "curl -s -o /dev/null -w '%{http_code}' $TEST_URL", returnStdout: true).trim()
+                            echo "Container status: $HTTP_RESPONSE"
+                            if (HTTP_RESPONSE < '400') {
+                                STABLE = true
+                                echo "Build stable"
+                                echo "Push latest stable image"
+                            } else {
+                                echo "Build unstable"
+                                echo "Rollback to previous stable image"
+                            }
                         }
-                    } catch (Exception e) {
-                        STABLE = false
-                        echo "Build unstable"
-                        echo "Rollback to previous stable image"
+                    } else {
+                        echo "No need to test"
                     }
                 }
             }
         }
-        stage ('Unstable: Rollback') {
+        stage ('Rollback | Push') {
             steps {
                 dir('backend') {
                     script {
                         if (!STABLE) {
-                            try {
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                                 sh "docker tag mimo_$TARGET:latest mimo_$TARGET:last-failed"
                                 sh "docker pull $DOCKER_HUB_REPOSITORY:$TARGET-stable"
                                 sh "docker tag $DOCKER_HUB_REPOSITORY:$TARGET-stable mimo_$TARGET:latest"
-                                sh "docker compose down $TARGET && docker compose up $TARGET --build -d"
+                                sh "docker compose down $TARGET && docker compose up $TARGET -d"
                                 echo "Rollback completed"
-                            } catch (Exception e) {
-                                echo "Rollback failed"
+                            }
+                        } else {
+                            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                                sh "docker tag mimo_$TARGET:latest $DOCKER_HUB_REPOSITORY:$TARGET-stable"
+                                sh "docker push $DOCKER_HUB_REPOSITORY:$TARGET-stable"
+                                echo "Push completed"
                             }
                         }
-                    }
-                }
-            }
-        }
-        stage ('Stable: Push') {
-            steps {
-                script {
-                    if (STABLE) {
-                        sh "docker tag mimo_$TARGET:latest $DOCKER_HUB_REPOSITORY:$TARGET-stable"
-                        sh "docker push $DOCKER_HUB_REPOSITORY:$TARGET-stable"
-                        echo "Push completed"
                     }
                 }
             }
