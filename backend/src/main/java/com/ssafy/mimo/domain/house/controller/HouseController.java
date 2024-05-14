@@ -77,11 +77,11 @@ public class HouseController {
 	}
 
 	@Operation(summary = "해당 집에 등록되어 있는 기기 리스트 조회")
-	@GetMapping("/{userHouseId}/devices")
+	@GetMapping("/{houseId}/devices")
 	public ResponseEntity<HouseDeviceResponseDto> getDevices(@RequestHeader("X-AUTH-TOKEN") String token,
-															 @PathVariable("userHouseId") Long userHouseId) {
+															 @PathVariable("houseId") Long houseId) {
 		Long userId = userService.getUserId(token);
-		HouseDeviceResponseDto devices = houseService.getDevices(userId, userHouseId);
+		HouseDeviceResponseDto devices = houseService.getDevices(userId, houseId);
 		return ResponseEntity.ok(devices);
 	}
 }
