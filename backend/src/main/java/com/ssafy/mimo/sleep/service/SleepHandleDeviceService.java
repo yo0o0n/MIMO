@@ -42,7 +42,7 @@ public class SleepHandleDeviceService {
 
 		// 완전히 깨어나면 동작하는 기기 제어
 		SleepData priorSleepData = sleepDataRepository.findTopByUserIdOrderByCreatedDttmDesc(userId);
-		if (sleepLevel == AWAKE.getValue() && priorSleepData.getSleepLevel() >= REM.getValue()) {
+		if (sleepLevel == AWAKE.getValue() && priorSleepData.getSleepLevel() >= LIGHT_SLEEP.getValue()) {
 			devices.stream()
 				.filter(device -> device.userId().equals(userId))
 				.forEach(deviceHandlerService::handleOnWakeUp);
