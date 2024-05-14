@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum SleepLevel {
-	AWAKE(1),
-	AWAKENED(2),
-	REM(3),
+	AWAKE(-1),
+	AWAKENED(1),
+	REM(6),
 	LIGHT_SLEEP(4),
 	DEEP_SLEEP(5);
 
