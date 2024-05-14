@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mimo.android.apis.houses.House
+import com.mimo.android.apis.hubs.Hub
 import com.mimo.android.components.Button
 import com.mimo.android.components.ButtonSmall
 import com.mimo.android.components.CardType
@@ -45,18 +48,23 @@ import com.mimo.android.ui.theme.Gray300
 import com.mimo.android.ui.theme.Gray600
 import com.mimo.android.ui.theme.Teal100
 import com.mimo.android.ui.theme.Teal400
+import com.mimo.android.viewmodels.MyHouseHubListViewModel
 
 @Composable
 fun MyHouseHubListScreen(
     navController: NavHostController,
-    house: House
+    house: House,
+    myHouseHubListViewModel: MyHouseHubListViewModel,
 ){
-    val hubList by remember { mutableStateOf<List<Hub>?>(null) }
+    val myHouseHubListUiState by myHouseHubListViewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        myHouseHubListViewModel.fetchHubListByHouseId(house.houseId)
+    }
 
     fun handleGoPrev(){
         navController.navigateUp()
     }
-
     BackHandler {
         handleGoPrev()
     }
@@ -70,15 +78,22 @@ fun MyHouseHubListScreen(
         HorizontalScroll {
             HeadingSmall(text = "${house.nickname} / ${house.address}", fontSize = Size.sm, color = Teal100)
         }
-
         Spacer(modifier = Modifier.padding(16.dp))
-
-        if (hubList == null) {
-            Text(text = "Loading...")
-        }
+        HubList(hubList = myHouseHubListUiState.hubList)
     }
 }
 
-data class Hub(
-    val id: Long
-)
+@Composable
+fun HubList(hubList: List<Hub>?){
+    if (hubList == null) {
+        Text(text = "Loading...")
+        return
+    }
+
+    if (hubList.isEmpty()) {
+        Text(text = "등록된 허브가 없어요.")
+        return
+    }
+
+    Text(text = "허브있음~")
+}

@@ -14,8 +14,12 @@ data class PostAutoRegisterHubToHouseRequest(
 )
 
 data class PostAutoRegisterHubToHouseResponse(
-    val houseId: Long?,
-    val address: String?
+    val houseId: Long,
+    val address: String
+)
+
+data class PutChangeHouseNicknameRequest(
+    val nickname: String
 )
 
 data class GetDeviceListByHouseIdResponse(
@@ -23,7 +27,7 @@ data class GetDeviceListByHouseIdResponse(
     val nickname: String,
     val address: String,
     val isHome: Boolean,
-    val devices: Device
+    val devices: List<Device>
 )
 
 data class House(

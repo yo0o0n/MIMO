@@ -32,7 +32,9 @@ import com.mimo.android.utils.os.printKeyHash
 import com.mimo.android.utils.preferences.ACCESS_TOKEN
 import com.mimo.android.utils.preferences.createSharedPreferences
 import com.mimo.android.utils.preferences.getData
+import com.mimo.android.utils.showToast
 import com.mimo.android.viewmodels.MyHouseDetailViewModel
+import com.mimo.android.viewmodels.MyHouseHubListViewModel
 import com.mimo.android.viewmodels.MyHouseViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -54,24 +56,17 @@ class MainActivity : ComponentActivity() {
     private val qrCodeViewModel = QrCodeViewModel()
     private val myHouseViewModel = MyHouseViewModel()
     private val myHouseDetailViewModel = MyHouseDetailViewModel()
+    private val myHouseHubListViewModel = MyHouseHubListViewModel()
 
     // 초기세팅용 QR code Scanner
     private val barCodeLauncherFirstSetting = registerForActivityResult(ScanContract()) {
             result ->
         if (result.contents == null) {
             qrCodeViewModel.removeQrCode()
-            Toast.makeText(
-                this@MainActivity,
-                "취소",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast("취소")
             return@registerForActivityResult
         }
-        Toast.makeText(
-            this@MainActivity,
-            "허브를 찾고 있어요",
-            Toast.LENGTH_SHORT
-        ).show()
+        showToast("허브를 찾고 있어요")
         qrCodeViewModel.initRegisterFirstSetting(qrCode = result.contents)
         firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.fsfunnel_waiting)
     }
@@ -84,11 +79,7 @@ class MainActivity : ComponentActivity() {
             result ->
         if (result.contents == null) {
             qrCodeViewModel.removeQrCode()
-            Toast.makeText(
-                this@MainActivity,
-                "취소",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast("취소")
             return@registerForActivityResult
         }
         qrCodeViewModel.registerHubToHouse(qrCode = result.contents)
@@ -102,11 +93,7 @@ class MainActivity : ComponentActivity() {
             result ->
         if (result.contents == null) {
             qrCodeViewModel.removeQrCode()
-            Toast.makeText(
-                this@MainActivity,
-                "취소",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast("취소")
             return@registerForActivityResult
         }
         // TODO...
@@ -176,6 +163,7 @@ class MainActivity : ComponentActivity() {
                 firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
                 myHouseViewModel = myHouseViewModel,
                 myHouseDetailViewModel = myHouseDetailViewModel,
+                myHouseHubListViewModel = myHouseHubListViewModel,
                 launchGoogleLocationAndAddress = { cb: (userLocation: UserLocation?) -> Unit -> launchGoogleLocationAndAddress(cb = cb) },
                 onStartSleepForegroundService = ::handleStartSleepForegroundService,
                 onStopSleepForegroundService = ::handleStopSleepForegroundService,
@@ -244,7 +232,7 @@ class MainActivity : ComponentActivity() {
         override fun run() {
             lifecycleScope.launch {
                 //readFifteenMinutesAgoSleepStage()
-                readSleepSession(5, 14)
+                readLastSleepStage()
                 if (timerTask == null) {
                     this.cancel()
                     return@launch

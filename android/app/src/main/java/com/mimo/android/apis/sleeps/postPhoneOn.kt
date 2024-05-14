@@ -1,22 +1,20 @@
-package com.mimo.android.apis.hubs
+package com.mimo.android.apis.sleeps
 
 import android.util.Log
-import retrofit2.Call
 import com.mimo.android.apis.common.OnResponseSuccessCallback
 import com.mimo.android.apis.common.onResponseFailureCallback
 import com.mimo.android.apis.mimoApiService
+import retrofit2.Call
 
-private const val TAG = "/apis/mimo/hubs"
+private const val TAG = "/apis/sleep/postPhoneOn"
 
-fun postRegisterHubToHouse(
+fun postPhoneOn(
     accessToken: String,
-    postRegisterHubToHomeRequest: PostRegisterHubToHouseRequest,
     onSuccessCallback: (OnResponseSuccessCallback<Unit>)? = null,
     onFailureCallback: (onResponseFailureCallback)? = null
 ){
-    val call = mimoApiService.postRegisterHubToHouse(
-        accessToken = accessToken,
-        postRegisterHubToHomeRequest = postRegisterHubToHomeRequest
+    val call = mimoApiService.postPhoneOn(
+        accessToken = accessToken
     )
     call.enqueue(object : retrofit2.Callback<Unit> {
         override fun onResponse(call: Call<Unit>, response: retrofit2.Response<Unit>) {
