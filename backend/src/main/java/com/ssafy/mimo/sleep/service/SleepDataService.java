@@ -19,7 +19,7 @@ public class SleepDataService {
 	private final UserService userService;
 	private final SleepHandleDeviceService sleepHandleDeviceService;
 
-	public String handleSleepData(Long userId, SleepDataDto sleepDataDto) {
+	public String handleSleepData(Long userId, SleepDataDto sleepDataDto) throws InterruptedException {
 		// 수면 데이터에 따라 IoT 기기를 제어
 		sleepHandleDeviceService.handleDeviceBySleepLevel(userId, sleepDataDto);
 

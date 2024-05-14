@@ -8,5 +8,9 @@ public record DeviceDetailDto(Long userId,
                               Long deviceId,
                               String type,
                               String nickname,
-                              boolean isAccessible) {
+                              boolean isAccessible,
+                              // lamp, light
+                              Integer curColor,
+                              // window, curtain
+                              Integer openDegree) {
 }
