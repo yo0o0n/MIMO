@@ -20,11 +20,11 @@ public class SleepDataService {
 	private final SleepHandleDeviceService sleepHandleDeviceService;
 
 	public String handleSleepData(Long userId, SleepDataDto sleepDataDto) {
-		// 들어온 수면 데이터를 먼저 저장
-		saveSleepData(userId, sleepDataDto);
-
 		// 수면 데이터에 따라 IoT 기기를 제어
 		sleepHandleDeviceService.handleDeviceBySleepLevel(userId, sleepDataDto);
+
+		// 들어온 수면 데이터를 저장
+		saveSleepData(userId, sleepDataDto);
 
 		return "수면 데이터가 성공적으로 전송되었습니다.";
 	}
