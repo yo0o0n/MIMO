@@ -14,6 +14,7 @@ import com.ssafy.mimo.domain.window.repository.WindowRepository;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class HouseService {
 
 	private final HouseRepository houseRepository;
@@ -94,55 +96,64 @@ public class HouseService {
 				.orElseGet(() -> new OldHouseResponseDto(null, null));
 	}
 
-	public void unregisterHouse(Long userId, Long userHouseId) {
-		UserHouse userHouse = userHouseRepository.findById(userHouseId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 사용자 집을 찾을 수 없습니다: " + userHouseId));
+	public void unregisterHouse(Long userId, Long houseId) {
+		List<UserHouse> userHouses = userHouseRepository.findByHouseId(houseId);
 
-		User user = userHouse.getUser();
-		// UserHouse의 사용자 ID와 요청한 사용자 ID가 같은지 확인
-		if (!user.getId().equals(userId)) {
-			throw new IllegalArgumentException("집을 삭제할 권한이 없습니다.");
+		if (userHouses.isEmpty()) {
+			throw new IllegalArgumentException("해당 ID를 가진 집을 찾을 수 없습니다: " + houseId);
 		}
+
+		// 해당 houseId에 대한 UserHouse 중 userId가 일치하는 UserHouse 찾기
+		UserHouse userHouse = userHouses.stream()
+				.filter(uh -> uh.getUser().getId().equals(userId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("집을 삭제할 권한이 없습니다."));
 
 		userHouse.setActive(false);
 		userHouseRepository.save(userHouse);
 
 		// 해당 House에 더 이상 활성화된 UserHouse가 없는지 확인
 		House house = userHouse.getHouse();
-		if (userHouseRepository.findByHouseAndIsActive(house, true).isEmpty()) {
+		boolean activeUserHousesExist = userHouseRepository.findByHouseAndIsActive(house, true).stream()
+				.anyMatch(UserHouse::isActive);
+
+		if (!activeUserHousesExist) {
 			house.setActive(false);
 			houseRepository.save(house);
 		}
 	}
 
-	public void updateHouseNickname(Long userId, Long userHouseId, HouseNicknameRequestDto houseNicknameRequestDto) {
-		UserHouse userHouse = userHouseRepository.findById(userHouseId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 ID를 가진 사용자 집을 찾을 수 없습니다: " + userHouseId));
-
-		if (!userHouse.getUser().getId().equals(userId)) {
-			throw new IllegalArgumentException("집을 수정할 권한이 없습니다.");
+	public void updateHouseNickname(Long userId, Long houseId, HouseNicknameRequestDto houseNicknameRequestDto) {
+		List<UserHouse> userHouses = userHouseRepository.findByHouseId(houseId);
+		if (userHouses.isEmpty()) {
+			throw new IllegalArgumentException("해당 ID를 가진 집을 찾을 수 없습니다: " + houseId);
 		}
+
+		UserHouse userHouse = userHouses.stream()
+				.filter(uh -> uh.getUser().getId().equals(userId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("집을 수정할 권한이 없습니다."));
 
 		userHouse.updateNickname(houseNicknameRequestDto.nickname());
 	}
 
-	public boolean updateHouseStatus(Long userId, Long userHouseId) {
+	public boolean updateHouseStatus(Long userId, Long houseId) {
 		// 현재 거주지인 집을 찾아 해제
 		UserHouse currentHome = userHouseRepository.findHomeByUserIdAndIsHome(userId, true);
-		if (!currentHome.getId().equals(userHouseId)) {
+		if (!currentHome.getId().equals(houseId)) {
 			currentHome.deactivateHome();
 			userHouseRepository.save(currentHome);
 		}
 
 		// 새로운 집을 현재 거주지로 설정
-		UserHouse newHome = userHouseRepository.findByIdAndUserId(userHouseId, userId).orElse(null);
+		UserHouse newHome = (UserHouse) userHouseRepository.findByUserIdAndHouseId(userId, houseId).orElse(null);
 		if (newHome == null) return false; // 새 집이 없는 경우
 
-        newHome.activateHome();
-        userHouseRepository.save(newHome);
+		newHome.activateHome();
+		userHouseRepository.save(newHome);
 
-        return true;
-    }
+		return true;
+	}
 
 	public HouseDeviceResponseDto getDevices(Long userId, Long houseId) {
 		UserHouse userHouse = (UserHouse) userHouseRepository.findByUserIdAndHouseId(userId, houseId)

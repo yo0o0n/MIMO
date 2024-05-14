@@ -47,30 +47,30 @@ public class HouseController {
 	}
 
 	@Operation(summary = "집 등록 해제")
-	@DeleteMapping("/{userHouseId}")
+	@DeleteMapping("/{houseId}")
 	public ResponseEntity<Void> unregisterHouse(@RequestHeader("X-AUTH-TOKEN") String token,
-												@PathVariable("userHouseId") Long userHouseId) {
+												@PathVariable("houseId") Long houseId) {
 		Long userId = userService.getUserId(token);
-		houseService.unregisterHouse(userId, userHouseId);
+		houseService.unregisterHouse(userId, houseId);
 		return ResponseEntity.noContent().build();
 	}
 
 	@Operation(summary = "집 별칭 변경")
-	@PutMapping("/{userHouseId}")
+	@PutMapping("/{houseId}")
 	public ResponseEntity<String> updateHouseNickname(@RequestHeader("X-AUTH-TOKEN") String token,
-													  @PathVariable("userHouseId") Long userHouseId,
+													  @PathVariable("houseId") Long houseId,
 													  @RequestBody HouseNicknameRequestDto houseNicknameRequestDto) {
 		Long userId = userService.getUserId(token);
-		houseService.updateHouseNickname(userId, userHouseId, houseNicknameRequestDto);
+		houseService.updateHouseNickname(userId, houseId, houseNicknameRequestDto);
 		return ResponseEntity.ok(houseNicknameRequestDto.nickname());
 	}
 
 	@Operation(summary = "현재 거주지 변경")
-	@PutMapping("/{userHouseId}/home")
+	@PutMapping("/{houseId}/home")
 	public ResponseEntity<String> updateHouseStatus(@RequestHeader("X-AUTH-TOKEN") String token,
-											   @PathVariable("userHouseId") Long userHouseId) {
+													@PathVariable("houseId") Long houseId) {
 		Long userId = userService.getUserId(token);
-		boolean isHome = houseService.updateHouseStatus(userId, userHouseId);
+		boolean isHome = houseService.updateHouseStatus(userId, houseId);
 		return isHome ?
 				ResponseEntity.ok().body("{\"is_home\": \"true\"}") :
 				ResponseEntity.ok().body("{\"is_home\": \"false\"}");
