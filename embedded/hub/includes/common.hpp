@@ -13,6 +13,8 @@
 
 using json = nlohmann::json;
 
+typedef std::unordered_map<int, std::vector<std::string>> response_map;
+
 // send request enum from device
 enum RequestType {
 	REQUEST_SERVER,
