@@ -61,17 +61,18 @@ public class SocketController {
                         continue;
                     }
                     System.out.printf("Socket Controller: Connected hub %d\n", hubId);
-                    requestIds.put(hubId, new ArrayList<>());
+                    List<String> idList = new ArrayList<>();
+                    requestIds.put(hubId, idList);
                     // Add the connection to the map
                     connections.put(hubId, socket);
-                    // Start the message reader and writter
-                    MessageWriter messageWritter = new MessageWriter(hubId, socket, new LinkedBlockingQueue<>());
-                    messageWritters.put(hubId, messageWritter);
-                    Thread messageReader = new Thread(new MessageReader(hubId, socket, socketService, this));
-                    Thread messageWriter = new Thread(messageWritter);
-                    messageWritterThreads.put(hubId, messageWriter);
-                    messageReader.start();
-                    messageWriter.start();
+                    // Start the message reader and writer
+                    MessageWriter messageWriter = new MessageWriter(hubId, socket, new LinkedBlockingQueue<>());
+                    messageWritters.put(hubId, messageWriter);
+                    Thread reader = new Thread(new MessageReader(hubId, socket, socketService, this));
+                    Thread writer = new Thread(messageWriter);
+                    messageWritterThreads.put(hubId, writer);
+                    reader.start();
+                    writer.start();
                     // Send the connection response
                     HubConnectionResponseDto response = HubConnectionResponseDto.builder()
                             .type("hub")
