@@ -1,16 +1,26 @@
 package com.ssafy.mimo.domain.hub.service;
 
+import com.ssafy.mimo.domain.curtain.entity.Curtain;
+import com.ssafy.mimo.domain.curtain.repository.CurtainRepository;
 import com.ssafy.mimo.domain.house.service.HouseService;
+import com.ssafy.mimo.domain.hub.dto.DeviceListResponseDto;
+import com.ssafy.mimo.domain.hub.dto.HubListResponseDto;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.hub.repository.HubRepository;
-import com.ssafy.mimo.domain.lamp.service.LampService;
-import com.ssafy.mimo.domain.light.service.LightService;
+import com.ssafy.mimo.domain.lamp.entity.Lamp;
+import com.ssafy.mimo.domain.lamp.repository.LampRepository;
+import com.ssafy.mimo.domain.light.entity.Light;
+import com.ssafy.mimo.domain.light.repository.LightRepository;
+import com.ssafy.mimo.domain.window.entity.SlidingWindow;
+import com.ssafy.mimo.domain.window.repository.WindowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +30,10 @@ import java.util.UUID;
 public class HubService {
     private final HubRepository hubRepository;
     private final HouseService houseService;
+    private final LightRepository lightRepository;
+    private final LampRepository lampRepository;
+    private final CurtainRepository curtainRepository;
+    private final WindowRepository windowRepository;
 //    private final LightService lightService;
 //    private final LampService lampService;
 //    private final CurtainService curtainService;
@@ -33,8 +47,20 @@ public class HubService {
         hub = hubRepository.save(hub);
         return hub.getSerialNumber();
     }
-    public List<Hub> getHubs(Long houseId) {
-        return hubRepository.findByHouseId(houseId);
+    public List<HubListResponseDto> getHubs(Long houseId) {
+//        House house = houseService.findHouseById(houseId);
+        List<HubListResponseDto> response = new ArrayList<>();
+        List<Hub> hubs = hubRepository.findByHouseId(houseId);
+        for (Hub hub : hubs) {
+            HubListResponseDto hubListResponseDto = HubListResponseDto.builder()
+                    .hubId(hub.getId())
+                    .serialNumber(hub.getSerialNumber())
+                    .registeredDttm(hub.getRegisteredDttm())
+                    .devices(getDevices(hub))
+                    .build();
+            response.add(hubListResponseDto);
+        }
+        return response;
     }
     public String registerHub(String serialNumber, Long houseId) {
         Hub hub = findHubBySerialNumber(serialNumber);
@@ -78,5 +104,49 @@ public class HubService {
     public Hub findHubById(Long hubId) {
         return hubRepository.findById(hubId)
                 .orElse(null);
+    }
+    private List<DeviceListResponseDto> getDevices(Hub hub) {
+        List<DeviceListResponseDto> devices = new ArrayList<>();
+        // Light
+        List<Light> lights = lightRepository.findByHubId(hub.getId());
+        for (Light light : lights) {
+            DeviceListResponseDto deviceListResponseDto = DeviceListResponseDto.builder()
+                    .deviceId(light.getId())
+                    .deviceType("light")
+                    .macAddress(light.getMacAddress())
+                    .build();
+            devices.add(deviceListResponseDto);
+        }
+        // Lamp
+        List<Lamp> lamps = lampRepository.findByHubId(hub.getId());
+        for (Lamp lamp : lamps) {
+            DeviceListResponseDto deviceListResponseDto = DeviceListResponseDto.builder()
+                    .deviceId(lamp.getId())
+                    .deviceType("lamp")
+                    .macAddress(lamp.getMacAddress())
+                    .build();
+            devices.add(deviceListResponseDto);
+        }
+        // Curtain
+        List<Curtain> curtains = curtainRepository.findByHubId(hub.getId());
+        for (Curtain curtain : curtains) {
+            DeviceListResponseDto deviceListResponseDto = DeviceListResponseDto.builder()
+                    .deviceId(curtain.getId())
+                    .deviceType("curtain")
+                    .macAddress(curtain.getMacAddress())
+                    .build();
+            devices.add(deviceListResponseDto);
+        }
+        // Window
+        List<SlidingWindow> windows = windowRepository.findByHubId(hub.getId());
+        for (SlidingWindow window : windows) {
+            DeviceListResponseDto deviceListResponseDto = DeviceListResponseDto.builder()
+                    .deviceId(window.getId())
+                    .deviceType("window")
+                    .macAddress(window.getMacAddress())
+                    .build();
+            devices.add(deviceListResponseDto);
+        }
+        return devices;
     }
 }

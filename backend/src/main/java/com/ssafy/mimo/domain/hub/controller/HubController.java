@@ -1,8 +1,8 @@
 package com.ssafy.mimo.domain.hub.controller;
 
+import com.ssafy.mimo.domain.hub.dto.HubListResponseDto;
 import com.ssafy.mimo.domain.hub.dto.HubNicknameRequestDto;
 import com.ssafy.mimo.domain.hub.dto.HubRegisterRequestDto;
-import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.service.HubService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,8 +28,8 @@ public class HubController {
     }
 
     @Operation(summary = "해당 집에 등록되어 있는 허브 리스트 조회")
-    @GetMapping("/list?houseId={houseId}")
-    public ResponseEntity<List<Hub>> getHubs(
+    @GetMapping("/list")
+    public ResponseEntity<List<HubListResponseDto>> getHubs(
         @RequestHeader("X-AUTH-TOKEN") String token,
         @RequestParam Long houseId) {
         return ResponseEntity.ok(hubService.getHubs(houseId));
@@ -44,7 +44,7 @@ public class HubController {
     }
 
     @Operation(summary = "집에서 허브 등록 해제")
-    @DeleteMapping("/unregister?hubId={hubId}&houseId={houseId}")
+    @DeleteMapping("/unregister")
     public ResponseEntity<String> unregisterHub(
         @RequestHeader("X-AUTH-TOKEN") String token,
         @RequestParam Long hubId,
