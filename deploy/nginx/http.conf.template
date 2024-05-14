@@ -48,12 +48,16 @@ server {
         proxy_pass http://api_server/api;
     }
 
+    location /dev/api {
+        rewrite ^/dev(/api/.*) $1 break;
+        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+    }
+
     location /jenkins {
         proxy_pass http://${SERVER_DOMAIN}:${JENKINS_PORT};
     }
 
-    location /dev/api {
-        rewrite ^/dev(/api/.*) $1 break;
-        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+    location / {
+        root /usr/share/nginx/html;
     }
 }
