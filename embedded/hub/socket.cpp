@@ -44,7 +44,7 @@ void error_handling(const char *message){
 
 // recieve data from server
 void recv_msg(){
-	int recv_size = 0;			// total data size from server
+	int cnt = 0;
 	std::string buf_recv;
 	char buf_cur_recv[BUF_SIZE];	// current recv string buffer
 	
@@ -56,27 +56,36 @@ void recv_msg(){
 			close(serv_sock);
 			break;
 		}
-/*
-		if(recv_size == 0){		// recieve new data length
-			recv_size = atoi(buf_cur_recv);
-			buf_recv.clear();
+
+		std::cout << "read : " << buf_cur_recv << '\n';
+
+		int before = 0;
+		for(int i = 0; i < read_len; i++){
+			if(buf_cur_recv[i] == '{'){
+				cnt++;
+			}
+			else if(buf_cur_recv[i] == '}'){
+				cnt--;
+				if(cnt == 0){
+					char buf_cpy[BUF_SIZE] = {0,};
+					strncpy(buf_cpy, buf_cur_recv + before, i + 1);
+					buf_recv += buf_cpy;
+
+					std::lock_guard<std::mutex> lk(mtx_read);	// get read mutex
+					parse_json(buf_recv);		// parse json data
+					cv_read.notify_all();		// notify wait read mutex
+					// unlock read mutex
+
+					buf_recv.clear();
+					before = i + 1;
+				}
+			}
 		}
-		else{					// recieve data
-		*/
-			buf_recv.clear();
-			buf_recv += buf_cur_recv;
-//			recv_size -= read_len;
-//		}
-
-		std::cout << "read : " << buf_recv << '\n';
-
-		if(recv_size == 0){		// end recieve data
-			std::lock_guard<std::mutex> lk(mtx_read);	// get read mutex
-
-			parse_json(buf_recv);		// parse json data
-			
-			cv_read.notify_all();		// notify wait read mutex
-		}	// unlock read mutex
+		if(before != read_len){
+			char buf_cpy[BUF_SIZE] = {0,};
+			strncpy(buf_cpy, buf_cur_recv + before, BUF_SIZE);
+			buf_recv += buf_cpy;
+		}
 	}
 }
 
@@ -85,6 +94,18 @@ void send_request_server(std::string request_id){
 	new_request.request_type = REQUEST_SERVER;
 	new_request.request_id = request_id;
 		
+	mtx_write.lock();
+	request_list.push(new_request);
+	cv_write.notify_all();
+	mtx_write.unlock();
+}
+
+void send_unconnected_device(RequestType request_type, int id, json request_data){
+	struct Request new_request;
+	new_request.request_type = request_type;
+	new_request.id = id;
+	new_request.request_data = request_data;
+
 	mtx_write.lock();
 	request_list.push(new_request);
 	cv_write.notify_all();
@@ -116,19 +137,47 @@ void parse_json(std::string &str_recv){
 
 		if(type.compare("light") == 0){				// light
 			int light_id = root["lightId"].get<int>();
-			light_response.find(light_id)->second.push_back(data.dump());
+			response_map::iterator it = light_response.find(light_id);
+			if(it == light_response.end()){
+				data["state"] = nullptr;
+				send_unconnected_device(REQUEST_LIGHT, light_id, data);
+			}
+			else{
+				it->second.push_back(data.dump());
+			}
 		}
 		else if(type.compare("lamp") == 0){			// lamp
 			int lamp_id = root["lampId"].get<int>();
-			lamp_response.find(lamp_id)->second.push_back(data.dump());
+			response_map::iterator it = lamp_response.find(lamp_id);
+			if(it == lamp_response.end()){
+				data["state"] = nullptr;
+				send_unconnected_device(REQUEST_LAMP, lamp_id, data);
+			}
+			else{
+				it->second.push_back(data.dump());
+			}
 		}
 		else if(type.compare("window") == 0){		// window
 			int window_id = root["windowId"].get<int>();
-			window_response.find(window_id)->second.push_back(data.dump());
+			response_map::iterator it = window_response.find(window_id);
+			if(it == window_response.end()){
+				data["state"] = nullptr;
+				send_unconnected_device(REQUEST_WINDOW, window_id, data);
+			}
+			else{
+				it->second.push_back(data.dump());
+			}
 		}
 		else if(type.compare("curtain") == 0){		// curtain
 			int curtain_id = root["curtainId"].get<int>();
-			curtain_response.find(curtain_id)->second.push_back(data.dump());
+			response_map::iterator it = curtain_response.find(curtain_id);
+			if(it == curtain_response.end()){
+				data["state"] = nullptr;
+				send_unconnected_device(REQUEST_CURTAIN, curtain_id, data);
+			}
+			else{
+				it->second.push_back(data.dump());
+			}
 		}
 	}
 }
