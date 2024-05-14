@@ -40,14 +40,14 @@ public class SleepHandleDeviceService {
 			return;
 		}
 
-		// 완전히 깨어나면 동작하는 기기 제어
-		SleepData priorSleepData = sleepDataRepository.findTopByUserIdOrderByCreatedDttmDesc(userId);
-		if (sleepLevel == AWAKE.getValue() && priorSleepData.getSleepLevel() >= LIGHT_SLEEP.getValue()) {
-			devices.stream()
-				.filter(device -> device.userId().equals(userId))
-				.forEach(deviceHandlerService::handleOnWakeUp);
-			return;
-		}
+		// // 완전히 깨어나면 동작하는 기기 제어
+		// SleepData priorSleepData = sleepDataRepository.findTopByUserIdOrderByCreatedDttmDesc(userId);
+		// if (sleepLevel == AWAKE.getValue() && priorSleepData.getSleepLevel() >= LIGHT_SLEEP.getValue()) {
+		// 	devices.stream()
+		// 		.filter(device -> device.userId().equals(userId))
+		// 		.forEach(deviceHandlerService::handleOnWakeUp);
+		// 	return;
+		// }
 
 		// 아침 렘 수면 동작 들어서면 동작하는 기기 제어
 		if (sleepLevel == REM.getValue()) {
@@ -56,6 +56,30 @@ public class SleepHandleDeviceService {
 				.forEach(device -> deviceHandlerService.handleOnRem(userId, device));
 		}
 	}
+
+	// 아침 기상 시 핸드폰 동작하면 기상 로직 실행
+	public void handleDeviceWakeup(Long userId) {
+		User user = userService.findUserById(userId);
+
+		// 유저의 현재 집에 연결된 모든 기기 불러오기
+		List<DeviceDetailDto> devices = findDevicesAtHome(userId, user);
+		devices.stream()
+			.filter(device -> device.userId().equals(userId))
+			.forEach(deviceHandlerService::handleOnWakeUp);
+		return;
+	}
+
+	// 밤에 핸드폰 동작 시 실행되는 메서드 (무드등 켜주기)
+	public void handleDeviceNightPhone(Long userId) {
+		User user = userService.findUserById(userId);
+
+		// 유저의 현재 집에 연결된 모든 기기 불러오기
+		List<DeviceDetailDto> devices = findDevicesAtHome(userId, user);
+		devices.stream()
+			.filter(device -> device.userId().equals(userId))
+			.forEach(deviceHandlerService::handleLampOn);
+	}
+
 
 	// 현재 집에 연결된 모든 기기 불러오는 메서드
 	private List<DeviceDetailDto> findDevicesAtHome(Long userId, User user) {
@@ -71,4 +95,11 @@ public class SleepHandleDeviceService {
 
 		return devices;
 	}
+
+	// 현재 집의 모든 기기 중 내 조명 및 무드등이 전부 꺼져있는지 확인하는 메서드
+	// private boolean isAllLightOff(Long userId) {
+	// 	User user = userService.findUserById(userId);
+	// 	List<DeviceDetailDto> devices = findDevicesAtHome(userId, user);
+	// }
+
 }
