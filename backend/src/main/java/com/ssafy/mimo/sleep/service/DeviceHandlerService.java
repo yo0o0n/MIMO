@@ -219,4 +219,22 @@ public class DeviceHandlerService {
 				throw new IllegalArgumentException("지원하지 않는 기기 타입입니다: " + type);
 		}
 	}
+
+	// 무드등만 켜기!
+	public void handleLampOn(DeviceDetailDto device) {
+		String type = device.type();
+		if (type == "lamp") {
+			Lamp lamp = lampService.findLampById(device.deviceId());
+			ManualControlRequestDto lampManualControlRequestDto = ManualControlRequestDto.builder()
+				.type("lamp")
+				.deviceId(device.deviceId())
+				.data(ManualControlRequestDataDto.builder()
+					.requestName("setCurrentColor")
+					.color(lamp.getCurColor())
+					.build())
+				.build();
+			// IoT 기기 제어요청 보내기
+			commonService.controlDevice(lampManualControlRequestDto);
+		}
+	}
 }
