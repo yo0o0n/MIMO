@@ -18,4 +18,6 @@ public interface UserHouseRepository extends JpaRepository<UserHouse, Long> {
     UserHouse findHomeByUserIdAndIsHome(Long userId, boolean b);
 
     Optional<UserHouse> findByIdAndUserId(Long userHouseId, Long userId);
+
+    Optional<Object> findByUserIdAndHouseId(Long userId, Long houseId);
 }

@@ -44,7 +44,7 @@ public class HouseService {
 		for (UserHouse userHouse : userHouses) {
 			House house = userHouse.getHouse();
 			HouseResponseDto houseResponseDto = HouseResponseDto.builder()
-					.id(userHouse.getId())
+					.houseId(userHouse.getId())
 					.nickname(userHouse.getNickname())
 					.address(house.getAddress())
 					.isHome(userHouse.isHome())
@@ -144,19 +144,13 @@ public class HouseService {
         return true;
     }
 
-	public HouseDeviceResponseDto getDevices(Long userId, Long userHouseId) {
-		// 입력된 userHouseId로 UserHouse 객체 찾기
-		UserHouse userHouse = userHouseRepository.findById(userHouseId)
-				.orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자 집을 찾을 수 없습니다: " + userHouseId));
+	public HouseDeviceResponseDto getDevices(Long userId, Long houseId) {
+		UserHouse userHouse = (UserHouse) userHouseRepository.findByUserIdAndHouseId(userId, houseId)
+				.orElseThrow(() -> new RuntimeException("해당 사용자 ID와 집 ID를 가진 현재 거주지를 찾을 수 없습니다: userId=" + userId + ", houseId=" + houseId));
 
-		if (!userHouse.isHome()) {
-			throw new RuntimeException("UserHouse (" + userHouseId + ")는 현재 거주지가 아닙니다.");
-		}
-
-		// UserHouse가 연결된 House 찾기
 		House house = userHouse.getHouse();
 		if (house == null) {
-			throw new RuntimeException("UserHouse (" + userHouseId + ")에 연결된 House가 없습니다.");
+			throw new RuntimeException("UserHouse (" + userId + ", " + houseId + ")에 연결된 House가 없습니다.");
 		}
 
 		// House에 등록된 모든 Hub 찾기
@@ -168,7 +162,7 @@ public class HouseService {
 			Long hubId = hub.getId();
 			allDevices.addAll(lampRepository.findByHubId(hubId).stream()
 					.map(device -> DeviceDetailDto.builder()
-							.userId(device.getUser().getId())
+							.userId(Objects.requireNonNull(device.getUser()).getId())
 							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
@@ -179,7 +173,7 @@ public class HouseService {
 
 			allDevices.addAll(lightRepository.findByHubId(hubId).stream()
 					.map(device -> DeviceDetailDto.builder()
-							.userId(device.getUser().getId())
+							.userId(Objects.requireNonNull(device.getUser()).getId())
 							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
@@ -190,7 +184,7 @@ public class HouseService {
 
 			allDevices.addAll(windowRepository.findByHubId(hubId).stream()
 					.map(device -> DeviceDetailDto.builder()
-							.userId(device.getUser().getId())
+							.userId(Objects.requireNonNull(device.getUser()).getId())
 							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
@@ -201,7 +195,7 @@ public class HouseService {
 
 			allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
 					.map(device -> DeviceDetailDto.builder()
-							.userId(device.getUser().getId())
+							.userId(Objects.requireNonNull(device.getUser()).getId())
 							.hubId(hubId)
 							.deviceId(device.getId())
 							.nickname(device.getNickname())
