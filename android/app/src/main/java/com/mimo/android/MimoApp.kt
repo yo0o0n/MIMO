@@ -16,35 +16,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.mimo.android.apis.mimo.user.postAccessToken
+import com.mimo.android.apis.users.postAccessToken
 import com.mimo.android.components.BackgroundImage
+import com.mimo.android.viewmodels.AuthViewModel
+import com.mimo.android.viewmodels.FirstSettingFunnelsViewModel
+import com.mimo.android.viewmodels.QrCodeViewModel
+import com.mimo.android.viewmodels.UserLocation
 import com.mimo.android.services.health.HealthConnectManager
 import com.mimo.android.screens.*
 import com.mimo.android.screens.firstsettingfunnels.*
 import com.mimo.android.screens.login.LoginScreen
 import com.mimo.android.services.kakao.loginWithKakao
-import com.mimo.android.utils.preferences.ACCESS_TOKEN
-import com.mimo.android.utils.preferences.getData
+import com.mimo.android.viewmodels.MyHouseDetailViewModel
+import com.mimo.android.viewmodels.MyHouseViewModel
 
-const val TAG = "MimoApp"
+private const val TAG = "MimoApp"
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MimoApp(
+    context: Context,
+    isActiveSleepForegroundService: Boolean,
     authViewModel: AuthViewModel,
     qrCodeViewModel: QrCodeViewModel,
-    checkCameraPermission: () -> Unit,
     firstSettingFunnelsViewModel: FirstSettingFunnelsViewModel,
+    myHouseViewModel: MyHouseViewModel,
+    myHouseDetailViewModel: MyHouseDetailViewModel,
     healthConnectManager: HealthConnectManager,
     launchGoogleLocationAndAddress: (cb: (userLocation: UserLocation?) -> Unit) -> Unit,
-    context: Context,
-//    serviceRunning: Boolean? = null,
-//    currentLocation: String? = null,
-//    onClickForeground: (() -> Unit)? = null,
+    onStartSleepForegroundService: (() -> Unit)? = null,
+    onStopSleepForegroundService: (() -> Unit)? = null,
+    checkCameraPermissionFirstSetting: () -> Unit,
+    checkCameraPermissionHubToHouse: () -> Unit,
+    checkCameraPermissionMachineToHub: () -> Unit
     ){
-
-
-
     MaterialTheme {
         val scaffoldState = rememberScaffoldState()
         val navController = rememberNavController()
@@ -52,12 +57,9 @@ fun MimoApp(
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         val availability by healthConnectManager.availability
+
         val authUiState by authViewModel.uiState.collectAsState()
         val firstSettingFunnelsUiState by firstSettingFunnelsViewModel.uiState.collectAsState()
-
-        authViewModel.init(
-            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
-        )
 
         // TODO: 실제 kakao-login 구현
         fun handleLoginWithKakao(){
@@ -115,7 +117,7 @@ fun MimoApp(
                         FirstSettingFunnelsRoot(
                             qrCodeViewModel = qrCodeViewModel,
                             firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
-                            checkCameraPermission = checkCameraPermission,
+                            checkCameraPermission = checkCameraPermissionFirstSetting,
                             launchGoogleLocationAndAddress = launchGoogleLocationAndAddress,
                             context = context
                         )
@@ -132,10 +134,17 @@ fun MimoApp(
                     if (authUiState.user != null) {
                         Router(
                             navController = navController,
+                            authViewModel = authViewModel,
+                            isActiveSleepForegroundService = isActiveSleepForegroundService,
                             healthConnectManager = healthConnectManager,
-//                serviceRunning = serviceRunning,
-//                currentLocation = currentLocation,
-//                onClickForeground = onClickForeground,
+                            onStartSleepForegroundService = onStartSleepForegroundService,
+                            onStopSleepForegroundService = onStopSleepForegroundService,
+                            myHouseViewModel = myHouseViewModel,
+                            myHouseDetailViewModel = myHouseDetailViewModel,
+                            qrCodeViewModel = qrCodeViewModel,
+                            checkCameraPermissionHubToHouse = checkCameraPermissionHubToHouse,
+                            checkCameraPermissionMachineToHub = checkCameraPermissionMachineToHub,
+                            launchGoogleLocationAndAddress = launchGoogleLocationAndAddress
                         )
                     }
                 }

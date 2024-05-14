@@ -1,20 +1,48 @@
 package com.mimo.android
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import com.journeyapps.barcodescanner.ScanContract
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
-import com.mimo.android.apis.mimo.createMimoApiService
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
+import com.mimo.android.apis.createMimoApiService
+import com.mimo.android.apis.sleeps.PostSleepDataRequest
+import com.mimo.android.apis.sleeps.postSleepData
+import com.mimo.android.viewmodels.AuthViewModel
+import com.mimo.android.viewmodels.FirstSettingFunnelsViewModel
+import com.mimo.android.viewmodels.QrCodeViewModel
+import com.mimo.android.viewmodels.UserLocation
 import com.mimo.android.services.health.*
 import com.mimo.android.services.gogglelocation.*
 import com.mimo.android.services.kakao.initializeKakaoSdk
-import com.mimo.android.services.kakao.logoutWithKakao
 import com.mimo.android.services.qrcode.*
 import com.mimo.android.utils.backpresshandler.initializeWhenTwiceBackPressExitApp
 import com.mimo.android.utils.os.printKeyHash
+import com.mimo.android.utils.preferences.ACCESS_TOKEN
 import com.mimo.android.utils.preferences.createSharedPreferences
+import com.mimo.android.utils.preferences.getData
+import com.mimo.android.viewmodels.MyHouseDetailViewModel
+import com.mimo.android.viewmodels.MyHouseViewModel
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import java.time.*
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Timer
+import java.util.TimerTask
+
+private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
     // health-connect
@@ -24,9 +52,11 @@ class MainActivity : ComponentActivity() {
     private val authViewModel = AuthViewModel()
     private val firstSettingFunnelsViewModel = FirstSettingFunnelsViewModel()
     private val qrCodeViewModel = QrCodeViewModel()
+    private val myHouseViewModel = MyHouseViewModel()
+    private val myHouseDetailViewModel = MyHouseDetailViewModel()
 
-    // QR code Scanner
-    private val barCodeLauncher = registerForActivityResult(ScanContract()) {
+    // 초기세팅용 QR code Scanner
+    private val barCodeLauncherFirstSetting = registerForActivityResult(ScanContract()) {
             result ->
         if (result.contents == null) {
             qrCodeViewModel.removeQrCode()
@@ -39,17 +69,62 @@ class MainActivity : ComponentActivity() {
         }
         Toast.makeText(
             this@MainActivity,
-            result.contents,
+            "허브를 찾고 있어요",
             Toast.LENGTH_SHORT
         ).show()
+        qrCodeViewModel.initRegisterFirstSetting(qrCode = result.contents)
+        firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.fsfunnel_waiting)
+    }
+    private val qRRequestPermissionLauncherFirstSetting = createQRRequestPermissionLauncher(
+        barCodeLauncher = barCodeLauncherFirstSetting
+    )
 
-        qrCodeViewModel.updateQrCode(result.contents)
-        firstSettingFunnelsViewModel.updateCurrentStep(stepId = R.string.first_setting_funnel_hub_find_waiting)
+    // 허브를 집에 등록하는 QR code Scanner
+    private val barCodeLauncherHubToHouse = registerForActivityResult(ScanContract()) {
+            result ->
+        if (result.contents == null) {
+            qrCodeViewModel.removeQrCode()
+            Toast.makeText(
+                this@MainActivity,
+                "취소",
+                Toast.LENGTH_SHORT
+            ).show()
+            return@registerForActivityResult
+        }
+        qrCodeViewModel.registerHubToHouse(qrCode = result.contents)
+    }
+    private val qRRequestPermissionLauncherHubToHouse = createQRRequestPermissionLauncher(
+        barCodeLauncher = barCodeLauncherHubToHouse
+    )
+
+    // 기기를 허브에 등록하는 QR code Scanner
+    private val barCodeLauncherMachineToHub = registerForActivityResult(ScanContract()) {
+            result ->
+        if (result.contents == null) {
+            qrCodeViewModel.removeQrCode()
+            Toast.makeText(
+                this@MainActivity,
+                "취소",
+                Toast.LENGTH_SHORT
+            ).show()
+            return@registerForActivityResult
+        }
+        // TODO...
+    }
+    private val qRRequestPermissionLauncherMachineToHub = createQRRequestPermissionLauncher(
+        barCodeLauncher = barCodeLauncherMachineToHub
+    )
+
+    init {
+        instance = this
     }
 
-    private val qRRequestPermissionLauncher = createQRRequestPermissionLauncher(
-        barCodeLauncher = barCodeLauncher
-    )
+    companion object {
+        lateinit var instance: MainActivity
+        fun getMainActivityContext(): Context {
+            return instance.applicationContext
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,166 +153,235 @@ class MainActivity : ComponentActivity() {
         // 위치 권한 요청
         RequestPermissionsUtil(this).requestLocation()
 
-//        // check location permission
-//        checkAndRequestNotificationPermission()
-//        tryToBindToServiceIfRunning()
+        // 포그라운드 요청
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                0
+            )
+        }
+
+        authViewModel.checkAlreadyLoggedIn(
+            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
+        )
 
         setContent {
             MimoApp(
+                context = this,
+                isActiveSleepForegroundService = isActiveSleepForegroundService,
                 authViewModel = authViewModel,
                 healthConnectManager = healthConnectManager,
                 qrCodeViewModel = qrCodeViewModel,
-                checkCameraPermission = { checkCameraPermission(
-                    context = this,
-                    barCodeLauncher = barCodeLauncher,
-                    qRRequestPermissionLauncher = qRRequestPermissionLauncher
-                ) },
                 firstSettingFunnelsViewModel = firstSettingFunnelsViewModel,
+                myHouseViewModel = myHouseViewModel,
+                myHouseDetailViewModel = myHouseDetailViewModel,
                 launchGoogleLocationAndAddress = { cb: (userLocation: UserLocation?) -> Unit -> launchGoogleLocationAndAddress(cb = cb) },
-//                serviceRunning = serviceBoundState,
-//                currentLocation = displayableLocation,
-//                onClickForeground = ::onStartOrStopForegroundServiceClick,
-                context = this,
+                onStartSleepForegroundService = ::handleStartSleepForegroundService,
+                onStopSleepForegroundService = ::handleStopSleepForegroundService,
+                checkCameraPermissionFirstSetting = { checkCameraPermission(
+                    context = this,
+                    barCodeLauncher = barCodeLauncherFirstSetting,
+                    qRRequestPermissionLauncher = qRRequestPermissionLauncherFirstSetting
+                ) },
+                checkCameraPermissionHubToHouse = { checkCameraPermission(
+                    context = this,
+                    barCodeLauncher = barCodeLauncherHubToHouse,
+                    qRRequestPermissionLauncher = qRRequestPermissionLauncherHubToHouse
+                ) },
+                checkCameraPermissionMachineToHub = { checkCameraPermission(
+                    context = this,
+                    barCodeLauncher = barCodeLauncherMachineToHub,
+                    qRRequestPermissionLauncher = qRRequestPermissionLauncherMachineToHub
+                ) },
             )
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-
-        // TODO: 개발 중에는 그냥 매번 로그아웃 처리
-        authViewModel.logout()
-        logoutWithKakao()
+        Log.i(TAG, "App destroy")
     }
 
-//    // location-foreground sample
-//    private var exampleService: ExampleLocationForegroundService? = null
-//    private var serviceBoundState by mutableStateOf(false)
-//    private var displayableLocation by mutableStateOf<String?>(null)
-//
-//    // needed to communicate with the service.
-//    private val connection = object : ServiceConnection {
-//
-//        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-//            // we've bound to ExampleLocationForegroundService, cast the IBinder and get ExampleLocationForegroundService instance.
-//            Log.d(TAG, "onServiceConnected")
-//
-//            val binder = service as ExampleLocationForegroundService.LocalBinder
-//            exampleService = binder.getService()
-//            serviceBoundState = true
-//
-//            onServiceConnected()
-//        }
-//
-//        override fun onServiceDisconnected(arg0: ComponentName) {
-//            // This is called when the connection with the service has been disconnected. Clean up.
-//            Log.d(TAG, "onServiceDisconnected")
-//
-//            serviceBoundState = false
-//            exampleService = null
-//        }
-//    }
-//
-//    // we need notification permission to be able to display a notification for the foreground service
-//    private val notificationPermissionLauncher =
-//        registerForActivityResult(
-//            ActivityResultContracts.RequestPermission()
-//        ) {
-//            // if permission was denied, the service can still run only the notification won't be visible
-//        }
-//
-//    // we need location permission to be able to start the service
-//    private val locationPermissionRequest = registerForActivityResult(
-//        ActivityResultContracts.RequestMultiplePermissions()
-//    ) { permissions ->
-//        when {
-//            permissions.getOrDefault(android.Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-//                // Precise location access granted, service can run
-//                startForegroundService()
-//            }
-//
-//            permissions.getOrDefault(android.Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-//                // Only approximate location access granted, service can still run.
-//                startForegroundService()
-//            }
-//
-//            else -> {
-//                // No location access granted, service can't be started as it will crash
-//                Toast.makeText(this, "Location permission is required!", Toast.LENGTH_SHORT).show()
+    private var isActiveSleepForegroundService by mutableStateOf(false)
+    // private var job: Job? = null
+    private var timerTask: TimerTask? = null
+
+    private fun handleStartSleepForegroundService(){
+        Intent(getMainActivityContext(), SleepForegroundService::class.java).also {
+            it.action = SleepForegroundService.Actions.START.toString()
+            startService(it)
+
+            //job = createJob()
+            timerTask = Task()
+            Timer().scheduleAtFixedRate(timerTask, 1000, FIFTEEN_MINUTES)
+            isActiveSleepForegroundService = true
+        }
+    }
+    private fun handleStopSleepForegroundService(){
+        Intent(applicationContext, SleepForegroundService::class.java).also {
+            it.action = SleepForegroundService.Actions.STOP.toString()
+            startService(it)
+            //job?.cancel()
+            timerTask?.cancel()
+            timerTask = null
+            isActiveSleepForegroundService = false
+        }
+    }
+
+//    private fun createJob(): Job{
+//        return scope.launch {
+//            while (true) {
+//                //readLastSleepStage()
+//                //readSleepSession(4, 28) // 4월 28일의 기록
+//                readSteps()
+//                delay(15 * 60 * 1000L) // 15분
 //            }
 //        }
 //    }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        unbindService(connection)
-//    }
-//
-//    /**
-//     * Check for notification permission before starting the service so that the notification is visible
-//     */
-//    private fun checkAndRequestNotificationPermission() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            when (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)) {
-//                android.content.pm.PackageManager.PERMISSION_GRANTED -> {
-//                    // permission already granted
-//                }
-//
-//                else -> {
-//                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-//                }
-//            }
-//        }
-//    }
-//
-//    private fun onStartOrStopForegroundServiceClick() {
-//        if (exampleService == null) {
-//            // service is not yet running, start it after permission check
-//            locationPermissionRequest.launch(
-//                arrayOf(
-//                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-//                )
-//            )
-//        } else {
-//            // service is already running, stop it
-//            exampleService?.stopForegroundService()
-//        }
-//    }
-//
-//    /**
-//     * Creates and starts the ExampleLocationForegroundService as a foreground service.
-//     *
-//     * It also tries to bind to the service to update the UI with location updates.
-//     */
-//    private fun startForegroundService() {
-//        // start the service
-//        startForegroundService(Intent(this, ExampleLocationForegroundService::class.java))
-//
-//        // bind to the service to update UI
-//        tryToBindToServiceIfRunning()
-//    }
-//
-//    private fun tryToBindToServiceIfRunning() {
-//        Intent(this, ExampleLocationForegroundService::class.java).also { intent ->
-//            bindService(intent, connection, 0)
-//        }
-//    }
-//
-//    private fun onServiceConnected() {
-//        lifecycleScope.launch {
-//            // observe location updates from the service
-//            exampleService?.locationFlow?.map {
-//                it?.let { location ->
-//                    "${location.latitude}, ${location.longitude}"
-//                }
-//            }?.collectLatest {
-//                displayableLocation = it
-//            }
-//        }
-//    }
+    inner class Task: TimerTask() {
+        override fun run() {
+            lifecycleScope.launch {
+                //readFifteenMinutesAgoSleepStage()
+                readSleepSession(5, 14)
+                if (timerTask == null) {
+                    this.cancel()
+                    return@launch
+                }
+            }
+        }
+
+        override fun cancel(): Boolean {
+            return super.cancel()
+        }
+    }
+
+    private suspend fun readFifteenMinutesAgoSleepStage(){
+        val now = Instant.now()
+        val fifteenMinutesAgo = now.minus(15, ChronoUnit.MINUTES)
+        val lastSleepStage = healthConnectManager.readLastSleepStage(fifteenMinutesAgo, now)
+        if (lastSleepStage == null) {
+            Log.d(TAG, "MIMO가 감지 중 @@ ${dateFormatter.format(fifteenMinutesAgo)} ~ ${dateFormatter.format(now)} @@ 수면기록이 감지되지 않음")
+            return
+        }
+        Log.d(TAG, "MIMO가 감지 중 @@ ${getCurrentTime()} @@ ${dateFormatter.format(lastSleepStage.startTime)} ~ ${dateFormatter.format(lastSleepStage.endTime)} @@ ${meanStage(lastSleepStage.stage)}")
+    }
+
+    private suspend fun readSleepSession(
+        month: Int,
+        dayOfMonth: Int,
+    ){
+        val startTime = ZonedDateTime.of(2024, month, dayOfMonth, 0, 0, 0, 0, ZoneId.of("Asia/Seoul"))
+        val endTime = ZonedDateTime.of(2024, month, dayOfMonth, 23, 59, 59, 0, ZoneId.of("Asia/Seoul"))
+
+        val sleepSessionRecord = healthConnectManager.readSleepSessionRecord(startTime.toInstant(), endTime.toInstant())
+
+        if (sleepSessionRecord == null) {
+            Log.d(TAG, "MIMO가 감지 중")
+            Log.d(TAG, "${dateFormatter.format(startTime)} ~ ${dateFormatter.format(endTime)} 까지 수면기록 없음")
+            return
+        }
+        sleepSessionRecord.forEachIndexed() { sessionIndex, session ->
+            val koreanStartTime = dateFormatter.format(session.startTime)
+            val koreanEndTime = dateFormatter.format(session.endTime)
+            Log.d(TAG, "@@@@@@@ 상세 수면 기록 @@@@@@@")
+            Log.d(TAG, "수면 ${sessionIndex + 1} 전체 : $koreanStartTime ~ $koreanEndTime")
+            session.stages.forEach() { stage ->
+                Log.d(TAG, "${dateFormatter.format(stage.startTime)} ~ ${dateFormatter.format(stage.endTime)} @@ ${meanStage(stage.stage)}")
+            }
+        }
+    }
+
+    private suspend fun readLastSleepStage(){
+        val startOfDay = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS)
+        val now = Instant.now()
+        val lastSleepStage = healthConnectManager.readLastSleepStage(startOfDay.toInstant(), now)
+        if (lastSleepStage == null) {
+            Log.d(TAG, "MIMO가 감지 중 @@ ${getCurrentTime()} @@ 수면기록이 감지되지 않음")
+            postSleepData(
+                accessToken = getData(ACCESS_TOKEN) ?: "",
+                postSleepDataRequest = PostSleepDataRequest(
+                    sleepLevel = -1
+                )
+            )
+            return
+        }
+        Log.d(TAG, "MIMO가 감지 중 @@ ${getCurrentTime()} @@ ${dateFormatter.format(lastSleepStage.startTime)} ~ ${dateFormatter.format(lastSleepStage.endTime)} @@ ${meanStage(lastSleepStage.stage)}")
+        postSleepData(
+            accessToken = getData(ACCESS_TOKEN) ?: "",
+            postSleepDataRequest = PostSleepDataRequest(
+                sleepLevel = lastSleepStage.stage
+            )
+        )
+    }
+
+    private suspend fun readSteps(){
+        val startOfDay = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS)
+        val now = Instant.now()
+        val step = healthConnectManager.readSteps(startOfDay.toInstant(), now)
+        Log.d(TAG, "MIMO가 감지 중 @@ ${getCurrentTime()} @@ ${step}")
+    }
+
+    val dateFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        .withZone(ZoneId.of("Asia/Seoul"))
+
+    private fun getCurrentTime(): String{
+        val zoneId = ZoneId.of("Asia/Seoul") // 한국 시간대 (KST)
+        val currentTimeKST = ZonedDateTime.now(zoneId) // 현재 한국 시간
+
+        // 월, 일, 시, 분, 초 추출
+        val month = currentTimeKST.monthValue
+        val day = currentTimeKST.dayOfMonth
+        val hour = currentTimeKST.hour
+        val minute = currentTimeKST.minute
+        val second = currentTimeKST.second
+
+        // 형식 지정
+        val formatter = DateTimeFormatter.ofPattern("M월 d일 H시 m분 s초")
+
+        // 포맷에 따라 날짜 및 시간을 문자열로 변환하여 반환
+        return currentTimeKST.format(formatter)
+    }
+}
+
+const val FIFTEEN_MINUTES = 15 * 60 * 1000L
+
+enum class SleepStage {
+    UNKNOWN, // 0
+    AWAKE, // 1
+    SLEEPING, // 2
+    OUT_OF_BED, // 3
+    LIGHT, // 4
+    DEEP, // 5
+    REM, // 6
+    AWAKE_IN_BED // 7
+}
+
+// TODO: 수면기록은 AWAKE(수면 중 깸), LIGHT(얕은 잠), DEEP(깊은 잠), REM(렘 수면) 이렇게 4가지만 찍히는 걸로 확인됨..
+// TODO: 따라서 사실 상 이 기록이 찍히게 되면 수면이 시작됐다는 거고 AWAKE가 찍히면 수면 중 깼다는 것...
+// TODO: 그니까 이 기록이 찍히면 불 꺼주면 된다. 어차피 깨우는 건 30분 전부터 서서히 켜주면 되니까... 기상 감지는 못해도 괜찮을지도...
+fun meanStage(stage: Int): SleepStage {
+    if (stage == 1) {
+        return SleepStage.AWAKE
+    }
+    if (stage == 2) {
+        return SleepStage.SLEEPING
+    }
+    if (stage == 3) {
+        return SleepStage.OUT_OF_BED
+    }
+    if (stage == 4) {
+        return SleepStage.LIGHT
+    }
+    if (stage == 5) {
+        return SleepStage.DEEP
+    }
+    if (stage == 6) {
+        return SleepStage.REM
+    }
+    if (stage == 7) {
+        return SleepStage.AWAKE_IN_BED
+    }
+    return SleepStage.UNKNOWN
 }

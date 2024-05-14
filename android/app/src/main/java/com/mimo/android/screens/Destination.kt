@@ -7,23 +7,45 @@ interface Destination {
     val route : String
 }
 
-object MyHomeDestination: Destination {
-    override val route = "main_myhome"
+object MyHouseScreenDestination: Destination {
+    override val route = "MyHouseScreenDestination"
 }
 
-object MyHomeDetailDestination: Destination {
-    override val route = "main_myhomedetail"
-    const val homeIdTypeArg = "homeId"
-    val routeWithArgs = "$route/{$homeIdTypeArg}"
+object MyHouseDetailScreenDestination: Destination {
+    override val route = "MyHouseDetailScreenDestination"
+    const val houseIdTypeArg = "houseId"
+    val routeWithArgs = "$route/{$houseIdTypeArg}"
     val arguments = listOf(
-        navArgument(homeIdTypeArg) { type = NavType.StringType }
+        navArgument(houseIdTypeArg) { type = NavType.StringType }
     )
 }
 
-object MyProfileDestination: Destination {
-    override val route = "main_myprofile"
+object MyProfileScreenDestination: Destination {
+    override val route = "MyProfileScreenDestination"
 }
 
-object SleepDestination: Destination {
-    override val route = "main_sleep"
+object SleepScreenDestination: Destination {
+    override val route = "SleepScreenDestination"
+}
+
+object CreateHouseConfirmScreenDestination: Destination {
+    override val route = "CreateHouseConfirmScreen"
+}
+
+object ChangeHouseNicknameScreenDestination: Destination {
+    override val route = "ChangeHouseNicknameScreenDestination"
+    const val houseIdTypeArg = "houseId"
+    val routeWithArgs = "${route}/{$houseIdTypeArg}"
+    val arguments = listOf(
+        navArgument(houseIdTypeArg) { type = NavType.StringType }
+    )
+}
+
+object MyHouseHubListScreenDestination: Destination {
+    override val route = "MyHouseHubListScreen"
+    const val houseIdTypeArg = "houseId"
+    val routeWithArgs = "$route/{$houseIdTypeArg}"
+    val arguments = listOf(
+        navArgument(houseIdTypeArg) { type = NavType.StringType }
+    )
 }
