@@ -34,7 +34,7 @@ public class WebSecurityConfig {
 				.requestMatchers("/api/check").permitAll()
 				.requestMatchers("/swagger-ui/**").permitAll()
 				.requestMatchers("/v3/api-docs/**").permitAll()
-				.requestMatchers("/").permitAll()
+				.requestMatchers("/main").permitAll()
 				.anyRequest().authenticated())
 			// Http 요청에 대한 Jwt 유효성 선 검사
 			.addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
@@ -44,6 +44,6 @@ public class WebSecurityConfig {
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.ignoring().requestMatchers("/api/v1/auth", "/api/check", "/swagger-ui/**", "/v3/api-docs/**");
+		return (web) -> web.ignoring().requestMatchers("/api/v1/auth", "/api/check", "/swagger-ui/**", "/v3/api-docs/**", "/main");
 	}
 }
