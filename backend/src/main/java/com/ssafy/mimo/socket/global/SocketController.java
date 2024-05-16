@@ -163,11 +163,11 @@ public class SocketController {
                 if (requestIds.get(hubId) == null)
                     requestIds.put(hubId, new ArrayList<>());
                 requestIds.get(hubId).add(requestId);
-                CompletableFuture<String> future = futureReceivedMessages.remove(requestId);
-                if (future != null) {
-                    future.complete(messageNode.toString());
-                }
-                System.out.println(receivedMessages);
+//                CompletableFuture<String> future = futureReceivedMessages.remove(requestId);
+//                if (future != null) {
+//                    future.complete(messageNode.toString());
+//                }
+//                System.out.println(receivedMessages);
                 return requestId;
             }
             return null;

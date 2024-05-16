@@ -1,5 +1,7 @@
 package com.ssafy.mimo.domain.house.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ssafy.mimo.common.BaseDeviceEntity;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDataDto;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
@@ -223,30 +225,35 @@ public class HouseService {
 
 	private List<DeviceDetailDto> getDevicesForHub(Long hubId, String type) throws InterruptedException {
 		List<DeviceDetailDto> deviceDetails = new ArrayList<>();
+		DeviceDetailDto deviceDetailDto;
 
 		switch (type) {
 			case "lamp":
 				List<Lamp> lamps = lampRepository.findByHubId(hubId);
 				for (Lamp lamp : lamps) {
-					deviceDetails.add(createDeviceDetailDto(lamp, hubId, "lamp"));
+					deviceDetailDto = createDeviceDetailDto(lamp, hubId, "lamp");
+					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
 				}
 				break;
 			case "light":
 				List<Light> lights = lightRepository.findByHubId(hubId);
 				for (Light light : lights) {
-					deviceDetails.add(createDeviceDetailDto(light, hubId, "light"));
+					deviceDetailDto = createDeviceDetailDto(light, hubId, "light");
+					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
 				}
 				break;
 			case "window":
 				List<SlidingWindow> windows = windowRepository.findByHubId(hubId);
 				for (SlidingWindow window : windows) {
-					deviceDetails.add(createDeviceDetailDto(window, hubId, "window"));
+					deviceDetailDto = createDeviceDetailDto(window, hubId, "window");
+					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
 				}
 				break;
 			case "curtain":
 				List<Curtain> curtains = curtainRepository.findByHubId(hubId);
 				for (Curtain curtain : curtains) {
-					deviceDetails.add(createDeviceDetailDto(curtain, hubId, "curtain"));
+					deviceDetailDto = createDeviceDetailDto(curtain, hubId, "curtain");
+					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
 				}
 				break;
 			default:
@@ -270,6 +277,15 @@ public class HouseService {
 
 		String response = SocketController.getMessage(hubId, SocketController.sendMessage(hubId, manualControlRequestDto.toString()));
 		if (response == null) {
+			return null;
+		}
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode responseNode;
+		try {
+			responseNode = (ObjectNode) objectMapper.readTree(response);
+			response = responseNode.get("data").get("state").asText();
+		} catch (Exception e) {
 			return null;
 		}
 		manualControlRequestDto.getData().setState(Integer.valueOf(response));
