@@ -9,14 +9,12 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mimo.android.screens.main.myhome.MyHouseHubListScreen
-import com.mimo.android.viewmodels.AuthViewModel
-import com.mimo.android.viewmodels.QrCodeViewModel
+import com.mimo.android.screens.main.myhouse.MyHouseHubListScreen
 import com.mimo.android.screens.main.myhouse.*
-import com.mimo.android.viewmodels.MyHouseDetailViewModel
-import com.mimo.android.viewmodels.MyHouseHubListViewModel
-import com.mimo.android.viewmodels.MyHouseViewModel
-import com.mimo.android.viewmodels.UserLocation
+import com.mimo.android.screens.main.myhouse.detaildevices.*
+import com.mimo.android.utils.alertError
+import com.mimo.android.utils.showToast
+import com.mimo.android.viewmodels.*
 
 @Composable
 fun Router(
@@ -29,10 +27,15 @@ fun Router(
     myHouseViewModel: MyHouseViewModel,
     myHouseDetailViewModel: MyHouseDetailViewModel,
     myHouseHubListViewModel: MyHouseHubListViewModel,
+    myProfileViewModel: MyProfileViewModel,
     qrCodeViewModel: QrCodeViewModel,
     checkCameraPermissionHubToHouse: () -> Unit,
     checkCameraPermissionMachineToHub: () -> Unit,
     launchGoogleLocationAndAddress: (cb: (userLocation: UserLocation?) -> Unit) -> Unit,
+    myHouseCurtainViewModel: MyHouseCurtainViewModel,
+    myHouseLampViewModel: MyHouseLampViewModel,
+    myHouseLightViewModel: MyHouseLightViewModel,
+    myHouseWindowViewModel: MyHouseWindowViewModel,
 ){
     val myHouseUiState by myHouseViewModel.uiState.collectAsState()
 
@@ -61,8 +64,9 @@ fun Router(
         composable(MyProfileScreenDestination.route) {
             MyProfileScreen(
                 navController = navController,
-                healthConnectManager = healthConnectManager,
-                authViewModel = authViewModel
+                myProfileViewModel = myProfileViewModel,
+                authViewModel = authViewModel,
+                healthConnectManager = healthConnectManager
             )
             return@composable
         }
@@ -81,17 +85,9 @@ fun Router(
             arguments = ChangeHouseNicknameScreenDestination.arguments
         ) { backStackEntry ->
             val houseId = backStackEntry.arguments?.getString(ChangeHouseNicknameScreenDestination.houseIdTypeArg)
-            val house = myHouseViewModel.queryHouse(myHouseUiState, houseId!!.toLong())
-            if (house == null) {
-                navController.navigate(ChangeHouseNicknameScreenDestination.route) {
-                    popUpTo(0)
-                }
-                return@composable
-            }
-
             ChangeHouseNicknameScreen(
                 navController = navController,
-                houseId = house.houseId,
+                houseId = houseId!!.toLong(),
                 myHouseViewModel = myHouseViewModel)
         }
 
@@ -113,7 +109,11 @@ fun Router(
                 house = house,
                 qrCodeViewModel = qrCodeViewModel,
                 checkCameraPermissionHubToHouse = checkCameraPermissionHubToHouse,
-                checkCameraPermissionMachineToHub = checkCameraPermissionMachineToHub
+                checkCameraPermissionMachineToHub = checkCameraPermissionMachineToHub,
+                myHouseCurtainViewModel = myHouseCurtainViewModel,
+                myHouseLampViewModel = myHouseLampViewModel,
+                myHouseLightViewModel = myHouseLightViewModel,
+                myHouseWindowViewModel = myHouseWindowViewModel
             )
             return@composable
         }
@@ -125,15 +125,99 @@ fun Router(
             val houseId = backStackEntry.arguments?.getString(MyHouseHubListScreenDestination.houseIdTypeArg)
             val house = myHouseViewModel.queryHouse(myHouseUiState, houseId!!.toLong())
             if (house == null) {
-                navController.navigate(MyHouseScreenDestination.route) {
-                    popUpTo(0)
-                }
+                alertError()
                 return@composable
             }
             MyHouseHubListScreen(
                 navController = navController,
                 house = house,
                 myHouseHubListViewModel = myHouseHubListViewModel,
+            )
+            return@composable
+        }
+
+        composable(
+            route = MyHouseSimpleDeviceListDestination.routeWithArgs,
+            arguments = MyHouseSimpleDeviceListDestination.arguments
+        ) { backStackEntry ->
+            val hubId = backStackEntry.arguments?.getString(MyHouseSimpleDeviceListDestination.hubIdTypeArg)
+            val hub = myHouseHubListViewModel.queryHub(hubId!!.toLong())
+            if (hub == null) {
+                alertError()
+                return@composable
+            }
+            MyHouseSimpleDeviceListScreen(navController = navController, hub = hub)
+            return@composable
+        }
+
+        composable(
+            route = MyHouseCurtainScreenDestination.routeWithArgs,
+            arguments = MyHouseCurtainScreenDestination.arguments
+        ) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getString(MyHouseCurtainScreenDestination.deviceIdTypeArg)
+            val device = myHouseDetailViewModel.queryDevice(deviceId = deviceId!!.toLong(), deviceType = DeviceType.CURTAIN)
+            if (device == null) {
+                alertError()
+                return@composable
+            }
+            MyHouseCurtainScreen(
+                navController = navController,
+                device = device,
+                myHouseCurtainViewModel = myHouseCurtainViewModel
+            )
+            return@composable
+        }
+
+        composable(
+            route = MyHouseLampScreenDestination.routeWithArgs,
+            arguments = MyHouseLampScreenDestination.arguments
+        ) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getString(MyHouseLampScreenDestination.deviceIdTypeArg)
+            val device = myHouseDetailViewModel.queryDevice(deviceId = deviceId!!.toLong(), deviceType = DeviceType.LAMP)
+            if (device == null) {
+                alertError()
+                return@composable
+            }
+            MyHouseLampScreen(
+                navController = navController,
+                device = device,
+                myHouseLampViewModel = myHouseLampViewModel
+            )
+            return@composable
+        }
+
+        composable(
+            route = MyHouseLightScreenDestination.routeWithArgs,
+            arguments = MyHouseLightScreenDestination.arguments
+        ) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getString(MyHouseLightScreenDestination.deviceIdTypeArg)
+            val device = myHouseDetailViewModel.queryDevice(deviceId = deviceId!!.toLong(), deviceType = DeviceType.LIGHT)
+            if (device == null) {
+                alertError()
+                return@composable
+            }
+            MyHouseLightScreen(
+                navController = navController,
+                device = device,
+                myHouseLightViewModel = myHouseLightViewModel
+            )
+            return@composable
+        }
+
+        composable(
+            route = MyHouseWindowScreenDestination.routeWithArgs,
+            arguments = MyHouseWindowScreenDestination.arguments
+        ) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getString(MyHouseWindowScreenDestination.deviceIdTypeArg)
+            val device = myHouseDetailViewModel.queryDevice(deviceId = deviceId!!.toLong(), deviceType = DeviceType.WINDOW)
+            if (device == null) {
+                alertError()
+                return@composable
+            }
+            MyHouseWindowScreen(
+                navController = navController,
+                device = device,
+                myHouseWindowViewModel = myHouseWindowViewModel
             )
             return@composable
         }

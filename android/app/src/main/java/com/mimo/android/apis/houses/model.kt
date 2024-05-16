@@ -14,8 +14,8 @@ data class PostAutoRegisterHubToHouseRequest(
 )
 
 data class PostAutoRegisterHubToHouseResponse(
-    val houseId: Long,
-    val address: String
+    val houseId: Long?,
+    val address: String?
 )
 
 data class PutChangeHouseNicknameRequest(
@@ -44,5 +44,7 @@ data class Device(
     val deviceId: Long,
     val type: String,
     val nickname: String,
-    val isAccessible: Boolean
+    val isAccessible: Boolean,
+    val curColor: Long,
+    val openDegree: Long
 )

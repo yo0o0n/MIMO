@@ -1,13 +1,15 @@
 package com.mimo.android
 
 import android.Manifest
+import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.journeyapps.barcodescanner.ScanContract
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.lifecycleScope
 import com.mimo.android.apis.createMimoApiService
 import com.mimo.android.apis.sleeps.PostSleepDataRequest
@@ -28,14 +31,13 @@ import com.mimo.android.services.gogglelocation.*
 import com.mimo.android.services.kakao.initializeKakaoSdk
 import com.mimo.android.services.qrcode.*
 import com.mimo.android.utils.backpresshandler.initializeWhenTwiceBackPressExitApp
+import com.mimo.android.utils.dateFormatter
 import com.mimo.android.utils.os.printKeyHash
 import com.mimo.android.utils.preferences.ACCESS_TOKEN
 import com.mimo.android.utils.preferences.createSharedPreferences
 import com.mimo.android.utils.preferences.getData
 import com.mimo.android.utils.showToast
-import com.mimo.android.viewmodels.MyHouseDetailViewModel
-import com.mimo.android.viewmodels.MyHouseHubListViewModel
-import com.mimo.android.viewmodels.MyHouseViewModel
+import com.mimo.android.viewmodels.*
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.time.*
@@ -57,6 +59,11 @@ class MainActivity : ComponentActivity() {
     private val myHouseViewModel = MyHouseViewModel()
     private val myHouseDetailViewModel = MyHouseDetailViewModel()
     private val myHouseHubListViewModel = MyHouseHubListViewModel()
+    private val myProfileViewModel = MyProfileViewModel()
+    private val myHouseCurtainViewModel = MyHouseCurtainViewModel()
+    private val myHouseLampViewModel = MyHouseLampViewModel()
+    private val myHouseLightViewModel = MyHouseLightViewModel()
+    private val myHouseWindowViewModel = MyHouseWindowViewModel()
 
     // 초기세팅용 QR code Scanner
     private val barCodeLauncherFirstSetting = registerForActivityResult(ScanContract()) {
@@ -149,6 +156,11 @@ class MainActivity : ComponentActivity() {
             )
         }
 
+        // 알림감지 요청
+        if (!isSleepNotificationPermissionGranted()) {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+        }
+
         authViewModel.checkAlreadyLoggedIn(
             firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
         )
@@ -164,6 +176,11 @@ class MainActivity : ComponentActivity() {
                 myHouseViewModel = myHouseViewModel,
                 myHouseDetailViewModel = myHouseDetailViewModel,
                 myHouseHubListViewModel = myHouseHubListViewModel,
+                myProfileViewModel = myProfileViewModel,
+                myHouseCurtainViewModel = myHouseCurtainViewModel,
+                myHouseLampViewModel = myHouseLampViewModel,
+                myHouseLightViewModel = myHouseLightViewModel,
+                myHouseWindowViewModel = myHouseWindowViewModel,
                 launchGoogleLocationAndAddress = { cb: (userLocation: UserLocation?) -> Unit -> launchGoogleLocationAndAddress(cb = cb) },
                 onStartSleepForegroundService = ::handleStartSleepForegroundService,
                 onStopSleepForegroundService = ::handleStopSleepForegroundService,
@@ -263,7 +280,7 @@ class MainActivity : ComponentActivity() {
         val startTime = ZonedDateTime.of(2024, month, dayOfMonth, 0, 0, 0, 0, ZoneId.of("Asia/Seoul"))
         val endTime = ZonedDateTime.of(2024, month, dayOfMonth, 23, 59, 59, 0, ZoneId.of("Asia/Seoul"))
 
-        val sleepSessionRecord = healthConnectManager.readSleepSessionRecord(startTime.toInstant(), endTime.toInstant())
+        val sleepSessionRecord = healthConnectManager.readSleepSessionRecordList(startTime.toInstant(), endTime.toInstant())
 
         if (sleepSessionRecord == null) {
             Log.d(TAG, "MIMO가 감지 중")
@@ -311,9 +328,6 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "MIMO가 감지 중 @@ ${getCurrentTime()} @@ ${step}")
     }
 
-    val dateFormatter = DateTimeFormatter.ofPattern("HH:mm")
-        .withZone(ZoneId.of("Asia/Seoul"))
-
     private fun getCurrentTime(): String{
         val zoneId = ZoneId.of("Asia/Seoul") // 한국 시간대 (KST)
         val currentTimeKST = ZonedDateTime.now(zoneId) // 현재 한국 시간
@@ -330,6 +344,16 @@ class MainActivity : ComponentActivity() {
 
         // 포맷에 따라 날짜 및 시간을 문자열로 변환하여 반환
         return currentTimeKST.format(formatter)
+    }
+
+    private fun isSleepNotificationPermissionGranted(): Boolean {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            return notificationManager.isNotificationListenerAccessGranted(ComponentName(application, SleepNotificationListenerService::class.java))
+        }
+        else {
+            return NotificationManagerCompat.getEnabledListenerPackages(applicationContext).contains(applicationContext.packageName)
+        }
     }
 }
 

@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,17 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mimo.android.apis.houses.House
+import com.mimo.android.apis.houses.*
 import com.mimo.android.components.*
 import com.mimo.android.components.base.Size
-import com.mimo.android.components.devices.RangeController
-import com.mimo.android.screens.ChangeHouseNicknameScreenDestination
-import com.mimo.android.screens.MyHouseHubListScreenDestination
-import com.mimo.android.ui.theme.Gray300
-import com.mimo.android.ui.theme.Gray600
-import com.mimo.android.ui.theme.Teal100
-import com.mimo.android.viewmodels.MyHouseDetailViewModel
-import com.mimo.android.viewmodels.QrCodeViewModel
+import com.mimo.android.components.devices.*
+import com.mimo.android.screens.*
+import com.mimo.android.ui.theme.*
+import com.mimo.android.viewmodels.*
 
 @Composable
 fun MyHouseDetailScreen(
@@ -39,9 +33,12 @@ fun MyHouseDetailScreen(
     myHouseDetailViewModel: MyHouseDetailViewModel,
     qrCodeViewModel: QrCodeViewModel,
     checkCameraPermissionHubToHouse: () -> Unit,
-    checkCameraPermissionMachineToHub: () -> Unit
+    checkCameraPermissionMachineToHub: () -> Unit,
+    myHouseCurtainViewModel: MyHouseCurtainViewModel,
+    myHouseLampViewModel: MyHouseLampViewModel,
+    myHouseLightViewModel: MyHouseLightViewModel,
+    myHouseWindowViewModel: MyHouseWindowViewModel
 ){
-    val myHouseDetailUiState by myHouseDetailViewModel.uiState.collectAsState()
     val devices = myHouseDetailViewModel.getDevices()
     val myDeviceList = devices.myDeviceList
     val anotherDeviceList = devices.anotherDeviceList
@@ -58,6 +55,29 @@ fun MyHouseDetailScreen(
         handleGoPrev()
     }
 
+    fun navigateToDetailDeviceScreen(device: Device){
+        if (isWindowType(device.type)) {
+            navController.navigate("${MyHouseWindowScreenDestination.route}/${device.deviceId}")
+            return
+        }
+        if (isLightType(device.type)) {
+            navController.navigate("${MyHouseLightScreenDestination.route}/${device.deviceId}")
+            return
+        }
+        if (isLampType(device.type)) {
+            navController.navigate("${MyHouseLampScreenDestination.route}/${device.deviceId}")
+            return
+        }
+        if (isCurtainType(device.type)) {
+            navController.navigate("${MyHouseCurtainScreenDestination.route}/${device.deviceId}")
+            return
+        }
+    }
+
+    fun navigateToChangeHouseNicknameScreen(){
+        navController.navigate("${ChangeHouseNicknameScreenDestination.route}/${house.houseId}")
+    }
+
     fun handleShowScreenModal(){
         isShowScreenModal = true
     }
@@ -72,13 +92,12 @@ fun MyHouseDetailScreen(
         checkCameraPermissionHubToHouse()
     }
 
-    fun navigateToChangeHouseNicknameScreen(){
-        navController.navigate("${ChangeHouseNicknameScreenDestination.route}/${house.houseId}")
+    fun handleClickShowHubListButton(){
+        navController.navigate("${MyHouseHubListScreenDestination.route}/${house.houseId}")
     }
 
-    fun handleClickShowHubListButton(){
-        // TODO: HomeHubListScreen으로 navigate
-        navController.navigate("${MyHouseHubListScreenDestination.route}/${house.houseId}")
+    fun handleToggleMyDevice(deviceId: Long){
+        myHouseDetailViewModel.fetchToggleMyDevice(deviceId)
     }
 
     ScrollView {
@@ -110,13 +129,17 @@ fun MyHouseDetailScreen(
         }
 
         Spacer(modifier = Modifier.padding(14.dp))
-        HorizontalScroll {
-            HeadingLarge(text = house.nickname, fontSize = Size.lg)
-        }
+        HorizontalScroll(
+            children = {
+                HeadingLarge(text = house.nickname, fontSize = Size.lg)
+            }
+        )
         Spacer(modifier = Modifier.padding(4.dp))
-        HorizontalScroll {
-            HeadingSmall(text = house.address, fontSize = Size.sm, color = Teal100)
-        }
+        HorizontalScroll(
+            children = {
+                HeadingSmall(text = house.address, fontSize = Size.sm, color = Teal100)
+            }
+        )
 
         Spacer(modifier = Modifier.padding(12.dp))
 
@@ -130,7 +153,7 @@ fun MyHouseDetailScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 HeadingSmall(text = "나의 기기", fontSize = Size.lg)
-                ButtonSmall(text = "기기 추가") // TODO: "현재 거주지" 에서만 기기추가 가능
+                ButtonSmall(text = "기기 추가")
             }
         }
         Spacer(modifier = Modifier.padding(8.dp))
@@ -138,39 +161,11 @@ fun MyHouseDetailScreen(
         if (myDeviceList.isEmpty()) {
             Text(text = "등록된 기기가 없어요. 기기를 등록해주세요.")
         } else {
-            myDeviceList.forEachIndexed { index, device ->
-                TransparentCard(
-                    borderRadius = 8.dp,
-                    children = {
-                        Column(
-                            modifier = Modifier.padding(8.dp)
-                        ) {
-                            Row (
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                CardType(text = device.type)
-                                Icon(
-                                    imageVector = Icons.Filled.KeyboardArrowRight,
-                                    size = 24.dp
-                                )
-                            }
-                            Spacer(modifier = Modifier.padding(4.dp))
-                            HorizontalScroll {
-                                Text(text = device.nickname, fontSize = Size.lg)
-                            }
-
-                            // TODO : 임시로 그냥..
-                            RangeController()
-
-                            if (index < myDeviceList.size - 1) {
-                                Spacer(modifier = Modifier.padding(4.dp))
-                            }
-                        }
-                    }
-                )
-            }
+            MyDeviceList(
+                myDeviceList = myDeviceList,
+                onToggleDevice = { deviceId -> handleToggleMyDevice(deviceId) },
+                onClickNavigateToDetailDeviceScreen = { device -> navigateToDetailDeviceScreen(device) }
+            )
         }
         Spacer(modifier = Modifier.padding(16.dp))
 
@@ -188,11 +183,13 @@ fun MyHouseDetailScreen(
                                 .fillMaxWidth()
                                 .padding(8.dp),
                         ) {
-                            CardType(text = device.type)
+                            CardType(text = convertDeviceTypeToKoreaName(device.type))
                             Spacer(modifier = Modifier.padding(4.dp))
-                            HorizontalScroll {
-                                Text(text = device.nickname, fontSize = Size.lg)
-                            }
+                            HorizontalScroll(
+                                children = {
+                                    Text(text = device.nickname, fontSize = Size.lg)
+                                }
+                            )
                         }
                     }
                 )
@@ -231,9 +228,11 @@ fun ScreenModalContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (house.nickname.length > 20) {
-                HorizontalScroll {
-                    HeadingSmall(text = house.nickname)
-                }
+                HorizontalScroll(
+                    children = {
+                        HeadingSmall(text = house.nickname)
+                    }
+                )
             } else {
                 HeadingSmall(text = house.nickname)
             }
@@ -253,23 +252,3 @@ fun ScreenModalContent(
         }
     }
 }
-
-//@Preview
-//@Composable
-//private fun MyHomeDetailScreenPreview(){
-//    val navController = NavHostController(LocalContext.current)
-//    val home = Home(
-//        homeId = 1,
-//        homeName = "낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가 낙성대 7번출구 어딘가",
-//        address = "서울특별시 관악구 봉천동 1234-56",
-//        devices = arrayListOf("조명", "커튼")
-//    )
-//
-//    MyHomeDetailScreen(
-//        navController = navController,
-//        home = home,
-//        isCurrentHome = true,
-//        myItems = Any(),
-//        anotherPeopleItems = Any()
-//    )
-//}
