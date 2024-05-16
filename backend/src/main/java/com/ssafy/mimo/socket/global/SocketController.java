@@ -141,12 +141,23 @@ public class SocketController {
     }
     // Get message
     public static synchronized String getMessage(Long hubId, String requestId) throws InterruptedException {
-        while (!requestIds.get(hubId).contains(requestId)) {
-            // Wait until the message is available
-            SocketController.class.wait();
+        if (!requestIds.containsKey(hubId)) return null;
+        int cnt = 0;
+        while (cnt < 5) {
+            if (requestIds.get(hubId).contains(requestId)) {
+                requestIds.get(hubId).remove(requestId);
+                return receivedMessages.remove(requestId);
+            }
+            cnt++;
+            Thread.sleep(500);
         }
-        requestIds.get(hubId).remove(requestId);
-        return receivedMessages.remove(requestId);
+        return null;
+//        while (!requestIds.get(hubId).contains(requestId)) {
+            // Wait until the message is available
+//            SocketController.class.wait();
+//        }
+//        requestIds.get(hubId).remove(requestId);
+//        return receivedMessages.remove(requestId);
     }
     // Send message
     public static String sendMessage(Long hubId, String message) {

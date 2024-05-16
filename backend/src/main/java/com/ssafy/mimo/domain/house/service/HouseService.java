@@ -234,7 +234,7 @@ public class HouseService {
 
 		ManualControlRequestDto manualControlRequestDto = ManualControlRequestDto.builder()
 				.type(type)
-				.deviceId(hubId)
+				.deviceId(device.getId())
 				.data(ManualControlRequestDataDto.builder()
 						.requestName("getState")
 						.build())
