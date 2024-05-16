@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.*;
 
 import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
@@ -46,18 +47,14 @@ public class MessageReader implements Runnable {
                 }
             } else { // Hub의 응답인 경우 메시지 맵에 저장
                 System.out.printf("MessageReader %d: Put message in the queue\n", hubId);
-                synchronized (SocketController.class) {
-                    String requestId = getRequestId(json_message);
-                    SocketController.getRequestIds().get(hubId).add(requestId);
-                    // 메시지에서 requestId 제거 후 저장
-                    ObjectNode messageNode = (ObjectNode) json_message;
-                    messageNode.remove("requestId");
-                    messages.put(requestId, messageNode.toString());
-                    // Notify the message writer
-                    SocketController.class.notify();
-                }
+                String requestId = getRequestId(json_message);
+                SocketController.getRequestIds().get(hubId).add(requestId);
+                // 메시지에서 requestId 제거 후 저장
+                ObjectNode messageNode = (ObjectNode) json_message;
+                messageNode.remove("requestId");
+                messages.put(requestId, messageNode.toString());
                 // Log messages
-                System.out.printf("MessageReader: Current receivedMessages:\n%s\n", messages);
+                System.out.printf("MessageReader: Current receivedMessages:\n%s\n", SocketController.getReceivedMessages());
             }
         }
         System.out.printf("MessageReader %d: Stopped\n", hubId);
