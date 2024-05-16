@@ -1,11 +1,17 @@
 package com.ssafy.mimo.sleep.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.mimo.domain.common.dto.ManualControlRequestDataDto;
+import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
 import com.ssafy.mimo.domain.house.dto.DeviceDetailDto;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
 import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.sleep.dto.SleepDataDto;
 import com.ssafy.mimo.sleep.entity.SleepData;
 import com.ssafy.mimo.sleep.repository.SleepDataRepository;
+import com.ssafy.mimo.socket.global.SocketController;
 import com.ssafy.mimo.user.entity.User;
 import com.ssafy.mimo.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +30,7 @@ public class SleepHandleDeviceService {
 	private final HouseService houseService;
 	private final DeviceHandlerService deviceHandlerService;
 	private final SleepDataRepository sleepDataRepository;
+	private final SocketController socketController;
 
 	public void handleDeviceBySleepLevel(Long userId, SleepDataDto sleepDataDto) throws InterruptedException {
 		Integer sleepLevel = sleepDataDto.sleepLevel();
@@ -75,6 +82,13 @@ public class SleepHandleDeviceService {
 
 		// 유저의 현재 집에 연결된 모든 기기 불러오기
 		List<DeviceDetailDto> devices = findDevicesAtHome(userId, user);
+
+		// 집의 조명이 다 꺼지지 않은 상황이라면 return
+		Boolean isAllLightOff = checkAllLightOff(userId, devices);
+		if (!isAllLightOff | isAllLightOff == null) {
+			return;
+		}
+
 		devices.stream()
 			.filter(device -> device.userId().equals(userId))
 			.forEach(deviceHandlerService::handleLampOn);
@@ -97,9 +111,53 @@ public class SleepHandleDeviceService {
 	}
 
 	// 현재 집의 모든 기기 중 내 조명 및 무드등이 전부 꺼져있는지 확인하는 메서드
-	// private boolean isAllLightOff(Long userId) {
-	// 	User user = userService.findUserById(userId);
-	// 	List<DeviceDetailDto> devices = findDevicesAtHome(userId, user);
-	// }
+	private Boolean checkAllLightOff(Long userId, List<DeviceDetailDto> devices) {
+		User user = userService.findUserById(userId);
 
+		// devices 를 순회하면서 type 이 "light" 혹은 "lamp" 인 기기들의 현재 상태를 확인하고, 모든 조명이 꺼져있으면 trie 반환, 만일 한번이라고 null 이 나오면 중지하고 null 반환
+		for (DeviceDetailDto device : devices) {
+			if (device.type().equals("light") || device.type().equals("lamp")) {
+				Boolean isDeviceOff = checkDeviceOff(device);
+				// 한 기기라도 null 값이 반환되면 null 반환
+				if (isDeviceOff == null) {
+					return null;
+				}
+				// 한 기기라도 켜져있으면 false 반환
+				if (!isDeviceOff) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// 해당 기기의 현재 상태를 확인하는 메서드
+	private Boolean checkDeviceOff(DeviceDetailDto device) {
+		ManualControlRequestDto manualControlRequestDto = ManualControlRequestDto.builder()
+			.type(device.type())
+			.deviceId(device.deviceId())
+			.data(ManualControlRequestDataDto.builder()
+				.requestName("getState")
+				.build())
+			.build();
+		String message = manualControlRequestDto.toString();
+
+		// 상태 확인 요청 보내기
+		String requestId = socketController.sendMessage(device.hubId(), message);
+		if (requestId == null) {
+			return null;
+		}
+
+		// 상태 응답 받기
+		try {
+			String responseMessage = socketController.getMessage(device.hubId(), requestId);
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode responseJson = objectMapper.readTree(responseMessage);
+			int state = responseJson.get("data").get("state").asInt();
+			return state == 0;
+		} catch (InterruptedException | JsonProcessingException e) {
+			System.out.println("Error parsing the message: " + e.getMessage());
+			return null;
+		}
+	}
 }

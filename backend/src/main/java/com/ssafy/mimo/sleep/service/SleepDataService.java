@@ -1,5 +1,6 @@
 package com.ssafy.mimo.sleep.service;
 
+import static com.ssafy.mimo.common.DeviceDefaults.*;
 import static com.ssafy.mimo.common.SleepLevel.*;
 
 import java.time.LocalTime;
@@ -71,7 +72,7 @@ public class SleepDataService {
 
 	private  boolean isNightTime() {
 		LocalTime currentTime = LocalTime.now();
-		// 18시 이후 부터 03시 이전까지인 경우
-		return currentTime.isAfter(LocalTime.of(17, 0)) || currentTime.isBefore(LocalTime.of(3, 0));
+		// 18시 이후 부터 03시 이전까지인 경우가 디폴트
+		return currentTime.isAfter(LocalTime.of(Integer.parseInt(NIGHT_START_HOUR.getValue()), 0)) || currentTime.isBefore(LocalTime.of(Integer.parseInt(NIGHT_END_HOUR.getValue()), 0));
 	}
 }
