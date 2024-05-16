@@ -50,7 +50,7 @@ public class HouseService {
 		for (UserHouse userHouse : userHouses) {
 			House house = userHouse.getHouse();
 			HouseResponseDto houseResponseDto = HouseResponseDto.builder()
-					.houseId(userHouse.getId())
+					.houseId(userHouse.getHouse().getId())
 					.nickname(userHouse.getNickname())
 					.address(house.getAddress())
 					.isHome(userHouse.isHome())
