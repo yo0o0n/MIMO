@@ -203,8 +203,8 @@ public class HouseService {
             hubId = hub.getId();
             allDevices.addAll(getDevicesForHub(hubId, "lamp"));
             allDevices.addAll(getDevicesForHub(hubId, "light"));
+			allDevices.addAll(getDevicesForHub(hubId, "curtain"));
             allDevices.addAll(getDevicesForHub(hubId, "window"));
-            allDevices.addAll(getDevicesForHub(hubId, "curtain"));
         }
 
 		return HouseDeviceResponseDto.builder()
@@ -244,8 +244,8 @@ public class HouseService {
         return switch (type) {
             case "lamp" -> lampRepository.findByHubId(hubId);
             case "light" -> lightRepository.findByHubId(hubId);
+			case "curtain" -> curtainRepository.findByHubId(hubId);
             case "window" -> windowRepository.findByHubId(hubId);
-            case "curtain" -> curtainRepository.findByHubId(hubId);
             default -> throw new IllegalArgumentException("Invalid device type: " + type);
         };
 	}
@@ -290,6 +290,74 @@ public class HouseService {
 				.type(type)
 				.curColor(curColor)
 				.openDegree(openDegree)
+				.build();
+	}
+
+	public HouseDeviceListResponseDto getDeviceList(Long userId, Long houseId) {
+		UserHouse userHouse = userHouseRepository.findByUserIdAndHouseId(userId, houseId)
+				.orElseThrow(() -> new RuntimeException("해당 사용자 ID와 집 ID를 가진 현재 거주지를 찾을 수 없습니다: userId=" + userId + ", houseId=" + houseId));
+
+		House house = userHouse.getHouse();
+		if (house == null) {
+			throw new RuntimeException("UserHouse (" + userId + ", " + houseId + ")에 연결된 House가 없습니다.");
+		}
+
+		// House에 등록된 모든 Hub 찾기
+		List<Hub> hubs = hubRepository.findByHouseId(house.getId());
+		List<DeviceListDto> allDevices = new ArrayList<>();
+		for (Hub hub : hubs) {
+			Long hubId = hub.getId();
+			allDevices.addAll(lampRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceListDto.builder()
+							.userId(Objects.requireNonNull(device.getUser()).getId())
+							.hubId(hubId)
+							.deviceId(device.getId())
+							.type("lamp")
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build())
+					.toList());
+
+			allDevices.addAll(lightRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceListDto.builder()
+							.userId(Objects.requireNonNull(device.getUser()).getId())
+							.hubId(hubId)
+							.deviceId(device.getId())
+							.type("light")
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build())
+					.toList());
+
+			allDevices.addAll(curtainRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceListDto.builder()
+							.userId(Objects.requireNonNull(device.getUser()).getId())
+							.hubId(hubId)
+							.deviceId(device.getId())
+							.type("curtain")
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build())
+					.toList());
+
+			allDevices.addAll(windowRepository.findByHubId(hubId).stream()
+					.map(device -> DeviceListDto.builder()
+							.userId(Objects.requireNonNull(device.getUser()).getId())
+							.hubId(hubId)
+							.deviceId(device.getId())
+							.type("window")
+							.nickname(device.getNickname())
+							.isAccessible(device.isAccessible())
+							.build())
+					.toList());
+		}
+
+		return HouseDeviceListResponseDto.builder()
+				.houseId(house.getId())
+				.nickname(userHouse.getNickname())
+				.address(house.getAddress())
+				.isHome(userHouse.isHome())
+				.devices(allDevices)
 				.build();
 	}
 
