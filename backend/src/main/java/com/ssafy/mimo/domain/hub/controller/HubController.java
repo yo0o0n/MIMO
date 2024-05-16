@@ -4,7 +4,6 @@ import com.ssafy.mimo.domain.hub.dto.HubListResponseDto;
 import com.ssafy.mimo.domain.hub.dto.HubNicknameRequestDto;
 import com.ssafy.mimo.domain.hub.dto.HubRegisterRequestDto;
 import com.ssafy.mimo.domain.hub.service.HubService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

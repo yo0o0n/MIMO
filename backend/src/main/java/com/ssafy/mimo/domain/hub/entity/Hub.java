@@ -7,9 +7,11 @@ import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.domain.window.entity.SlidingWindow;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

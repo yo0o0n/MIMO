@@ -2,11 +2,11 @@ package com.ssafy.mimo.domain.hub.service;
 
 import com.ssafy.mimo.domain.curtain.entity.Curtain;
 import com.ssafy.mimo.domain.curtain.repository.CurtainRepository;
+import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.domain.hub.dto.DeviceListResponseDto;
 import com.ssafy.mimo.domain.hub.dto.HubListResponseDto;
 import com.ssafy.mimo.domain.hub.entity.Hub;
-import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.hub.repository.HubRepository;
 import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.lamp.repository.LampRepository;
@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +33,6 @@ public class HubService {
     private final LampRepository lampRepository;
     private final CurtainRepository curtainRepository;
     private final WindowRepository windowRepository;
-//    private final LightService lightService;
-//    private final LampService lampService;
-//    private final CurtainService curtainService;
-//    private final WindowService windowService;
-//    private final ShowerService showerService;
     public String releaseHub() {
         Hub hub = Hub.builder()
                 .serialNumber(UUID.randomUUID().toString())
@@ -48,7 +42,6 @@ public class HubService {
         return hub.getSerialNumber();
     }
     public List<HubListResponseDto> getHubs(Long houseId) {
-//        House house = houseService.findHouseById(houseId);
         List<HubListResponseDto> response = new ArrayList<>();
         List<Hub> hubs = hubRepository.findByHouseId(houseId);
         for (Hub hub : hubs) {
@@ -77,7 +70,6 @@ public class HubService {
     }
     public String unregisterHub(Long hubId, Long houseId) {
         Hub hub = findHubById(hubId);
-        House house = houseService.findHouseById(houseId);
         if (hub.isRegistered() && hub.getHouse().getId().equals(houseId)){
             hub.setRegistered(false);
             hub.setHouse(null);

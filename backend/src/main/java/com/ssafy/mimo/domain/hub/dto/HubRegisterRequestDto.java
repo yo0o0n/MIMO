@@ -1,6 +1,6 @@
 package com.ssafy.mimo.domain.hub.dto;
 
-import lombok.*;
+import lombok.Builder;
 
 @Builder
 public record HubRegisterRequestDto(

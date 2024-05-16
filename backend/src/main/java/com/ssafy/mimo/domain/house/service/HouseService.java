@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ssafy.mimo.common.BaseDeviceEntity;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDataDto;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
-import com.ssafy.mimo.domain.curtain.entity.Curtain;
 import com.ssafy.mimo.domain.curtain.repository.CurtainRepository;
 import com.ssafy.mimo.domain.house.dto.*;
 import com.ssafy.mimo.domain.house.entity.House;
@@ -14,11 +13,8 @@ import com.ssafy.mimo.domain.house.repository.HouseRepository;
 import com.ssafy.mimo.domain.house.repository.UserHouseRepository;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.repository.HubRepository;
-import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.lamp.repository.LampRepository;
-import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.domain.light.repository.LightRepository;
-import com.ssafy.mimo.domain.window.entity.SlidingWindow;
 import com.ssafy.mimo.domain.window.repository.WindowRepository;
 import com.ssafy.mimo.socket.global.SocketController;
 import com.ssafy.mimo.user.entity.User;
@@ -34,10 +30,10 @@ import java.util.*;
 @Transactional
 public class HouseService {
 
+	private final UserRepository userRepository;
 	private final HouseRepository houseRepository;
 	private final UserHouseRepository userHouseRepository;
 	private final HubRepository hubRepository;
-	private final UserRepository userRepository;
 	private final LampRepository lampRepository;
 	private final LightRepository lightRepository;
 	private final WindowRepository windowRepository;
@@ -77,11 +73,10 @@ public class HouseService {
 				.orElseThrow(() -> new IllegalArgumentException("사용자 ID " + userId + "를 찾을 수 없습니다."));
 
 		// 기존에 등록된 집 중 isHome이 true인 경우 false로 업데이트
-		List<UserHouse> myHomes = userHouseRepository.findByUserAndIsHome(user, true);
-		for (UserHouse myHome : myHomes) {
+		userHouseRepository.findByUserAndIsHome(user, true).forEach(myHome -> {
 			myHome.setHome(false);
 			userHouseRepository.save(myHome);
-		}
+		});
 
 		// 새 집 등록
 		UserHouse userHouse = UserHouse.builder()
@@ -115,11 +110,10 @@ public class HouseService {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
 
-		List<UserHouse> myHomes = userHouseRepository.findByUserAndIsHome(user, true);
-		for (UserHouse myHome : myHomes) {
+		userHouseRepository.findByUserAndIsHome(user, true).forEach(myHome -> {
 			myHome.setHome(false);
 			userHouseRepository.save(myHome);
-		}
+		});
 
 		UserHouse userHouse = UserHouse.builder()
 				.user(user)
@@ -139,7 +133,6 @@ public class HouseService {
 			throw new IllegalArgumentException("해당 ID를 가진 집을 찾을 수 없습니다: " + houseId);
 		}
 
-		// 해당 houseId에 대한 UserHouse 중 userId가 일치하는 UserHouse 찾기
 		UserHouse userHouse = userHouses.stream()
 				.filter(uh -> uh.getUser().getId().equals(userId))
 				.findFirst()
@@ -182,7 +175,7 @@ public class HouseService {
 		}
 
 		// 새로운 집을 현재 거주지로 설정
-		UserHouse newHome = (UserHouse) userHouseRepository.findByUserIdAndHouseId(userId, houseId).orElse(null);
+		UserHouse newHome = userHouseRepository.findByUserIdAndHouseId(userId, houseId).orElse(null);
 		if (newHome == null) return false; // 새 집이 없는 경우
 
 		newHome.activateHome();
@@ -192,7 +185,7 @@ public class HouseService {
 	}
 
 	public HouseDeviceResponseDto getDevices(Long userId, Long houseId) throws InterruptedException {
-        UserHouse userHouse = (UserHouse) userHouseRepository.findByUserIdAndHouseId(userId, houseId)
+        UserHouse userHouse = userHouseRepository.findByUserIdAndHouseId(userId, houseId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자 ID와 집 ID를 가진 현재 거주지를 찾을 수 없습니다: userId=" + userId + ", houseId=" + houseId));
 
         House house = userHouse.getHouse();
