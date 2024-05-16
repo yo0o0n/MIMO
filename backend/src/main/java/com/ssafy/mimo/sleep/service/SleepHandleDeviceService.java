@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDataDto;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
 import com.ssafy.mimo.domain.house.dto.DeviceDetailDto;
+import com.ssafy.mimo.domain.house.entity.House;
 import com.ssafy.mimo.domain.house.entity.UserHouse;
 import com.ssafy.mimo.domain.house.service.HouseService;
 import com.ssafy.mimo.sleep.dto.SleepDataDto;
@@ -101,7 +102,8 @@ public class SleepHandleDeviceService {
 		Long userHouseId = user.getUserHouse().stream()
 			.filter(UserHouse::isHome)
 			.findFirst()
-			.map(UserHouse::getId)
+			.map(UserHouse::getHouse)
+			.map(House::getId)
 			.orElseThrow(() -> new IllegalArgumentException("현재 집으로 설정된 집이 없습니다."));
 
 		// 유저의 현재 집에 연결된 모든 기기 불러오기
