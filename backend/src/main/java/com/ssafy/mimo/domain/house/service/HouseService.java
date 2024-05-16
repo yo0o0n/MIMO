@@ -241,6 +241,9 @@ public class HouseService {
 				.build();
 
 		String response = SocketController.getMessage(hubId, SocketController.sendMessage(hubId, manualControlRequestDto.toString()));
+		if (response == null) {
+			return null;
+		}
 		manualControlRequestDto.getData().setState(Integer.valueOf(response));
 
 		if ("lamp".equals(type) || "light".equals(type)) {

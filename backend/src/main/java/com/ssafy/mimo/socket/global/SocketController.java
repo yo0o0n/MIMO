@@ -6,7 +6,6 @@ import com.ssafy.mimo.socket.global.dto.HubConnectionRequestDto;
 import com.ssafy.mimo.socket.global.dto.HubConnectionResponseDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
