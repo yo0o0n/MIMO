@@ -13,9 +13,9 @@ public class ManualControlRequestDataDto {
     @Builder.Default
     private String color = "default";
     @Builder.Default
-    private Integer time = 0;
+    private Integer time = null;
     @Builder.Default
-    private Integer state = 0;
+    private Integer state = null;
     @Override
     public String toString() {
         return "{\"requestName\":\"" + requestName +
