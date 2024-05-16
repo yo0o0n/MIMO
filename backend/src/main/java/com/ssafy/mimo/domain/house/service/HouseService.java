@@ -225,45 +225,39 @@ public class HouseService {
 
 	private List<DeviceDetailDto> getDevicesForHub(Long hubId, String type) throws InterruptedException {
 		List<DeviceDetailDto> deviceDetails = new ArrayList<>();
-		DeviceDetailDto deviceDetailDto;
+		List<? extends BaseDeviceEntity> devices = findDevices(hubId, type);
 
-		switch (type) {
-			case "lamp":
-				List<Lamp> lamps = lampRepository.findByHubId(hubId);
-				for (Lamp lamp : lamps) {
-					deviceDetailDto = createDeviceDetailDto(lamp, hubId, "lamp");
-					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
-				}
-				break;
-			case "light":
-				List<Light> lights = lightRepository.findByHubId(hubId);
-				for (Light light : lights) {
-					deviceDetailDto = createDeviceDetailDto(light, hubId, "light");
-					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
-				}
-				break;
-			case "window":
-				List<SlidingWindow> windows = windowRepository.findByHubId(hubId);
-				for (SlidingWindow window : windows) {
-					deviceDetailDto = createDeviceDetailDto(window, hubId, "window");
-					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
-				}
-				break;
-			case "curtain":
-				List<Curtain> curtains = curtainRepository.findByHubId(hubId);
-				for (Curtain curtain : curtains) {
-					deviceDetailDto = createDeviceDetailDto(curtain, hubId, "curtain");
-					if (deviceDetailDto != null) deviceDetails.add(deviceDetailDto);
-				}
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid device type: " + type);
+		for (BaseDeviceEntity device : devices) {
+			DeviceDetailDto deviceDetailDto = deviceDetail(device, hubId, type);
+			if (deviceDetailDto == null) {
+				deviceDetailDto = DeviceDetailDto.builder()
+						.userId(device.getId())
+						.hubId(hubId)
+						.deviceId(device.getId())
+						.nickname(device.getNickname())
+						.isAccessible(device.isAccessible())
+						.type(type)
+						.curColor(null)
+						.openDegree(null)
+						.build();
+			}
+			deviceDetails.add(deviceDetailDto);
 		}
 
 		return deviceDetails;
 	}
 
-	private DeviceDetailDto createDeviceDetailDto(BaseDeviceEntity device, Long hubId, String type) throws InterruptedException {
+	private List<? extends BaseDeviceEntity> findDevices(Long hubId, String type) {
+        return switch (type) {
+            case "lamp" -> lampRepository.findByHubId(hubId);
+            case "light" -> lightRepository.findByHubId(hubId);
+            case "window" -> windowRepository.findByHubId(hubId);
+            case "curtain" -> curtainRepository.findByHubId(hubId);
+            default -> throw new IllegalArgumentException("Invalid device type: " + type);
+        };
+	}
+
+	private DeviceDetailDto deviceDetail(BaseDeviceEntity device, Long hubId, String type) throws InterruptedException {
 		Integer curColor = null;
 		Integer openDegree = null;
 
@@ -280,20 +274,18 @@ public class HouseService {
 			return null;
 		}
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectNode responseNode;
 		try {
-			responseNode = (ObjectNode) objectMapper.readTree(response);
-			response = responseNode.get("data").get("state").asText();
+			ObjectMapper objectMapper = new ObjectMapper();
+			ObjectNode responseNode = (ObjectNode) objectMapper.readTree(response);
+			int state = responseNode.get("data").get("state").asInt();
+
+			if ("lamp".equals(type) || "light".equals(type)) {
+				curColor = state; // 현재 색상 설정
+			} else if ("curtain".equals(type) || "window".equals(type)) {
+				openDegree = state; // 개방 정도 설정
+			}
 		} catch (Exception e) {
 			return null;
-		}
-		manualControlRequestDto.getData().setState(Integer.valueOf(response));
-
-		if ("lamp".equals(type) || "light".equals(type)) {
-			curColor = Integer.parseInt(String.valueOf(manualControlRequestDto.getData().getState())); // 현재 색상 설정
-		} else if ("curtain".equals(type) || "window".equals(type)) {
-			openDegree = Integer.parseInt(String.valueOf(manualControlRequestDto.getData().getState())); // 개방 정도 설정
 		}
 
 		return DeviceDetailDto.builder()
