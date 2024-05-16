@@ -127,6 +127,9 @@ public class SocketController {
     }
     // Get message
     public static String getMessage(Long hubId, String requestId) {
+        if (requestId == null) {
+            return null;
+        }
 //         Check if the message is already present
         String message = receivedMessages.get(requestId);
         if (message != null) {
