@@ -158,7 +158,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           ledcWrite(2, 0);
         }
         else if(request_name.compare("getState") == 0){
-          root["state"] = (state == OFF ? "off" : "on");
+          root["state"] = state;
           String output;
           serializeJson(root, output);
           pTxCharacteristic->setValue((uint8_t*)output.c_str(), output.length());
