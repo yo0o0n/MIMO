@@ -1,7 +1,7 @@
 package com.ssafy.mimo.socket.global;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;

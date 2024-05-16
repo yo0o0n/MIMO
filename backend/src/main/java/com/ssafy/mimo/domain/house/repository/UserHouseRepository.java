@@ -11,13 +11,13 @@ import java.util.Optional;
 public interface UserHouseRepository extends JpaRepository<UserHouse, Long> {
     List<UserHouse> findAllByUserId(Long userId);
 
-    List<UserHouse> findByUserAndIsHome(User user, boolean b);
+    List<UserHouse> findByUserAndIsHome(User user, boolean isHome);
 
     List<UserHouse> findByHouseId(Long houseId);
 
-    Optional<UserHouse> findByHouseAndIsActive(House house, boolean b);
+    Optional<UserHouse> findByHouseAndIsActive(House house, boolean isActive);
 
-    UserHouse findHomeByUserIdAndIsHome(Long userId, boolean b);
+    UserHouse findHomeByUserIdAndIsHome(Long userId, boolean isHome);
 
-    Optional<Object> findByUserIdAndHouseId(Long userId, Long houseId);
+    Optional<UserHouse> findByUserIdAndHouseId(Long userId, Long houseId);
 }
