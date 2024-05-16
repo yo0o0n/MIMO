@@ -98,7 +98,7 @@ public class CurtainService {
 	}
 
 	// 커튼 mac 주소로 커튼 찾기
-	private Curtain findCurtainByMacAddress(String macAddress) {
+	public Curtain findCurtainByMacAddress(String macAddress) {
 		return curtainRepository.findByMacAddress(macAddress)
 				.orElseThrow(() -> new IllegalArgumentException("해당 MAC 주소를 가진 커튼이 존재하지 않습니다."));
 	}
@@ -115,4 +115,5 @@ public class CurtainService {
 			throw new IllegalArgumentException("권한이 없는 사용자입니다.");
 		}
 	}
+
 }

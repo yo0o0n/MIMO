@@ -59,6 +59,8 @@ public class SocketService {
                             deviceId = lampService.findLampByMacAddress(deviceIdRequestDto.macAddress()).getId();
                         } else if (machineType.equals("window")) {
                             deviceId = windowService.findWindowByMacAddress(deviceIdRequestDto.macAddress()).getId();
+                        } else if (machineType.equals("curtain")) {
+                            deviceId = curtainService.findCurtainByMacAddress(deviceIdRequestDto.macAddress()).getId();
                         } else {
 //                            return objectMapper.valueToTree("Invalid machine type: " + machineType);
                             return null;
@@ -86,16 +88,26 @@ public class SocketService {
                     }
 //                    return objectMapper.valueToTree("Invalid request name: " + lampRequest.getData().getRequestName());
                     return null;
-//                case "curtain":
-//                    CurtainControlRequestDto curtainRequest = objectMapper.readValue(request, CurtainControlRequestDto.class);
-//                    if (curtainRequest.getData().getRequestName().equals("getCurrentStatus")) {
-//                        String curStatus = curtainService.getCurtainCurStatus(curtainRequest.getCurtainId());
-//                        CurtainControlResponseDto curtainResponse = new CurtainControlResponseDto(curtainRequest, curtainRequest.getData(), curStatus);
-//                        return objectMapper.valueToTree(curtainResponse);
-//                    }
-//                    return objectMapper.valueToTree("Invalid request name: " + curtainRequest.getData().getRequestName());
+               case "curtain":
+                   // CurtainControlRequestDto curtainRequest = objectMapper.readValue(request, CurtainControlRequestDto.class);
+                   // if (curtainRequest.getData().getRequestName().equals("getCurrentStatus")) {
+                   //     String curStatus = curtainService.getCurtainCurStatus(curtainRequest.getCurtainId());
+                   //     CurtainControlResponseDto curtainResponse = new CurtainControlResponseDto(curtainRequest, curtainRequest.getData(), curStatus);
+                   //     return objectMapper.valueToTree(curtainResponse);
+                   // }
+                   // return objectMapper.valueToTree("Invalid request name: " + curtainRequest.getData().getRequestName());
+                   return null;
+                case "window":
+                    // WindowControlRequestDto windowRequest = objectMapper.readValue(request, WindowControlRequestDto.class);
+                    // if (windowRequest.getData().getRequestName().equals("getCurrentStatus")) {
+                    //     String curStatus = windowService.getWindowCurStatus(windowRequest.getWindowId());
+                    //     WindowControlResponseDto windowResponse = new WindowControlResponseDto(windowRequest, windowRequest.getData(), curStatus);
+                    //     return objectMapper.valueToTree(windowResponse);
+                    // }
+                    // return objectMapper.valueToTree("Invalid request name: " + windowRequest.getData().getRequestName());
+                    return null;
                 default:
-//                    return objectMapper.valueToTree("Invalid request type: " + type);
+                   // return objectMapper.valueToTree("Invalid request type: " + type);
                     return null;
             }
         } catch (Exception e) {
