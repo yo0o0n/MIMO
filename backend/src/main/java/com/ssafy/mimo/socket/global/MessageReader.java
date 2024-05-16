@@ -53,6 +53,7 @@ public class MessageReader implements Runnable {
                 ObjectNode messageNode = (ObjectNode) json_message;
                 messageNode.remove("requestId");
                 messages.put(requestId, messageNode.toString());
+                SocketController.getFutureReceivedMessages().get(requestId).complete(messageNode.toString());
                 // Log messages
                 System.out.printf("MessageReader: Current receivedMessages:\n%s\n", SocketController.getReceivedMessages());
             }
