@@ -270,8 +270,8 @@ public class HouseService {
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			ObjectNode responseNode = (ObjectNode) objectMapper.readTree(response);
-			int state = responseNode.get("data").get("state").asInt();
-
+			String stateValue = responseNode.get("data").get("state").asText(null);
+			int state = Integer.parseInt(stateValue);
 			if ("lamp".equals(type) || "light".equals(type)) {
 				curColor = state; // 현재 색상 설정
 			} else if ("curtain".equals(type) || "window".equals(type)) {
