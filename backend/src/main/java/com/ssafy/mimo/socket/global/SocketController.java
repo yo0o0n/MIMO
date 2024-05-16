@@ -6,6 +6,7 @@ import com.ssafy.mimo.socket.global.dto.HubConnectionRequestDto;
 import com.ssafy.mimo.socket.global.dto.HubConnectionResponseDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -14,8 +15,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,9 +24,11 @@ public class SocketController {
     private static ConcurrentHashMap<Long, Socket> connections;
     @Getter
     private static ConcurrentHashMap<String, String> receivedMessages;
-    private static ConcurrentHashMap<Long, Thread> messageWritterThreads;
     @Getter
-    private static ConcurrentHashMap<Long, MessageWriter> messageWritters;
+    private static ConcurrentHashMap<String, CompletableFuture<String>> futureReceivedMessages;
+    private static ConcurrentHashMap<Long, Thread> messageWriterThreads;
+    @Getter
+    private static ConcurrentHashMap<Long, MessageWriter> messageWriters;
     @Getter
     private static ConcurrentHashMap<Long, List<String>> requestIds;
     public void start(int port) {
@@ -35,8 +37,9 @@ public class SocketController {
             ServerSocket serverSocket = new ServerSocket(port);
             connections = new ConcurrentHashMap<>();
             receivedMessages = new ConcurrentHashMap<>();
-            messageWritterThreads = new ConcurrentHashMap<>();
-            messageWritters = new ConcurrentHashMap<>();
+            futureReceivedMessages = new ConcurrentHashMap<>();
+            messageWriterThreads = new ConcurrentHashMap<>();
+            messageWriters = new ConcurrentHashMap<>();
             requestIds = new ConcurrentHashMap<>();
             ObjectMapper objectMapper = new ObjectMapper();
             // Accept connections from the hub
@@ -67,10 +70,10 @@ public class SocketController {
                     connections.put(hubId, socket);
                     // Start the message reader and writer
                     MessageWriter messageWriter = new MessageWriter(hubId, socket, new LinkedBlockingQueue<>());
-                    messageWritters.put(hubId, messageWriter);
+                    messageWriters.put(hubId, messageWriter);
                     Thread reader = new Thread(new MessageReader(hubId, socket, socketService, this));
                     Thread writer = new Thread(messageWriter);
-                    messageWritterThreads.put(hubId, writer);
+                    messageWriterThreads.put(hubId, writer);
                     reader.start();
                     writer.start();
                     // Send the connection response
@@ -89,22 +92,6 @@ public class SocketController {
             System.out.printf("Socket Controller: Error starting the server socket\n%s\n", e.getMessage());
         }
     }
-//    public void stop() {
-//        try {
-//            if (serverSocket != null) {
-//                serverSocket.close();
-//            }
-//            connections.forEach((hubId, socket) -> {
-//                try {
-//                    socket.close();
-//                } catch (IOException e) {
-//                    System.out.println("Error closing the socket: " + e.getMessage());
-//                }
-//            });
-//        } catch (IOException e) {
-//            System.out.println("Error closing the server socket: " + e.getMessage());
-//        }
-//    }
     // 허브 ID에 따라 소켓 반환
     public static Socket getSocket(Long hubId) {
         return connections.get(hubId);
@@ -113,17 +100,17 @@ public class SocketController {
     public static void closeConnection(Long hubId) {
         System.out.println("Removing connection with hub " + hubId);
         // Remove all the data related to the hub
-        messageWritters.remove(hubId);
+        messageWriters.remove(hubId);
         List<String> idList = requestIds.get(hubId);
         for (String id : idList) {
             receivedMessages.remove(id);
         }
         requestIds.remove(hubId);
-        Thread writer = messageWritterThreads.get(hubId);
+        Thread writer = messageWriterThreads.get(hubId);
         if (writer != null) {
             writer.interrupt();
         }
-        messageWritterThreads.remove(hubId);
+        messageWriterThreads.remove(hubId);
         // Close the connection
         try {
             Socket socket = connections.get(hubId);
@@ -140,24 +127,28 @@ public class SocketController {
         System.out.println(receivedMessages);
     }
     // Get message
-    public static synchronized String getMessage(Long hubId, String requestId) throws InterruptedException {
-        if (!requestIds.containsKey(hubId)) return null;
-        int cnt = 0;
-        while (cnt < 5) {
-            if (requestIds.get(hubId).contains(requestId)) {
-                requestIds.get(hubId).remove(requestId);
-                return receivedMessages.remove(requestId);
-            }
-            cnt++;
-            Thread.sleep(500);
+    public static String getMessage(Long hubId, String requestId) {
+//         Check if the message is already present
+        String message = receivedMessages.get(requestId);
+        if (message != null) {
+            return receivedMessages.remove(requestId);
         }
-        return null;
-//        while (!requestIds.get(hubId).contains(requestId)) {
-            // Wait until the message is available
-//            SocketController.class.wait();
-//        }
-//        requestIds.get(hubId).remove(requestId);
-//        return receivedMessages.remove(requestId);
+        // If the message is not present, create a CompletableFuture and put it in the futureMap
+        CompletableFuture<String> future = new CompletableFuture<>();
+        futureReceivedMessages.put(requestId, future);
+        try {
+            // Wait for the message to be added with a timeout of 3 seconds
+            String response = future.get(3, TimeUnit.SECONDS);
+            futureReceivedMessages.remove(requestId);
+            receivedMessages.remove(requestId);
+            requestIds.get(hubId).remove(requestId);
+            return response;
+        } catch (Exception e) {
+            // If the timeout expires, remove the future from the map and rethrow the exception
+            futureReceivedMessages.remove(requestId);
+            System.out.println("Error while getting the message: " + e.getMessage());
+            return null;
+        }
     }
     // Send message
     public static String sendMessage(Long hubId, String message) {
@@ -167,15 +158,15 @@ public class SocketController {
             String requestId = UUID.randomUUID().toString();
             messageNode.put("requestId", requestId);
             System.out.printf("SocketController: Sending message to hub %d\n%s\n", hubId, messageNode);
-            MessageWriter messageWriter = messageWritters.get(hubId);
+            MessageWriter messageWriter = messageWriters.get(hubId);
             if (messageWriter != null && messageWriter.enqueueMessage(messageNode.toString())) {
                 // Add the request ID to the list
-                if (requestIds.get(hubId) == null) {
-                    List<String> idList = new ArrayList<>();
-                    idList.add(requestId);
-                    requestIds.put(hubId, idList);
-                } else {
-                    requestIds.get(hubId).add(requestId);
+                if (requestIds.get(hubId) == null)
+                    requestIds.put(hubId, new ArrayList<>());
+                requestIds.get(hubId).add(requestId);
+                CompletableFuture<String> future = futureReceivedMessages.remove(requestId);
+                if (future != null) {
+                    future.complete(messageNode.toString());
                 }
                 System.out.println(receivedMessages);
                 return requestId;
