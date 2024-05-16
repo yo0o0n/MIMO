@@ -1,5 +1,7 @@
 package com.ssafy.mimo.domain.house.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ssafy.mimo.common.BaseDeviceEntity;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDataDto;
 import com.ssafy.mimo.domain.common.dto.ManualControlRequestDto;
@@ -247,6 +249,15 @@ public class HouseService {
 
 		String response = SocketController.getMessage(hubId, SocketController.sendMessage(hubId, manualControlRequestDto.toString()));
 		if (response == null) {
+			return null;
+		}
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode responseNode;
+		try {
+			responseNode = (ObjectNode) objectMapper.readTree(response);
+			response = responseNode.get("data").get("state").asText();
+		} catch (Exception e) {
 			return null;
 		}
 		manualControlRequestDto.getData().setState(Integer.valueOf(response));
