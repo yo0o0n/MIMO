@@ -190,5 +190,8 @@ void loop() {
         digitalWrite(red_pin, HIGH);
         digitalWrite(black_pin, LOW);
         delay(31000);
+        
+        digitalWrite(red_pin, LOW);
+        digitalWrite(black_pin, LOW);
     }
 }
