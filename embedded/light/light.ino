@@ -174,7 +174,7 @@ void setup() {
   Serial.begin(115200);
 
   // Create the BLE Device
-  BLEDevice::init("UART Service");
+  BLEDevice::init("Light");
 
   // Create the BLE Server
   pServer = BLEDevice::createServer();
