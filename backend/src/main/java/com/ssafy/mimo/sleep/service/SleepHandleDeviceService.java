@@ -155,7 +155,7 @@ public class SleepHandleDeviceService {
 			JsonNode responseJson = objectMapper.readTree(responseMessage);
 			int state = responseJson.get("data").get("state").asInt();
 			return state == 0;
-		} catch (InterruptedException | JsonProcessingException e) {
+		} catch (JsonProcessingException e) {
 			System.out.println("Error parsing the message: " + e.getMessage());
 			return null;
 		}
