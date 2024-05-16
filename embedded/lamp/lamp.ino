@@ -158,7 +158,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           ledcWrite(2, 0);
         }
         else if(request_name.compare("getState") == 0){
-          root["state"] = (state == OFF ? "off" : "on");
+          root["state"] = state;
           String output;
           serializeJson(root, output);
           pTxCharacteristic->setValue((uint8_t*)output.c_str(), output.length());
@@ -174,7 +174,7 @@ void setup() {
   Serial.begin(115200);
 
   // Create the BLE Device
-  BLEDevice::init("UART Service");
+  BLEDevice::init("Lamp");
 
   // Create the BLE Server
   pServer = BLEDevice::createServer();
