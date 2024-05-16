@@ -94,12 +94,40 @@ public class HouseService {
 	}
 
 	public OldHouseResponseDto registerOldHouse(Long userId, OldHouseRequestDto oldHouseRequestDto) {
-		Hub hub = hubRepository.findBySerialNumber(oldHouseRequestDto.serialNumber())
-				.orElseThrow(() -> new IllegalArgumentException("등록된 허브가 없습니다. 해당 허브의 serialNumber를 확인하세요."));
+		Optional<Hub> optionalHub = hubRepository.findBySerialNumber(oldHouseRequestDto.serialNumber());
+		if (optionalHub.isEmpty()) {
+			return new OldHouseResponseDto(null, null);
+		}
 
-		return Optional.ofNullable(houseRepository.findByHub(hub))
-				.map(house -> new OldHouseResponseDto(house.getId(), house.getAddress()))
-				.orElseGet(() -> new OldHouseResponseDto(null, null));
+		// 허브가 있으면 추출
+		Hub hub = optionalHub.get();
+
+		Optional<House> optionalHouse = Optional.ofNullable(houseRepository.findByHub(hub));
+		if (optionalHouse.isEmpty()) {
+			return new OldHouseResponseDto(null, null);
+		}
+
+		// 집이 있으면 추출
+		House house = optionalHouse.get();
+
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+
+		List<UserHouse> myHomes = userHouseRepository.findByUserAndIsHome(user, true);
+		for (UserHouse myHome : myHomes) {
+			myHome.setHome(false);
+			userHouseRepository.save(myHome);
+		}
+
+		UserHouse userHouse = UserHouse.builder()
+				.user(user)
+				.house(house)
+				.isHome(true)
+				.nickname("나의 집")
+				.build();
+		userHouseRepository.save(userHouse);
+
+		return new OldHouseResponseDto(house.getId(), house.getAddress());
 	}
 
 	public void unregisterHouse(Long userId, Long houseId) {
