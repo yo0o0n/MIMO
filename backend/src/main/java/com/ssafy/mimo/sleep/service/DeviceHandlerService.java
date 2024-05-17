@@ -6,6 +6,7 @@ import com.ssafy.mimo.domain.common.service.CommonService;
 import com.ssafy.mimo.domain.curtain.entity.Curtain;
 import com.ssafy.mimo.domain.curtain.service.CurtainService;
 import com.ssafy.mimo.domain.house.dto.DeviceDetailDto;
+import com.ssafy.mimo.domain.house.dto.DeviceListDto;
 import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.lamp.service.LampService;
 import com.ssafy.mimo.domain.light.entity.Light;
@@ -34,7 +35,7 @@ public class DeviceHandlerService {
 	private final CommonService commonService;
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public void handleOnSleep(DeviceDetailDto device) {
+	public void handleOnSleep(DeviceListDto device) {
 		String type = device.type();
 		switch (type) {
 			case "light":
@@ -96,7 +97,7 @@ public class DeviceHandlerService {
 		}
 	}
 
-	public void handleOnWakeUp(DeviceDetailDto device) {
+	public void handleOnWakeUp(DeviceListDto device) {
 		// IoT 기기 제어 로직
 		String type = device.type();
 		switch (type) {
@@ -165,7 +166,7 @@ public class DeviceHandlerService {
 		}
 	}
 
-	public void handleOnRem(Long userId, DeviceDetailDto device) {
+	public void handleOnRem(Long userId, DeviceListDto device) {
 		User user = userService.findUserById(userId);
 
 		// 유저의 설정된 기상 시간이 없는 경우 return
@@ -214,6 +215,10 @@ public class DeviceHandlerService {
 				// IoT 기기 제어요청 보내기
 				commonService.controlDevice(lampManualControlRequestDto);
 				log.info("무드등 서서히 켜기 요청: {}", lampManualControlRequestDto);
+				break;
+			case "window":
+				break;
+			case "curtain":
 				break;
 			default:
 				throw new IllegalArgumentException("지원하지 않는 기기 타입입니다: " + type);
