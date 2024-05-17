@@ -874,6 +874,12 @@ gboolean on_handle_device_property_change(GDBusProxy *proxy, GVariant *arg_chang
 
 		g_variant_get(arg_changed_properties, "a{sv}", &iter);
 		while(g_variant_iter_loop(iter, "{&sv}", &key, &value)){
+			if(strcmp(key, "Connected") == 0 && !g_variant_get_boolean(value)){
+				std::cout << "DBUS: device_property_change(" << device_object_path << "): Disconnection\n";
+			}
+			else{
+				std::cout << "DBUS property change : " << device_object_path << " : " << key << '\n';
+			}
 			if(strcmp(key, "Connected") == 0){
 				if(!g_variant_get_boolean(value)){
 //					std::cout << "DBUS: device_property_change(" << device_object_path << "): Disconnection\n";

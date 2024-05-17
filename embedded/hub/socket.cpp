@@ -2,9 +2,11 @@
 
 int serv_sock;
 std::thread recv_thread, send_thread;
+bool socket_status = false;
 
 // connect socket to server
 void set_socket(){
+	while(true){
 	// socket create
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
 	if(serv_sock == -1){
@@ -19,20 +21,23 @@ void set_socket(){
 	serv_addr.sin_addr.s_addr = inet_addr("43.203.239.150");	// server ip
 //	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");			// localhost server ip
 
-	// connect server
-	if(connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1){
-		error_handling("connect() error");
+		// connect server
+		if(connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1){
+			error_handling("connect() error");
+		}
+
+		std::cout << "server connected\n";
+
+		recv_thread = std::thread(recv_msg);	// recv data from server thread
+		send_thread = std::thread(send_msg);	// send data to server thread
+
+		recv_thread.join();
+		send_thread.join();
+
+		close(serv_sock);
+
+		std::cout << "socket ended\n";
 	}
-
-	std::cout << "server connected\n";
-
-	recv_thread = std::thread(recv_msg);	// recv data from server thread
-	send_thread = std::thread(send_msg);	// send data to server thread
-
-	recv_thread.join();
-	send_thread.join();
-
-	close(serv_sock);
 }
 
 // error message handling
@@ -53,7 +58,10 @@ void recv_msg(){
 		int read_len = read(serv_sock, buf_cur_recv, BUF_SIZE - 1);	// recv cur data
 		if(read_len == 0){		// socket disconnect
 			std::cout << "server disconnected\n";
-			close(serv_sock);
+			mtx_write.lock();
+			socket_status = false;
+			cv_write.notify_all();
+			mtx_write.unlock();
 			break;
 		}
 
@@ -74,6 +82,7 @@ void recv_msg(){
 
 					std::lock_guard<std::mutex> lk(mtx_read);	// get read mutex
 					parse_json(buf_recv);		// parse json data
+					std::cout << "test\n";
 					cv_read.notify_all();		// notify wait read mutex
 					// unlock read mutex
 
@@ -183,31 +192,41 @@ void parse_json(std::string &str_recv){
 	}
 }
 
-// send data to server
-void send_msg(){
-	std::unique_lock<std::mutex> lk(mtx_write);		// get write mutex
-	std::string buf_send;
-
+void send_serial_number(std::string serial_number){
 	json serial = json::object();
 	serial["type"] = "hub";
 	serial["requestName"] = "setConnect";
-	serial["hubSerialNumber"] = HUB_SN;
-	buf_send = serial.dump();
+	serial["hubSerialNumber"] = serial_number;
+	std::string buf_send = serial.dump();
 	std::cout << "write : " << buf_send << '\n';
 	write(serv_sock, buf_send.c_str(), strlen(buf_send.c_str()));
+}
+
+// send data to server
+void send_msg(){
+	socket_status = true;
+	std::unique_lock<std::mutex> lk(mtx_write);		// get write mutex
+	std::string buf_send;
+
+	send_serial_number(HUB_SN);
 
 	while(true){
-		if(request_list.empty()){
+		if(request_list.empty() && socket_status){
 			cv_write.wait(lk);		// unlock write mutex && wait write data
 		}
 		// get write mutex
+		if(!socket_status){
+			break;
+		}
 
 		buf_send.clear();
 		make_json(buf_send);	// making json string
 
 		std::cout << "write : " << buf_send << '\n';
 
-		write(serv_sock, buf_send.c_str(), strlen(buf_send.c_str()));	// write data to server
+		if(write(serv_sock, buf_send.c_str(), strlen(buf_send.c_str())) < 0){	// write data to server
+			break;
+		}
 	}
 }
 
@@ -240,11 +259,17 @@ void make_json(std::string &str_send){
 			case REQUEST_LIGHT:			// light
 				root["type"] = "light";
 				root["lightId"] = cur_request.id;
+				if(data["requestName"].get<std::string>().compare("setWakeupColor") == 0){
+					data["time"] = 5;
+				}
 				root["data"] = data;
 				break;
 			case REQUEST_LAMP:			// lamp
 				root["type"] = "lamp";
 				root["lampId"] = cur_request.id;
+				if(data["requestName"].get<std::string>().compare("setWakeupColor") == 0){
+					data["time"] = 5;
+				}
 				root["data"] = data;
 				break;
 			case REQUEST_WINDOW:		// window

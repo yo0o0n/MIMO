@@ -19,5 +19,6 @@ void recv_msg();		// recieve data from server
 void send_request_server(std::string);
 void send_unconnected_device(RequestType, int, json);
 void parse_json(std::string &);		// parsing recv json string
+void send_serial_number(std::string);
 void send_msg();		// send data to server
 void make_json(std::string &);		// making send json string
