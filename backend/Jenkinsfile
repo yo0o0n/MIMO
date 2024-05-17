@@ -50,8 +50,7 @@ pipeline {
         }
         stage ('Health Check') {
             steps {
-                // echo "Wait until container get ready..."
-                // sleep 5
+                sleep 10
                 script {
                     STABLE = false
                     if (NEED_TO_TEST) {
