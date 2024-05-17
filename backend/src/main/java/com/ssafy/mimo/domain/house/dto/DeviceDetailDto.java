@@ -10,6 +10,7 @@ public record DeviceDetailDto(Long userId,
                               String nickname,
                               boolean isAccessible,
                               // lamp, light
+                              String color,
                               Integer curColor,
                               // window, curtain
                               Integer openDegree) {

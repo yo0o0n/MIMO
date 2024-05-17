@@ -13,7 +13,9 @@ import com.ssafy.mimo.domain.house.repository.HouseRepository;
 import com.ssafy.mimo.domain.house.repository.UserHouseRepository;
 import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.hub.repository.HubRepository;
+import com.ssafy.mimo.domain.lamp.entity.Lamp;
 import com.ssafy.mimo.domain.lamp.repository.LampRepository;
+import com.ssafy.mimo.domain.light.entity.Light;
 import com.ssafy.mimo.domain.light.repository.LightRepository;
 import com.ssafy.mimo.domain.window.repository.WindowRepository;
 import com.ssafy.mimo.socket.global.SocketController;
@@ -223,6 +225,15 @@ public class HouseService {
 		for (BaseDeviceEntity device : devices) {
 			DeviceDetailDto deviceDetailDto = deviceDetail(device, hubId, type);
 			if (deviceDetailDto == null) {
+				String color = null;
+				if ("lamp".equals(type)) {
+					Lamp lamp = (Lamp) device;
+					color = lamp.getCurColor();
+				} else if ("light".equals(type)) {
+					Light light = (Light) device;
+					color = light.getCurColor();
+				}
+
 				deviceDetailDto = DeviceDetailDto.builder()
 						.userId(device.getId())
 						.hubId(hubId)
@@ -230,6 +241,7 @@ public class HouseService {
 						.nickname(device.getNickname())
 						.isAccessible(device.isAccessible())
 						.type(type)
+						.color(color)
 						.curColor(null)
 						.openDegree(null)
 						.build();
@@ -273,12 +285,21 @@ public class HouseService {
 			String stateValue = responseNode.get("data").get("state").asText(null);
 			int state = Integer.parseInt(stateValue);
 			if ("lamp".equals(type) || "light".equals(type)) {
-				curColor = state; // 현재 색상 설정
+				curColor = state; // 현재 온/오프 상태
 			} else if ("curtain".equals(type) || "window".equals(type)) {
-				openDegree = state; // 개방 정도 설정
+				openDegree = state; // 현재 개방 상태
 			}
 		} catch (Exception e) {
 			return null;
+		}
+
+		String color = null;
+		if ("lamp".equals(type)) {
+			Lamp lamp = (Lamp) device;
+			color = lamp.getCurColor();
+		} else if ("light".equals(type)) {
+			Light light = (Light) device;
+			color = light.getCurColor();
 		}
 
 		return DeviceDetailDto.builder()
@@ -288,6 +309,7 @@ public class HouseService {
 				.nickname(device.getNickname())
 				.isAccessible(device.isAccessible())
 				.type(type)
+				.color(color)
 				.curColor(curColor)
 				.openDegree(openDegree)
 				.build();
