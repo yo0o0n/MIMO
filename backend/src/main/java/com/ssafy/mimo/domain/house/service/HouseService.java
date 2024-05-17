@@ -51,11 +51,11 @@ public class HouseService {
 		for (UserHouse userHouse : userHouses) {
 			House house = userHouse.getHouse();
 			HouseResponseDto houseResponseDto = HouseResponseDto.builder()
-					.houseId(userHouse.getHouse().getId())
+					.houseId(house.getId())
 					.nickname(userHouse.getNickname())
 					.address(house.getAddress())
 					.isHome(userHouse.isHome())
-					.devices(new ArrayList<>())
+					.devices(house.getDevices())
 					.build();
 
 			// 동일한 주소의 경우, 가장 최근 것으로 업데이트
