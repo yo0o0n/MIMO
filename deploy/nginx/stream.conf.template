@@ -1,6 +1,6 @@
 upstream socket_server {
-    server ${SERVER_DOMAIN}:${BLUE_SOCKET_PORT} ${BLUE_WEIGHT}; # Blue
     server ${SERVER_DOMAIN}:${GREEN_SOCKET_PORT} ${GREEN_WEIGHT}; # Green
+    server ${SERVER_DOMAIN}:${BLUE_SOCKET_PORT} ${BLUE_WEIGHT}; # Blue
 }
 
 # Dev
