@@ -49,9 +49,6 @@ public class UserService {
 	public WakeupTimeDto getWakeupTime(Long userId) {
 		User user = findUserById(userId);
 		LocalTime wakeupTime = user.getWakeupTime();
-		if (wakeupTime == null) {
-			wakeupTime = LocalTime.parse(WAKEUP_TIME.getValue());
-		}
 		return WakeupTimeDto.builder()
 			.wakeupTime(wakeupTime)
 			.build();
@@ -65,5 +62,13 @@ public class UserService {
 		return WakeupTimeDto.builder()
 			.wakeupTime(user.getWakeupTime())
 			.build();
+	}
+
+	// 유저의 기상시간을 해제하는 메서드
+	public String deleteWakeupTime(Long userId) {
+		User user = findUserById(userId);
+		user.setWakeupTime(null);
+		userRepository.save(user);
+		return "기상시간이 해제되었습니다.";
 	}
 }

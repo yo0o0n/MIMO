@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +47,13 @@ public class UserController {
         @RequestBody WakeupTimeDto wakeupTimeDto) {
         Long userId = userService.getUserId(token);
         return ResponseEntity.ok(userService.setWakeupTime(userId, wakeupTimeDto));
+    }
+
+    @Operation(summary = "해당 유저의 기상시간 해제하기")
+    @DeleteMapping("/wakeup-time")
+    public ResponseEntity<String> deleteWakeupTime(
+        @RequestHeader("X-AUTH-TOKEN") String token) {
+        Long userId = userService.getUserId(token);
+        return ResponseEntity.ok(userService.deleteWakeupTime(userId));
     }
 }
