@@ -15,8 +15,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "${DEV_SOCKET_PORT}:${DEV_SOCKET_PORT}"
-      - "${OPS_SOCKET_PORT}:${OPS_SOCKET_PORT}"
+      - "${DEV_SOCKET_PORT}:${DEV_SOCKET_PORT2}"
+      - "${OPS_SOCKET_PORT}:${OPS_SOCKET_PORT2}"
     networks:
       - mimo
 
