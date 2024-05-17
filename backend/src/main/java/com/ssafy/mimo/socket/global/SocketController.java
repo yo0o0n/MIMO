@@ -124,7 +124,8 @@ public class SocketController {
         log.info("Connection with hub {} removed", hubId);
     }
     // Get message
-    public String getMessage(Long hubId, String requestId) {
+    public static String getMessage(Long hubId, String requestId) {
+        Logger log = org.slf4j.LoggerFactory.getLogger(SocketController.class);
         if (requestId == null) {
             return null;
         }
@@ -149,7 +150,7 @@ public class SocketController {
         }
     }
     // Send message
-    public String sendMessage(Long hubId, String message) {
+    public static String sendMessage(Long hubId, String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode messageNode = objectMapper.readValue(message, ObjectNode.class);
@@ -164,6 +165,7 @@ public class SocketController {
             }
             return null;
         } catch (IOException e) {
+            Logger log = org.slf4j.LoggerFactory.getLogger(SocketController.class);
             log.error("Error while sending the message: {}", e.getMessage());
             return null;
         }

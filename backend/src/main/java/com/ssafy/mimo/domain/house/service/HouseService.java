@@ -38,7 +38,6 @@ public class HouseService {
 	private final LightRepository lightRepository;
 	private final WindowRepository windowRepository;
 	private final CurtainRepository curtainRepository;
-	private final SocketController socketController;
 
 	public List<HouseResponseDto> getHouses(Long userId) {
 		if (userId == null) {
@@ -263,7 +262,7 @@ public class HouseService {
 						.build())
 				.build();
 
-		String response = socketController.getMessage(hubId, socketController.sendMessage(hubId, manualControlRequestDto.toString()));
+		String response = SocketController.getMessage(hubId, SocketController.sendMessage(hubId, manualControlRequestDto.toString()));
 		if (response == null) {
 			return null;
 		}

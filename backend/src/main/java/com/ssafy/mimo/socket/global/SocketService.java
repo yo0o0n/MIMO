@@ -25,7 +25,6 @@ public class SocketService {
     private final LampService lampService;
     private final WindowService windowService;
     private final CurtainService curtainService;
-    private final SocketController socketController;
     private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
     public Long getHubId(HubConnectionRequestDto hubConnectionRequestDto) {
         try {

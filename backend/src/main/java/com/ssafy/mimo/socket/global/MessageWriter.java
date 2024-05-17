@@ -2,6 +2,7 @@ package com.ssafy.mimo.socket.global;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 
@@ -10,9 +11,7 @@ import java.util.concurrent.BlockingQueue;
 
 @Getter
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class MessageWriter implements Runnable {
-    private final SocketController socketController;
     private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
     private Long hubId;
     private Socket socket;

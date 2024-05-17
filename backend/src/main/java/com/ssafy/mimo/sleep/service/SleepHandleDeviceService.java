@@ -176,14 +176,14 @@ public class SleepHandleDeviceService {
 		String message = manualControlRequestDto.toString();
 
 		// 상태 확인 요청 보내기
-		String requestId = socketController.sendMessage(device.hubId(), message);
+		String requestId = SocketController.sendMessage(device.hubId(), message);
 		if (requestId == null) {
 			return false;
 		}
 
 		// 상태 응답 받기
 		try {
-			String responseMessage = socketController.getMessage(device.hubId(), requestId);
+			String responseMessage = SocketController.getMessage(device.hubId(), requestId);
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode responseJson = objectMapper.readTree(responseMessage);
 			int state = responseJson.get("data").get("state").asInt();
