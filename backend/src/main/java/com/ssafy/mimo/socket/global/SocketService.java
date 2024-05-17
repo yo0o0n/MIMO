@@ -11,6 +11,7 @@ import com.ssafy.mimo.domain.light.service.LightService;
 import com.ssafy.mimo.domain.window.service.WindowService;
 import com.ssafy.mimo.socket.global.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ public class SocketService {
     private final LampService lampService;
     private final WindowService windowService;
     private final CurtainService curtainService;
+    private final SocketController socketController;
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
     public Long getHubId(HubConnectionRequestDto hubConnectionRequestDto) {
         try {
             String serialNumber = hubConnectionRequestDto.getHubSerialNumber();
@@ -32,10 +35,10 @@ public class SocketService {
             if (hub != null && hubService.isValidHub(hub)) {  // 등록된 허브인지 확인
                 return hub.getId();  // 등록된 시리얼 넘버에 대한 허브 ID 반환
             } else {
-                System.out.println("Unregistered or invalid serial number: " + serialNumber);
+                log.warn("Invalid hub serial number: {}", serialNumber);
             }
         } catch (Exception e) {
-            System.out.println("Error processing the serial number: " + e.getMessage());
+            log.error("Error while getting the hub ID: {}", e.getMessage());
         }
         return null;  // 등록되지 않은 경우나 오류 발생 시 null 반환
     }
@@ -111,7 +114,7 @@ public class SocketService {
                     return null;
             }
         } catch (Exception e) {
-            System.out.println("Error while processing the request: " + e.getMessage());
+            log.error("Error while handling the request: {}", e.getMessage());
             return null;
         }
     }

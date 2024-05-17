@@ -2,36 +2,41 @@ package com.ssafy.mimo.socket.global;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
 @Getter
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class MessageWriter implements Runnable {
+    private final SocketController socketController;
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
     private Long hubId;
     private Socket socket;
     private BlockingQueue<String> messageQueue;
     @Override
     public void run() {
-        System.out.printf("MessageWriter %d started\n", hubId);
+        log.info("MessageWriter {}: Started", hubId);
         while (!socket.isClosed()) {
             try {
                 // Take the message from the queue
                 String message = messageQueue.take();
-                System.out.printf("MessageWriter %d: Sending message\n%s\n", hubId, message);
+                log.info("MessageWriter {}: Took message from the queue\n{}", hubId, message);
                 socket.getOutputStream().write(message.getBytes());
             } catch (InterruptedException e) {
                 // Error while taking the message
-                System.out.printf("MessageWriter %d: Error while taking the message\n%s\n", hubId, e.getMessage());
+                log.error("MessageWriter {}: Error while taking the message from queue\n{}", hubId, e.getMessage());
                 break;
             } catch (Exception e) {
                 // Error while writing the message
-                System.out.printf("MessageWriter %d: Error while writing the message\n%s\n", hubId, e.getMessage());
+                log.error("MessageWriter {}: Error while writing the message\n{}", hubId, e.getMessage());
                 break;
             }
         }
-        System.out.printf("MessageWriter %d: Stopped\n", hubId);
+        log.info("MessageWriter {}: Stopped", hubId);
     }
     // Send a message to the hub through the message queue
     public boolean enqueueMessage(String message) {

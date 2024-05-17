@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommonService {
@@ -20,6 +22,7 @@ public class CommonService {
     private final LampService lampService;
     private final CurtainService curtainService;
     private final WindowService windowService;
+    private final SocketController socketController;
     @Transactional
     public String controlDevice(ManualControlRequestDto manualControlRequestDto) {
         String type = manualControlRequestDto.getType();
@@ -55,8 +58,15 @@ public class CommonService {
                     lampService.setLampCurColor(deviceId, color);
                 }
             }
-            MessageWriter writer = SocketController.getMessageWriters().get(hub.getId());
-            writer.enqueueMessage(manualControlRequestDto.toString());
+//            MessageWriter writer = SocketController.getMessageWriters().get(hub.getId());
+//            writer.enqueueMessage(manualControlRequestDto.toString());
+            String rid = socketController.sendMessage(hub.getId(), manualControlRequestDto.toString());
+            if (rid != null) {
+                List<String> rids = SocketController.getRequestIds().get(hub.getId());
+                if (rids != null)
+                    SocketController.getRequestIds().get(hub.getId()).remove(rid);
+                SocketController.getReceivedMessages().remove(rid);
+            }
         } catch (Exception e) {
             return "허브와 연결할 수 없습니다. 허브 연결을 확인해 주세요.";
         }

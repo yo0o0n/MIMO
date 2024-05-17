@@ -6,6 +6,7 @@ import com.ssafy.mimo.socket.global.dto.HubConnectionRequestDto;
 import com.ssafy.mimo.socket.global.dto.HubConnectionResponseDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class SocketController {
     private final SocketService socketService;
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
     private static ConcurrentHashMap<Long, Socket> connections;
     @Getter
     private static ConcurrentHashMap<String, String> receivedMessages;
@@ -65,7 +67,7 @@ public class SocketController {
                         socket.close();
                         continue;
                     }
-                    System.out.printf("Socket Controller: Connected hub %d\n", hubId);
+                    log.info("Connected hub {}", hubId);
                     List<String> idList = new ArrayList<>();
                     requestIds.put(hubId, idList);
                     // Add the connection to the map
@@ -86,21 +88,17 @@ public class SocketController {
                             .build();
                     socket.getOutputStream().write(objectMapper.writeValueAsString(response).getBytes());
                 } else {
-                    System.out.println("Socket Controller: Invalid connection request");
+                    log.info("Invalid connection request: {}", req);
                     socket.close();
                 }
             }
         } catch (IOException e) {
-            System.out.printf("Socket Controller: Error starting the server socket\n%s\n", e.getMessage());
+            log.info("Error starting the server: {}", e.getMessage());
         }
     }
-    // 허브 ID에 따라 소켓 반환
-    public static Socket getSocket(Long hubId) {
-        return connections.get(hubId);
-    }
     // Close the connection with the hub
-    public static void closeConnection(Long hubId) {
-        System.out.println("Removing connection with hub " + hubId);
+    public void closeConnection(Long hubId) {
+        log.info("Closing connection with hub {}", hubId);
         // Remove all the data related to the hub
         messageWriters.remove(hubId);
         List<String> idList = requestIds.get(hubId);
@@ -121,14 +119,12 @@ public class SocketController {
                 socket.close();
             }
         } catch (IOException e) {
-            System.out.println("Error closing the connection with hub " + hubId + ": " + e.getMessage());
+            log.error("Error closing the connection with hub {}: {}", hubId, e.getMessage());
         }
-        System.out.println("Connection with hub " + hubId + " removed");
-        System.out.println("Current received messages:");
-        System.out.println(receivedMessages);
+        log.info("Connection with hub {} removed", hubId);
     }
     // Get message
-    public static String getMessage(Long hubId, String requestId) {
+    public String getMessage(Long hubId, String requestId) {
         if (requestId == null) {
             return null;
         }
@@ -148,12 +144,12 @@ public class SocketController {
         } catch (Exception e) {
             // If the timeout expires, remove the future from the map and rethrow the exception
             futureReceivedMessages.remove(requestId);
-            System.out.println("Error while getting the message: " + e.getMessage());
+            log.error("Error while getting the message: {}", e.getMessage());
             return null;
         }
     }
     // Send message
-    public static String sendMessage(Long hubId, String message) {
+    public String sendMessage(Long hubId, String message) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode messageNode = objectMapper.readValue(message, ObjectNode.class);
@@ -168,7 +164,7 @@ public class SocketController {
             }
             return null;
         } catch (IOException e) {
-            System.out.println("Error parsing the message: " + e.getMessage());
+            log.error("Error while sending the message: {}", e.getMessage());
             return null;
         }
     }
