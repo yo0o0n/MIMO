@@ -4,8 +4,8 @@ services:
         image: mimo_dev
         container_name: mimo_dev
         ports:
-            - "127.0.0.1:${DEV_API_PORT}:8080"
-            - "127.0.0.1:${DEV_SOCKET_PORT}:65432"
+            - "${DEV_API_PORT}:8080"
+            - "${DEV_SOCKET_PORT}:65432"
         networks:
             - network_dev
         environment:
@@ -18,8 +18,8 @@ services:
         image: mimo_green
         container_name: mimo_green
         ports:
-            - "127.0.0.1:${GREEN_API_PORT}:8080"
-            - "127.0.0.1:${GREEN_SOCKET_PORT}:65432"
+            - "${GREEN_API_PORT}:8080"
+            - "${GREEN_SOCKET_PORT}:65432"
         networks:
             - network_ops
         environment:
@@ -32,8 +32,8 @@ services:
         image: mimo_blue
         container_name: mimo_blue
         ports:
-            - "127.0.0.1:${BLUE_API_PORT}:8080"
-            - "127.0.0.1:${BLUE_SOCKET_PORT}:65432"
+            - "${BLUE_API_PORT}:8080"
+            - "${BLUE_SOCKET_PORT}:65432"
         networks:
             - network_ops
         environment:
