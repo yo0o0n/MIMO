@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
@@ -53,7 +54,11 @@ public class MessageReader implements Runnable {
                 ObjectNode messageNode = (ObjectNode) json_message;
                 messageNode.remove("requestId");
                 messages.put(requestId, messageNode.toString());
-                SocketController.getFutureReceivedMessages().get(requestId).complete(messageNode.toString());
+                // Complete the future
+                CompletableFuture<String> future = SocketController.getFutureReceivedMessages().get(requestId);
+                if (future != null) {
+                    future.complete(messageNode.toString());
+                }
                 // Log messages
                 System.out.printf("MessageReader: Current receivedMessages:\n%s\n", SocketController.getReceivedMessages());
             }
