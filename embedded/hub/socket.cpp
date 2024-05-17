@@ -68,7 +68,8 @@ void recv_msg(){
 				cnt--;
 				if(cnt == 0){
 					char buf_cpy[BUF_SIZE] = {0,};
-					strncpy(buf_cpy, buf_cur_recv + before, i + 1);
+					int copy_len = i - before + 1;
+					strncpy(buf_cpy, buf_cur_recv + before, copy_len);
 					buf_recv += buf_cpy;
 
 					std::lock_guard<std::mutex> lk(mtx_read);	// get read mutex
