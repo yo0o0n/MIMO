@@ -124,7 +124,6 @@ public class SocketController {
             System.out.println("Error closing the connection with hub " + hubId + ": " + e.getMessage());
         }
         System.out.println("Connection with hub " + hubId + " removed");
-        // Log the current received messages
         System.out.println("Current received messages:");
         System.out.println(receivedMessages);
     }
@@ -133,11 +132,9 @@ public class SocketController {
         if (requestId == null) {
             return null;
         }
-//         Check if the message is already present
         String message = receivedMessages.get(requestId);
-        if (message != null) {
+        if (message != null)
             return receivedMessages.remove(requestId);
-        }
         // If the message is not present, create a CompletableFuture and put it in the futureMap
         CompletableFuture<String> future = new CompletableFuture<>();
         futureReceivedMessages.put(requestId, future);
@@ -162,18 +159,11 @@ public class SocketController {
             ObjectNode messageNode = objectMapper.readValue(message, ObjectNode.class);
             String requestId = UUID.randomUUID().toString();
             messageNode.put("requestId", requestId);
-            System.out.printf("SocketController: Sending message to hub %d\n%s\n", hubId, messageNode);
             MessageWriter messageWriter = messageWriters.get(hubId);
             if (messageWriter != null && messageWriter.enqueueMessage(messageNode.toString())) {
                 // Add the request ID to the list
-                if (requestIds.get(hubId) == null)
-                    requestIds.put(hubId, new ArrayList<>());
+                requestIds.computeIfAbsent(hubId, v -> new ArrayList<>());
                 requestIds.get(hubId).add(requestId);
-//                CompletableFuture<String> future = futureReceivedMessages.remove(requestId);
-//                if (future != null) {
-//                    future.complete(messageNode.toString());
-//                }
-//                System.out.println(receivedMessages);
                 return requestId;
             }
             return null;
