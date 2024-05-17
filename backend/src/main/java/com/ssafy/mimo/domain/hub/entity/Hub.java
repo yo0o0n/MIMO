@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -45,4 +46,21 @@ public class Hub extends BaseUnregisterableEntity {
 
     @OneToMany(mappedBy = "hub")
     private List<Curtain> curtain;
+
+    public List<String> getDevices() {
+        List<String> devices = new ArrayList<>();
+        if (!lamp.isEmpty()) {
+            devices.add("lamp");
+        }
+        if (!light.isEmpty()) {
+            devices.add("light");
+        }
+        if (!slidingWindow.isEmpty()) {
+            devices.add("window");
+        }
+        if (!curtain.isEmpty()) {
+            devices.add("curtain");
+        }
+        return devices;
+    }
 }

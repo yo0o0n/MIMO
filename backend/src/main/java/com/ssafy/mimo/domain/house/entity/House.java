@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -31,4 +32,12 @@ public class House extends BaseDeletableEntity {
 
     @OneToMany(mappedBy = "house")
     private List<Hub> hub;
+
+    public List<String> getDevices() {
+        List<String> devices = new ArrayList<>();
+        for (Hub hub : this.hub) {
+            devices.addAll(hub.getDevices());
+        }
+        return devices;
+    }
 }
