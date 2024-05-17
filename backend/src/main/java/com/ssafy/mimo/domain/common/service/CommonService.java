@@ -7,6 +7,7 @@ import com.ssafy.mimo.domain.hub.entity.Hub;
 import com.ssafy.mimo.domain.lamp.service.LampService;
 import com.ssafy.mimo.domain.light.service.LightService;
 import com.ssafy.mimo.domain.window.service.WindowService;
+import com.ssafy.mimo.socket.global.MessageWriter;
 import com.ssafy.mimo.socket.global.SocketController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,7 +55,8 @@ public class CommonService {
                     lampService.setLampCurColor(deviceId, color);
                 }
             }
-            SocketController.sendMessage(hub.getId(), manualControlRequestDto.toString());
+            MessageWriter writer = SocketController.getMessageWriters().get(hub.getId());
+            writer.enqueueMessage(manualControlRequestDto.toString());
         } catch (Exception e) {
             return "허브와 연결할 수 없습니다. 허브 연결을 확인해 주세요.";
         }
