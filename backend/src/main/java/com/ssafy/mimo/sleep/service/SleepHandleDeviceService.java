@@ -75,7 +75,14 @@ public class SleepHandleDeviceService {
 		devices.stream()
 			.filter(device -> device.userId().equals(userId))
 			.forEach(deviceHandlerService::handleOnWakeUp);
-		return;
+
+		// 유저의 기상상태 저장하기
+		SleepData sleepData = SleepData.builder()
+			.user(user)
+			.sleepLevel(AWAKE.getValue())
+			.build();
+		sleepDataRepository.save(sleepData);
+
 	}
 
 	// 밤에 핸드폰 동작 시 실행되는 메서드 (무드등 켜주기)
