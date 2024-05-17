@@ -1,7 +1,7 @@
 services:
     db_dev:
         build: .
-        image: db_dev
+        image: db_dev_img
         container_name: db_dev
         env_file:
             - .env
@@ -20,6 +20,5 @@ volumes:
 
 networks:
     network:
-        name: mimo_dev-network
+        name: mimo-network
         external: true
-

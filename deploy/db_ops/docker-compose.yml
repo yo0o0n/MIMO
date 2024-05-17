@@ -1,7 +1,7 @@
 services:
     db_ops:
         build: .
-        image: db_ops
+        image: db_ops_img
         container_name: db_ops
         env_file:
             - .env
@@ -20,6 +20,5 @@ volumes:
 
 networks:
     network:
-        name: mimo_ops-network
+        name: mimo-network
         external: true
-

@@ -30,6 +30,7 @@ envsubst '\
     $JENKINS_PORT,\
     $BLUE_WEIGHT,\
     $GREEN_WEIGHT,\
+    $API_PORT,\
     $DEV_API_PORT,\
     $OPS_API_PORT,\
     $GREEN_API_PORT,\
@@ -42,6 +43,7 @@ envsubst '\
     $SERVER_DOMAIN,\
     $BLUE_WEIGHT,\
     $GREEN_WEIGHT,\
+    $SOCKET_PORT,\
     $DEV_SOCKET_PORT_OUT,\
     $DEV_SOCKET_PORT,\
     $OPS_SOCKET_PORT_OUT,\

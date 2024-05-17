@@ -1,6 +1,6 @@
 upstream api_server {
-    server ${SERVER_DOMAIN}:${BLUE_API_PORT} ${BLUE_WEIGHT}; # Blue
-    server ${SERVER_DOMAIN}:${GREEN_API_PORT} ${GREEN_WEIGHT}; # Green
+    server mimo_green:${API_PORT} ${GREEN_WEIGHT}; # Green
+    server mimo_blue:${API_PORT} ${BLUE_WEIGHT}; # Blue
 }
 
 server {
@@ -25,23 +25,23 @@ server {
 
     location /dev/swagger-ui {
         rewrite ^/dev(/.*) $1 break;
-        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+        proxy_pass http://mimo_dev:${API_PORT};
     }
     
     location /api/check/blue {
-        proxy_pass http://${SERVER_DOMAIN}:${BLUE_API_PORT}/api/check;
+        proxy_pass http://mimo_blue:${API_PORT}/api/check;
     }
 
     location /api/check/green {
-        proxy_pass http://${SERVER_DOMAIN}:${GREEN_API_PORT}/api/check;
+        proxy_pass http://mimo_green:${API_PORT}/api/check;
     }
 
     location /api/check/dev {
-        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT}/api/check;
+        proxy_pass http://mimo_dev:${API_PORT}/api/check;
     }
 
     location /v3 {
-        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+        proxy_pass http://mimo_dev:${API_PORT};
     }
 
     location /api {
@@ -50,7 +50,7 @@ server {
 
     location /dev/api {
         rewrite ^/dev(/api/.*) $1 break;
-        proxy_pass http://${SERVER_DOMAIN}:${DEV_API_PORT};
+        proxy_pass http://mimo_dev:${API_PORT};
     }
 
     location /jenkins {
