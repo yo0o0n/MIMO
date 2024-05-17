@@ -29,7 +29,7 @@ RUN apt-get update
 RUN apt-get install -y docker-ce \
                        docker-ce-cli \
                        containerd.io
-RUN apt-get clean && rm -rf /var/lib/lists/*
+RUN apt-get clean && rm -rf '/var/lib/lists/*'
 
 RUN curl -sO https://k10a204.p.ssafy.io/jenkins/jnlpJars/agent.jar
 USER jenkins
