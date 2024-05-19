@@ -7,19 +7,19 @@ bool socket_status = false;
 // connect socket to server
 void set_socket(){
 	while(true){
-	// socket create
-	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
-	if(serv_sock == -1){
-		error_handling("socket() error");
-	}
+		// socket create
+		serv_sock = socket(PF_INET, SOCK_STREAM, 0);
+		if(serv_sock == -1){
+			error_handling("socket() error");
+		}
 
-	struct sockaddr_in serv_addr;
-	memset(&serv_addr, 0, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-//	serv_addr.sin_port = htons(atoi("65432"));			// server port
-	serv_addr.sin_port = htons(atoi("65431"));			// develop server port
-	serv_addr.sin_addr.s_addr = inet_addr("43.203.239.150");	// server ip
-//	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");			// localhost server ip
+		struct sockaddr_in serv_addr;
+		memset(&serv_addr, 0, sizeof(serv_addr));
+		serv_addr.sin_family = AF_INET;
+//		serv_addr.sin_port = htons(atoi("65432"));			// server port
+		serv_addr.sin_port = htons(atoi("65431"));			// develop server port
+		serv_addr.sin_addr.s_addr = inet_addr("43.203.239.150");	// server ip
+//		serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");			// localhost server ip
 
 		// connect server
 		if(connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1){
@@ -82,7 +82,6 @@ void recv_msg(){
 
 					std::lock_guard<std::mutex> lk(mtx_read);	// get read mutex
 					parse_json(buf_recv);		// parse json data
-					std::cout << "test\n";
 					cv_read.notify_all();		// notify wait read mutex
 					// unlock read mutex
 
@@ -260,7 +259,7 @@ void make_json(std::string &str_send){
 				root["type"] = "light";
 				root["lightId"] = cur_request.id;
 				if(data["requestName"].get<std::string>().compare("setWakeupColor") == 0){
-					data["time"] = 5;
+					data["time"] = 10;
 				}
 				root["data"] = data;
 				break;
@@ -268,7 +267,7 @@ void make_json(std::string &str_send){
 				root["type"] = "lamp";
 				root["lampId"] = cur_request.id;
 				if(data["requestName"].get<std::string>().compare("setWakeupColor") == 0){
-					data["time"] = 5;
+					data["time"] = 10;
 				}
 				root["data"] = data;
 				break;
