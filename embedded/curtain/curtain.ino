@@ -43,6 +43,8 @@ int black_pin2 = 19;
 int state = 0;
 
 int loop_cond = 0;
+int dir = 0;
+unsigned long start_time = 0ul;
 unsigned long end_time = 0ul;
 
 // See the following for generating UUIDs:
@@ -70,6 +72,20 @@ void loopfunc(){
     digitalWrite(red_pin2, LOW);
     digitalWrite(black_pin2, LOW);
     loop_cond = 0;
+    
+    int diff_state = (end_time-start_time)*100/total_time;
+    if(dir){
+      state += diff_state;
+    }
+    else{
+      state -= diff_state;
+    }
+    if(state > 100){
+      state = 100;
+    }
+    if(state < 0){
+      state = 0;
+    }
   }
 }
 
@@ -98,10 +114,27 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       }
       else{
         if(request_name.compare("setState") == 0){
+          unsigned long cur_time = millis();
+          if(end_time > cur_time){
+            int diff_state = (cur_time - start_time)*100/total_time;
+            if(dir){
+              state += diff_state;
+            }
+            else{
+              state -= diff_state;
+            }
+            if(state > 100){
+              state = 100;
+            }
+            if(state < 0){
+              state = 0;
+            }
+          }
+          
           int new_state = root["state"];
-          unsigned long cur_time = 0ul;
-
+          start_time = cur_time;
           if(new_state > state){
+            dir = 1;
             digitalWrite(red_pin1, LOW);
             digitalWrite(black_pin1, HIGH);
             digitalWrite(red_pin2, LOW);
@@ -109,6 +142,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
             cur_time = total_time * (new_state - state) / 100;
           }
           else if(new_state < state){
+            dir = 0;
             digitalWrite(red_pin1, HIGH);
             digitalWrite(black_pin1, LOW);
             digitalWrite(red_pin2, HIGH);
@@ -117,8 +151,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           };
           end_time = millis() + cur_time;
           loop_cond = 1;
-
-          state = new_state;
         }
         else if(request_name.compare("getState") == 0){
           root["state"] = state;
@@ -221,9 +253,9 @@ void loop() {
         digitalWrite(black_pin1, LOW);
         digitalWrite(red_pin2, HIGH);
         digitalWrite(black_pin2, LOW);
-        end_time = millis() + 31000;
+        start_time = millis();
+        end_time = start_time + 31000;
         loop_cond = 1;
-
-        state = 0;
+        dir = 0;
     }
 }
