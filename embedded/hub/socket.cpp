@@ -16,8 +16,8 @@ void set_socket(){
 		struct sockaddr_in serv_addr;
 		memset(&serv_addr, 0, sizeof(serv_addr));
 		serv_addr.sin_family = AF_INET;
-//		serv_addr.sin_port = htons(atoi("65432"));			// server port
-		serv_addr.sin_port = htons(atoi("65431"));			// develop server port
+		serv_addr.sin_port = htons(atoi("65432"));			// server port
+//		serv_addr.sin_port = htons(atoi("65431"));			// develop server port
 		serv_addr.sin_addr.s_addr = inet_addr("43.203.239.150");	// server ip
 //		serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");			// localhost server ip
 
