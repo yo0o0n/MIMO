@@ -18,7 +18,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.agent
-        entrypoint: sh -c "java -jar agent.jar -url https://k10a204.p.ssafy.io/jenkins/ -secret ${JENKINS_AGENT_SECRET} -name agent -workDir '/home/jenkins'"
+        entrypoint: sh -c "java -jar agent.jar -url ${JENKINS_URL} -secret ${JENKINS_AGENT_SECRET} -name agent -workDir '/home/jenkins'"
         image: jenkins_agent_img
         container_name: jenkins_agent
         env_file:
