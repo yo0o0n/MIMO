@@ -70,6 +70,7 @@ pipeline {
                     } else {
                         echo "No need to test"
                     }
+                    sh "docker exec nginx nginx -s reload"
                 }
             }
         }

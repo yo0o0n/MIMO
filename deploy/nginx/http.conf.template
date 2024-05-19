@@ -54,7 +54,7 @@ server {
     }
 
     location /jenkins {
-        proxy_pass http://${SERVER_DOMAIN}:${JENKINS_PORT};
+        proxy_pass http://jenkins_master:${JENKINS_PORT};
     }
 
     location / {
