@@ -9,7 +9,7 @@ services:
             - "MYSQL_URL=${DEV_MYSQL_URL}"
             - "MYSQL_USERNAME=${DEV_MYSQL_USERNAME}"
             - "MYSQL_PASSWORD=${DEV_MYSQL_PASSWORD}"
-            - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+            - "JWT_SECRET_KEY=${JWT_SECRET_KEY_DEV}"
     green:
         build: .
         image: mimo_green_img
@@ -20,7 +20,7 @@ services:
             - "MYSQL_URL=${OPS_MYSQL_URL}"
             - "MYSQL_USERNAME=${OPS_MYSQL_USERNAME}"
             - "MYSQL_PASSWORD=${OPS_MYSQL_PASSWORD}"
-            - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+            - "JWT_SECRET_KEY=${JWT_SECRET_KEY_OPS}"
     blue:
         build: .
         image: mimo_blue_img
@@ -31,7 +31,7 @@ services:
             - "MYSQL_URL=${OPS_MYSQL_URL}"
             - "MYSQL_USERNAME=${OPS_MYSQL_USERNAME}"
             - "MYSQL_PASSWORD=${OPS_MYSQL_PASSWORD}"
-            - "JWT_SECRET_KEY=${JWT_SECRET_KEY}"
+            - "JWT_SECRET_KEY=${JWT_SECRET_KEY_OPS}"
 
 networks:
     mimo:
