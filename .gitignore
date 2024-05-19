@@ -672,3 +672,4 @@ obj/
 # Nginx config files
 deploy/nginx/http.conf
 deploy/nginx/stream.conf
+.vscode/
