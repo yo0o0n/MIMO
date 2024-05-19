@@ -235,7 +235,7 @@ public class HouseService {
 				}
 
 				deviceDetailDto = DeviceDetailDto.builder()
-						.userId(device.getId())
+						.userId(device.getUser().getId())
 						.hubId(hubId)
 						.deviceId(device.getId())
 						.nickname(device.getNickname())
@@ -303,7 +303,7 @@ public class HouseService {
 		}
 
 		return DeviceDetailDto.builder()
-				.userId(device.getId())
+				.userId(device.getUser().getId())
 				.hubId(hubId)
 				.deviceId(device.getId())
 				.nickname(device.getNickname())
