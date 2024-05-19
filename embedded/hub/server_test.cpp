@@ -84,8 +84,8 @@ void send_msg(){
 		std::string str;
 		std::getline(std::cin, str);
 
-		std::string str_size = std::to_string(str.size());
-		write(clnt_sock, str_size.c_str(), str_size.size());
+//		std::string str_size = std::to_string(str.size());
+//		write(clnt_sock, str_size.c_str(), str_size.size());
 		write(clnt_sock, str.c_str(), str.size());
 	}
 }
