@@ -33,12 +33,19 @@ uint8_t txValue = 0;
 
 int total_time = 30000;
 
+int driver_pin1 = 16;
 int red_pin1 = 17;
 int black_pin1 = 5;
+int driver_pin2 = 21;
 int red_pin2 = 18;
 int black_pin2 = 19;
 
 int state = 0;
+
+int loop_cond = 0;
+int dir = 0;
+unsigned long start_time = 0ul;
+unsigned long end_time = 0ul;
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -57,6 +64,30 @@ class MyServerCallbacks: public BLEServerCallbacks {
       deviceConnected = false;
     }
 };
+
+void loopfunc(){
+  if(millis() >= end_time){
+    digitalWrite(red_pin1, LOW);
+    digitalWrite(black_pin1, LOW);
+    digitalWrite(red_pin2, LOW);
+    digitalWrite(black_pin2, LOW);
+    loop_cond = 0;
+    
+    int diff_state = (end_time-start_time)*100/total_time;
+    if(dir){
+      state += diff_state;
+    }
+    else{
+      state -= diff_state;
+    }
+    if(state > 100){
+      state = 100;
+    }
+    if(state < 0){
+      state = 0;
+    }
+  }
+}
 
 class MyCallbacks: public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
@@ -83,10 +114,27 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       }
       else{
         if(request_name.compare("setState") == 0){
+          unsigned long cur_time = millis();
+          if(end_time > cur_time){
+            int diff_state = (cur_time - start_time)*100/total_time;
+            if(dir){
+              state += diff_state;
+            }
+            else{
+              state -= diff_state;
+            }
+            if(state > 100){
+              state = 100;
+            }
+            if(state < 0){
+              state = 0;
+            }
+          }
+          
           int new_state = root["state"];
-          int cur_time = 0;
-
+          start_time = cur_time;
           if(new_state > state){
+            dir = 1;
             digitalWrite(red_pin1, LOW);
             digitalWrite(black_pin1, HIGH);
             digitalWrite(red_pin2, LOW);
@@ -94,20 +142,15 @@ class MyCallbacks: public BLECharacteristicCallbacks {
             cur_time = total_time * (new_state - state) / 100;
           }
           else if(new_state < state){
+            dir = 0;
             digitalWrite(red_pin1, HIGH);
             digitalWrite(black_pin1, LOW);
             digitalWrite(red_pin2, HIGH);
             digitalWrite(black_pin2, LOW);
             cur_time = total_time * (state - new_state) / 100;
           };
-          delay(cur_time);
-
-          digitalWrite(red_pin1, LOW);
-          digitalWrite(black_pin1, LOW);
-          digitalWrite(red_pin2, LOW);
-          digitalWrite(black_pin2, LOW);
-
-          state = new_state;
+          end_time = millis() + cur_time;
+          loop_cond = 1;
         }
         else if(request_name.compare("getState") == 0){
           root["state"] = state;
@@ -158,27 +201,32 @@ void setup() {
   Serial.println("Waiting a client connection to notify...");
   
   // linear motor pin setting
+  pinMode(driver_pin1, OUTPUT);
   pinMode(red_pin1, OUTPUT);
   pinMode(black_pin1, OUTPUT);
+  pinMode(driver_pin2, OUTPUT);
   pinMode(red_pin2, OUTPUT);
   pinMode(black_pin2, OUTPUT);
 }
 
 void loop() {
   if (deviceConnected) {
-    if(Serial.available()){
-      String input = Serial.readString();
-      digitalWrite(red_pin1, HIGH);
-      digitalWrite(black_pin1, LOW);
-      delay(35000);
-      int degree = input.toInt();
-            digitalWrite(red_pin1, LOW);
-            digitalWrite(black_pin1, HIGH);
-            delay(degree);
-            digitalWrite(red_pin1, LOW);
-            digitalWrite(black_pin1, LOW);
-      // pTxCharacteristic->setValue((uint8_t*)input.c_str(), input.length());
-      // pTxCharacteristic->notify();
+    // if(Serial.available()){
+    //   String input = Serial.readString();
+    //   digitalWrite(red_pin1, HIGH);
+    //   digitalWrite(black_pin1, LOW);
+    //   delay(35000);
+    //   int degree = input.toInt();
+    //         digitalWrite(red_pin1, LOW);
+    //         digitalWrite(black_pin1, HIGH);
+    //         delay(degree);
+    //         digitalWrite(red_pin1, LOW);
+    //         digitalWrite(black_pin1, LOW);
+    //   // pTxCharacteristic->setValue((uint8_t*)input.c_str(), input.length());
+    //   // pTxCharacteristic->notify();
+    // }
+    if(loop_cond){
+      loopfunc();
     }
   }
 
@@ -188,6 +236,9 @@ void loop() {
         pServer->startAdvertising(); // restart advertising
         Serial.println("start advertising");
         oldDeviceConnected = deviceConnected;
+        digitalWrite(driver_pin1, LOW);
+        digitalWrite(driver_pin2, LOW);
+        loop_cond = 0;
     }
     // connecting
     if (deviceConnected && !oldDeviceConnected) {
@@ -195,15 +246,16 @@ void loop() {
         Serial.println("device connecting");
         oldDeviceConnected = deviceConnected;
         
+        digitalWrite(driver_pin1, HIGH);
+        digitalWrite(driver_pin2, HIGH);
+
         digitalWrite(red_pin1, HIGH);
         digitalWrite(black_pin1, LOW);
         digitalWrite(red_pin2, HIGH);
         digitalWrite(black_pin2, LOW);
-        delay(31000);
-        
-        digitalWrite(red_pin1, LOW);
-        digitalWrite(black_pin1, LOW);
-        digitalWrite(red_pin2, LOW);
-        digitalWrite(black_pin2, LOW);
+        start_time = millis();
+        end_time = start_time + 31000;
+        loop_cond = 1;
+        dir = 0;
     }
 }
