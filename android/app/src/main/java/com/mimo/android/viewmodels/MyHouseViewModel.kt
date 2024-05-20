@@ -1,9 +1,7 @@
 package com.mimo.android.viewmodels
 
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mimo.android.MainActivity
 import com.mimo.android.apis.houses.House
 import com.mimo.android.apis.houses.PostRegisterHouseRequest
 import com.mimo.android.apis.houses.PutChangeHouseNicknameRequest
@@ -32,12 +30,16 @@ class MyHouseViewModel: ViewModel() {
     }
 
     fun getCurrentHouse(
-        myHouseUiState: MyHouseUiState,
+        myHouseUiState: MyHouseUiState? = null,
     ): House? {
-        val house = myHouseUiState.houseList.find { house ->
-            house.isHome
+        if (myHouseUiState != null) {
+            val house = myHouseUiState.houseList.find { house ->
+                house.isHome
+            }
+            return house
         }
-        return house
+
+        return _uiState.value.houseList.find { house -> house.isHome }
     }
 
     fun getAnotherHouseList(
@@ -64,9 +66,10 @@ class MyHouseViewModel: ViewModel() {
                         showToast("집 목록을 불러오지 못했어요")
                         return@getHouseList
                     }
-                    _uiState.update { prevState ->
-                        prevState.copy(houseList = houses)
-                    }
+                    _uiState.value = MyHouseUiState(
+                        houseList = houses,
+                        loading = false
+                    )
                 },
                 onFailureCallback = {
                     showToast("집 목록을 불러오지 못했어요")
@@ -138,5 +141,6 @@ class MyHouseViewModel: ViewModel() {
 }
 
 data class MyHouseUiState(
-    val houseList: List<House> = mutableListOf()
+    val houseList: List<House> = mutableListOf(),
+    val loading: Boolean = true
 )
