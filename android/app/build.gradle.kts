@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+
+    // firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -101,4 +104,15 @@ dependencies {
 
     // workmanager
     implementation("androidx.work:work-runtime-ktx:2.7.1")
+
+    // firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-analytics")
+
+    // 음악
+    implementation("androidx.compose.runtime:runtime-livedata:1.0.0")
+
+    // 차트
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

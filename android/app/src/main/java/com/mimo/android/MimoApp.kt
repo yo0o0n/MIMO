@@ -30,9 +30,9 @@ import com.mimo.android.viewmodels.FirstSettingFunnelsViewModel
 import com.mimo.android.viewmodels.QrCodeViewModel
 import com.mimo.android.viewmodels.UserLocation
 import com.mimo.android.services.health.HealthConnectManager
-import com.mimo.android.screens.*
-import com.mimo.android.screens.firstsettingfunnels.*
-import com.mimo.android.screens.login.LoginScreen
+import com.mimo.android.views.*
+import com.mimo.android.views.firstsettingfunnels.*
+import com.mimo.android.views.login.LoginScreen
 import com.mimo.android.services.kakao.loginWithKakao
 import com.mimo.android.ui.theme.Teal900
 import com.mimo.android.viewmodels.MyHouseCurtainViewModel
@@ -43,6 +43,7 @@ import com.mimo.android.viewmodels.MyHouseLightViewModel
 import com.mimo.android.viewmodels.MyHouseViewModel
 import com.mimo.android.viewmodels.MyHouseWindowViewModel
 import com.mimo.android.viewmodels.MyProfileViewModel
+import com.mimo.android.viewmodels.SleepViewModel
 
 private const val TAG = "MimoApp"
 
@@ -68,7 +69,8 @@ fun MimoApp(
     myHouseCurtainViewModel: MyHouseCurtainViewModel,
     myHouseLampViewModel: MyHouseLampViewModel,
     myHouseLightViewModel: MyHouseLightViewModel,
-    myHouseWindowViewModel: MyHouseWindowViewModel
+    myHouseWindowViewModel: MyHouseWindowViewModel,
+    sleepViewModel: SleepViewModel
     ){
     MaterialTheme {
         val scaffoldState = rememberScaffoldState()
@@ -80,54 +82,12 @@ fun MimoApp(
 
         val authUiState by authViewModel.uiState.collectAsState()
         val firstSettingFunnelsUiState by firstSettingFunnelsViewModel.uiState.collectAsState()
-
-        // TODO: 실제 kakao-login 구현
-        fun handleLoginWithKakao(){
-            loginWithKakao(
-                context = context,
-                onSuccessCallback = { oauthToken ->
-                    Log.i(TAG, "kakao accessToken=${oauthToken.accessToken}")
-                    postAccessToken(
-                        accessToken = oauthToken.accessToken,
-                        onSuccessCallback = { data ->
-                            if (data == null) {
-                                Log.e(TAG, "데이터가 없음...")
-                                return@postAccessToken
-                            }
-                            Log.i(TAG, "우리 토큰 받아오기 성공!!!! ${data.accessToken}")
-                            authViewModel.login(
-                                accessToken = data.accessToken,
-                                firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
-                            )
-                            Toast.makeText(
-                                context,
-                                "로그인 되었습니다.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        onFailureCallback = {
-                            Toast.makeText(
-                                context,
-                                "다시 로그인 해주세요.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    )
-                },
-                onFailureCallback = {
-                    Toast.makeText(
-                        context,
-                        "카카오 로그인 실패",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
-        }
+        val sleepUiState by sleepViewModel.uiState.collectAsState()
 
         val activeSleep = currentRoute?.contains("Sleep") ?: false
         androidx.compose.material.Scaffold(
             bottomBar = {
-                if (authUiState.user != null && firstSettingFunnelsUiState.currentStepId == null) {
+                if (authUiState.user != null && firstSettingFunnelsUiState.currentStepId == null && sleepUiState.wakeupTime == null) {
                     com.mimo.android.components.navigation.Navigation(
                         navController = navController,
                         currentRoute = currentRoute
@@ -135,21 +95,26 @@ fun MimoApp(
                 }
             },
             floatingActionButton = {
-                if (authUiState.user != null && firstSettingFunnelsUiState.currentStepId == null && isShowNavigation(currentRoute)) {
+                if (authUiState.user != null && firstSettingFunnelsUiState.currentStepId == null && isShowNavigation(currentRoute) && sleepUiState.wakeupTime == null) {
                     androidx.compose.material.FloatingActionButton(
                         onClick = { /*TODO*/ },
                         contentColor = getColor(activeSleep),
                         backgroundColor = Teal900,
-                        modifier = Modifier.width(80.dp).height(80.dp)
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(80.dp)
                     ) {
                         androidx.compose.material.Icon(
                             imageVector = MyIconPack.MoonStarsFillIcon185549,
                             contentDescription = null,
-                            modifier = Modifier.height(45.dp).width(45.dp).clickable {
-                                navController.navigate(SleepScreenDestination.route) {
-                                    popUpTo(0)
+                            modifier = Modifier
+                                .height(45.dp)
+                                .width(45.dp)
+                                .clickable {
+                                    navController.navigate(SleepScreenDestination.route) {
+                                        popUpTo(0)
+                                    }
                                 }
-                            }
                         )
                     }
                 }
@@ -173,7 +138,8 @@ fun MimoApp(
 
                     if (authUiState.accessToken == null) {
                         LoginScreen(
-                            onLoginWithKakao = ::handleLoginWithKakao
+                            authViewModel = authViewModel,
+                            firstSettingFunnelsViewModel = firstSettingFunnelsViewModel
                         )
                         return@BackgroundImage
                     }
@@ -198,6 +164,7 @@ fun MimoApp(
                             myHouseLampViewModel = myHouseLampViewModel,
                             myHouseLightViewModel = myHouseLightViewModel,
                             myHouseWindowViewModel = myHouseWindowViewModel,
+                            sleepViewModel = sleepViewModel
                         )
                     }
                 }
