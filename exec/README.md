@@ -217,6 +217,9 @@
         - Web: Nginx를 통해 다운로드 링크를 포함한 html 파일 서빙
 - ## Embedded
     - ### 쉘 스크립트 실행
+        - cd embedded/hub
+        - sh make.sh        // 빌드 환경 조성
+        - sh execute.sh     // 실행
 # 5. Presentation scenario
 ### 초기 설정
 - 계정 생성 후 해당 계정으로 미리 집과 허브, 기기를 등록
