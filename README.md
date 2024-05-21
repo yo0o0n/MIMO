@@ -79,136 +79,18 @@
 <table>
   <tr>
     <td align="center">
-      <img src="/assets/1.png" alt="로그인 화면" />
+      <img src="/assets/1.png" alt="첫번째 영상" />
     </td>
     <td align="center">
-      <img src="/assets/초기 설정 화면.png" alt="초기 설정 화면" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>로그인 화면</b>
-    </td>
-    <td align="center">
-      <b>초기 설정 화면</b>
+      <img src="./assets/Initial_setting_page.jpg" alt="두번째 영상" />
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="/img/3.png" alt="" />
+      <b>첫번째 영상</b>
     </td>
     <td align="center">
-      <img src="/img/4.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>테스트 화면</b>
-    </td>
-    <td align="center">
-      <b>테스트 화면</b><br>
-      <b>(음성이 제대로 인식되지 않는 경우)</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="/img/5.png" alt="" />
-    </td>
-    <td align="center">
-      <img src="/img/6.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>테스트 결과 화면</b><br>
-      <b>(결과 자세히 보기 클릭)</b>
-    </td>
-    <td align="center">
-      <b>결과 자세히 보기 창</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="/img/7.png" alt="" />
-    </td>
-    <td align="center">
-      <img src="/img/8.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>테스트 결과 화면</b><br>
-      <b>(추천 노래 살펴보기 클릭)</b>
-    </td>
-    <td align="center">
-      <b>추천 노래 목록 화면</b><br>
-      <b>(원하는 노래의 앨범 커버 이미지 클릭)</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="/img/9.png" alt="" />
-    </td>
-    <td align="center">
-      <img src="/img/10.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>모드 선택 화면 </b><br>
-      <b>(튜토리얼 모드 클릭)</b>
-    </td>
-    <td align="center">
-      <b>튜토리얼 모드 화면</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="/img/11.png" alt="" />
-    </td>
-    <td align="center">
-      <img src="/img/12.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>모드 선택 화면</b><br>
-      <b>(실전 모드 클릭)</b>
-    </td>
-    <td align="center">
-      <b>실전 모드 화면</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="/img/13.png" alt="" />
-    </td>
-    <td align="center">
-      <img src="/img/14.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>결과 대기 화면</b>
-    </td>
-    <td align="center">
-      <b>실전 모드 결과 화면</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="/img/15.png" alt="" />
-    </td>
-    <td align="center">
-      <img src="/img/16.png" alt="" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>포스트 작성 화면</b>
-    </td>
-    <td align="center">
-      <b>피드 화면</b>
+      <b>두번째 영상</b>
     </td>
   </tr>
 </table>
@@ -216,13 +98,17 @@
 
 ### 🎥 시연 영상
 
-- 기상 시
-
 - 수면 시
+<img src="./assets/1.gif" />
+
+- 기상 시
+<img src="./assets/2.gif" />
 
 - 수면 전 핸드폰 사용 시
+<img src="./assets/3.gif" />
 
 - 실제로 기기 작동하는 영상
+<img src="./assets/4.gif" />
 
 
 ## 🌕 기술 스택
