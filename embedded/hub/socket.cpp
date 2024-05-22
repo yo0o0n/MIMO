@@ -258,17 +258,11 @@ void make_json(std::string &str_send){
 			case REQUEST_LIGHT:			// light
 				root["type"] = "light";
 				root["lightId"] = cur_request.id;
-				if(data["requestName"].get<std::string>().compare("setWakeupColor") == 0){
-					data["time"] = 10;
-				}
 				root["data"] = data;
 				break;
 			case REQUEST_LAMP:			// lamp
 				root["type"] = "lamp";
 				root["lampId"] = cur_request.id;
-				if(data["requestName"].get<std::string>().compare("setWakeupColor") == 0){
-					data["time"] = 10;
-				}
 				root["data"] = data;
 				break;
 			case REQUEST_WINDOW:		// window
