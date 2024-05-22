@@ -59,12 +59,12 @@
         g++="10.2.1"
         bluez="5.7.5"
         nlohmann/sh="3.11.3"
-        ArduinoIDE="2.2.1"
         ArduinoJson="7.0.4"
         ```
     - ### IDE
         ```sh
         vim="8.2"
+        ArduinoIDE="2.2.1"
         ```
 # 2. Environment Variables
 - ## Backend
