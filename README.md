@@ -87,6 +87,7 @@
   </tr>
   <tr>
     <td>
+    </br>
       <b>메인화면</b><br>
       <b>(우리 집 화면, 수면 설정 화면, 마이페이지)</b>
     </td>
@@ -98,6 +99,7 @@
   </tr>
   <tr>
     <td>
+    </br>
       <b>기기 조정 화면</b>
     </td>
   </tr>
@@ -108,6 +110,7 @@
   </tr>
   <tr>
     <td>
+    </br>
       <b>수면 설정 화면</b>
     </td>
   </tr>
@@ -118,6 +121,7 @@
   </tr>
   <tr>
     <td>
+    </br>
       <b>집 추가</b>
     </td>
   </tr>
@@ -128,6 +132,7 @@
   </tr>
   <tr>
     <td>
+    </br>
       <b>집 이름 바꾸기, 허브 목록 보기, 새로운 허브 추가하기</b>
     </td>
   </tr>
@@ -140,14 +145,40 @@
 
 ### 🎥 시연 영상
 
-- 수면 시
-  <img src="./assets/sm/Demonstration_video_sleeping.gif" />
-
-- 기상 시
-  <img src="./assets/sm/Demonstration_video_waking_up.gif"/>
-
-- 수면 전 핸드폰 사용 시
-  <img src="./assets/sm/Demonstration_video_using_phone.gif"/>
+<table>
+  <tr>
+    <td>
+      <b>수면 시</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="100%" src="./assets/sm/Demonstration_video_sleeping.gif" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </br>
+      <b>기상 시</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="100%" src="./assets/sm/Demonstration_video_waking_up.gif"/>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </br>
+      <b>수면 전 핸드폰 사용 시</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="100%" src="./assets/sm/Demonstration_video_using_phone.gif"/>
+    </td>
+  </tr>
+</table>
 
 ## 🌕 기술 스택
 
