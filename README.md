@@ -75,22 +75,67 @@
 ## 🌔 서비스 화면
 
 ### 📱 App 화면
-
 <table>
   <tr>
-    <td align="center">
-      <img src="/assets/1.png" alt="첫번째 영상" />
-    </td>
-    <td align="center">
-      <img src="./assets/Initial_setting_page.jpg" alt="두번째 영상" />
+    <td>
+      <b>초기 설정</b><br>
+      <b>(허브 등록 클릭 -> QR 스캔 -> QR 등록 후 메인화면 진입)</b>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <b>첫번째 영상</b>
+      <img src="./assets/fs_funnels.gif" alt="초기 설정" />
     </td>
+  </tr>
+  <tr>
+    <td>
+      <b>메인화면</b><br>
+      <b>(우리 집 화면, 수면 설정 화면, 마이페이지)</b>
+    </td>
+  </tr>
+  <tr>
     <td align="center">
-      <b>두번째 영상</b>
+      <img src="./assets/mains.gif" alt="메인화면" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>기기 조정 화면</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./assets/controls.gif" alt="기기 조정 화면" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>수면 설정 화면</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./assets/sleeps.gif" alt="수면 설정 화면" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>집 추가</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./assets/add_home.gif" alt="집 추가" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>집 이름 바꾸기, 허브 목록 보기, 새로운 허브 추가하기</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./assets/details.gif" alt="집, 허브" />
     </td>
   </tr>
 </table>
@@ -99,16 +144,13 @@
 ### 🎥 시연 영상
 
 - 수면 시
-<img src="./assets/1.gif" />
+<img src="./assets/Demonstration_video_sleeping.gif" />
 
 - 기상 시
-<img src="./assets/2.gif" />
+<img src="./assets/Demonstration_video_waking_up.gif"/>
 
 - 수면 전 핸드폰 사용 시
-<img src="./assets/3.gif" />
-
-- 실제로 기기 작동하는 영상
-<img src="./assets/4.gif" />
+<img src="./assets/Demonstration_video_using_phone.gif"/>
 
 
 ## 🌕 기술 스택
