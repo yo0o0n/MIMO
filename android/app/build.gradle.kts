@@ -19,12 +19,9 @@ android {
             useSupportLibrary = true
         }
 
-        val apiKey: String = rootProject.extra["API_KEY"] as String
-        buildConfigField("String", "API_KEY", "\"$apiKey\"")
-
         val kakaoAppKey: String = rootProject.extra["kakao_sdk_appkey"] as String
         buildConfigField("String", "kakao_sdk_appkey", "\"$kakaoAppKey\"")
-        manifestPlaceholders.put("kakao_sdk_appkey", "\"$kakaoAppKey\"")
+        manifestPlaceholders.put("kakao_sdk_appkey", kakaoAppKey)
     }
 
     buildTypes {

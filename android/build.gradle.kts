@@ -14,10 +14,8 @@ if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
 
-val apiKey: String = localProperties.getProperty("API_KEY", "")
 val kakaoSdkAppKey: String = localProperties.getProperty("kakao_sdk_appkey", "")
 
 allprojects {
-    extra["API_KEY"] = apiKey
     extra["kakao_sdk_appkey"] = kakaoSdkAppKey
 }
