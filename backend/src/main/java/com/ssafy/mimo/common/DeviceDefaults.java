@@ -12,8 +12,7 @@ public enum DeviceDefaults {
 	LAMP_CUR_COLOR("E0854D"),
 	CURTAIN_OPEN_DEGREE("100"),
 	WINDOW_OPEN_DEGREE("100"),
-	WAKEUP_TIME("07:00:00"),
-	NIGHT_START_HOUR("9"),
+	NIGHT_START_HOUR("18"),
 	NIGHT_END_HOUR("3");
 
 	private final String value;
