@@ -141,13 +141,13 @@
 ### 🎥 시연 영상
 
 - 수면 시
-  <img src="./assets/Demonstration_video_sleeping.gif" />
+  <img src="./assets/sm/Demonstration_video_sleeping.gif" />
 
 - 기상 시
-  <img src="./assets/Demonstration_video_waking_up.gif"/>
+  <img src="./assets/sm/Demonstration_video_waking_up.gif"/>
 
 - 수면 전 핸드폰 사용 시
-  <img src="./assets/Demonstration_video_using_phone.gif"/>
+  <img src="./assets/sm/Demonstration_video_using_phone.gif"/>
 
 ## 🌕 기술 스택
 
